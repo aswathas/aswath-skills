@@ -1,71 +1,69 @@
 ---
 name: aswath-token-evaluator
-description: Use when the user asks how many tokens a session used, what the context was spent on, how much was saved, whether the token guard is working, or wants a statistics report after a session. Produces a per-session table, a cause breakdown, measured savings from blocked reads, counterfactual savings from repeat reads, and a before/after comparison around the guard.
+description: Use when the user asks how many tokens a session used, what the context was spent on, how much was saved, whether the token guard is working, or wants a statistics report after a session. Produces a per-session table and a cause breakdown from the usage objects the runtime reports.
 ---
 
 # Aswath Token Evaluator — measure the sessions, then prove the saving
 
-Run it after a session (or a batch of them). It is the tool that answers
-"how much did that cost, and how much of it was avoidable".
+Run it after a session, or over a batch of them. It answers "how much did that cost,
+and how much of it was avoidable".
+
+This skill is a view over the token-guard tool. Install the tool once:
+
+```bash
+npx skills add aswathas/aswath-skills@aswath-token-guard -g
+```
 
 ## Run it
 
 ```bash
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\evaluate.py" --last 10
+python ~/.agents/skills/aswath-token-guard/scripts/token_guard.py --view stats --last 10
 ```
 
 Useful flags:
 
-- `--last N` - the N most recent sessions (default 10).
+- `--last N` - the N most recent sessions (default 1).
 - `--all` - every session in the store.
-- `--session-id mvs_xxx` - one session.
+- `--session-id <id>` - one session.
 - `--json` - machine-readable output.
-- `--report <path>` - also write a markdown report (default: a timestamped file
-  in `~/.minimax/audits/`).
+- `--store claude|minimax|both` - which runtime's store to read (default both).
 
 ## What the numbers mean
 
-**Context window** - the tokens actually in the window right now, measured from
-`messages.jsonl` (the current generation). This is the number that matters for
-context pressure.
+**Total** - every token the runtime reported for that session: input, output, cache
+read and cache write. These come from the usage objects, not an estimate.
 
-**History** - the whole session, measured from the newest snapshot in
-`snapshots/`. Use it to judge the session as a whole.
+**Cache read** - the context the model was served from cache instead of being sent
+again. A high ratio means the same context was re-read many times, which is normal
+for a long session and is not waste on its own.
 
-**Cause breakdown** - every token is charged to one of: `tool_results`,
-`assistant_thinking`, `tool_calls`, `assistant_text`, `user_text`,
-`injected_context`.
+**Cause breakdown** - the context split into tool results, your prompts and the
+assistant's own output. Tool results dominate most sessions, and the split is
+attributed by content weight inside each turn. The script says so; quote the total as
+a fact and the split as a method.
 
-## The two savings numbers - never mix them
+**Turns** - how many model turns the session took.
 
-- **Measured** - reads the guard actually blocked, read from its denial log.
-  This is a fact about what happened.
-- **Counterfactual** - the cost of repeat reads of the same region in the
-  recorded history. This is what the guard *would* have stopped.
+## Avoidable spend, and how to label it
 
-Quote them separately. A counterfactual is not a saving you earned; it is
-avoidable spend you had.
+- **Measured** - a saving the guard actually blocked. This only exists if the
+  MiniMax Code plugin hooks are installed and running. If they are not, there is no
+  measured number, and you do not invent one.
+- **Counterfactual** - the cost of the repeat reads the ledger shows: the same file
+  or region read more than once in one session. This is avoidable spend you had, not
+  a saving you earned.
+
+Quote them separately, and label which is which. Never present a counterfactual as a
+saving.
 
 ## Reporting to the user
 
-Give: the context total, the biggest cause with its percentage, the two savings
-numbers labelled correctly, and the single next action. Do not paste the whole
-table unless asked; the report path is enough.
-
-## Pair it with the switch
-
-```bash
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\control.py" status
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\control.py" on
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\control.py" off
-```
-
-`status` shows whether the hooks are live, whether the global token-control
-directive is present in every agent, and which skills are missing where.
+Give: the total, the biggest cause with its share, the cache read ratio, the
+counterfactual repeat-read cost labelled as such, and the single next action. Do not
+paste the whole table unless asked.
 
 ## Related
 
-- `aswath-token-guard` - the hooks and the live ledger.
-- `aswath-token-ledger` - raw transcript reading.
-- `aswath-compact` - distil and release the window.
-- `context-tax-audit` - audit one session for context tax in detail.
+- `aswath-token-guard` - the habits, and the live view of one session.
+- `aswath-token-ledger` - the raw line items.
+- `aswath-compact` - distil a session and release the window.

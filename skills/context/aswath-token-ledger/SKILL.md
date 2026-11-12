@@ -1,62 +1,81 @@
 ---
 name: aswath-token-ledger
-description: Use when the user wants the raw context ledger of a session - every token attributed to a cause, the costliest tool outputs, files read more than once - or wants to compare token spend across sessions. Reads the MiniMax Code transcript store directly, including sessions that predate the token-guard hooks.
+description: Use when the user wants the raw context ledger of a session - every token attributed to a cause, the costliest tool outputs, files read more than once - or wants to compare token spend across sessions. Reads the Claude Code and MiniMax Code transcript stores directly, including sessions that predate any hook.
 ---
 
 # Aswath Token Ledger — the raw books
 
-The token-guard skill answers "what is this session costing me". This skill
-answers "show me the ledger" and works on any session, including old ones and
-sessions from another machine that has the store.
+The token-guard skill answers "what is this session costing me". This one answers
+"show me the ledger", across sessions, including old ones and sessions from another
+machine that has the store.
 
-## The store
+This skill is a view over the token-guard tool. Install the tool once:
+
+```bash
+npx skills add aswathas/aswath-skills@aswath-token-guard -g
+```
+
+## The stores
+
+Claude Code:
+
+```
+~/.claude/projects/<project-slug>/<session-id>.jsonl
+```
+
+One JSON record per line. The assistant records carry a `usage` object with
+`input_tokens`, `output_tokens`, `cache_read_input_tokens` and
+`cache_creation_input_tokens`.
+
+MiniMax Code:
 
 ```
 ~/.minimax/v2/sessions/<yyyy>/<mm>/<dd>/<time>-session_<id>/
     manifest.json      session id, model, cwd
     messages.jsonl     one JSON message per line
-    llm-call.json      last model call
+    llm-call.json      the request envelope of the last model call
 ```
 
-`messages.jsonl` roles: `user`, `assistant`, `toolResult`, `custom`,
-`compactionSummary`. Content is a list of blocks: `text`, `thinking`, `toolCall`.
-A `toolResult` is a whole message carrying `toolName`, `content`, `isError`.
+The usage objects for MiniMax Code live in the runtime database, not in the session
+folder:
+
+```
+~/.minimax/v2/sqlite/runtime-state.sqlite
+    local_runtime_token_usage   session_id, turn_id, model, ts, input_tokens,
+                                 output_tokens, reasoning_tokens,
+                                 cache_read_tokens, cache_write_tokens
+```
 
 ## Measuring
 
 ```bash
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\token_guard.py" --session-id <session id> --json
+python ~/.agents/skills/aswath-token-guard/scripts/token_guard.py --view ledger --session-id <id> --json
 ```
 
-Without `--session-id` it picks the newest session with a transcript. Use
-`--transcript <path>` for a transcript outside the store, and `--session-dir` when
-you already know the folder.
+Without `--session-id` it picks the newest session with a transcript. `--view ledger`
+prints one block per session: the totals, the costliest tool outputs, and the files
+that were read more than once. `--json` gives the same thing machine-readable.
 
-## How tokens are attributed
-
-Every block is charged to one of six causes:
+## How the tokens are attributed
 
 | cause | what it is |
 | --- | --- |
-| `tool_results` | output returned by tools — usually the biggest line |
-| `assistant_thinking` | reasoning blocks |
-| `tool_calls` | the arguments sent to a tool |
-| `assistant_text` | your prose |
-| `user_text` | the user's actual prompts |
-| `injected_context` | reminders, plugin context, task notices |
+| `tool result` | output returned by tools - usually the biggest line |
+| `user prompt` | what you asked for |
+| `assistant output` | the model's own prose |
 
-Per-message framing overhead (about 8 tokens) is added on top.
+A turn's window (input plus cache read) is split across the context that produced it
+by content weight. The totals are exact; the split is a stated method.
 
 ## Comparing sessions
 
-Run the measurement per session and compare `estimated_total`, `tool_results` and
-`repeat_reads`. A session that grows fast on `tool_results` is a session that is
-re-reading or dumping large outputs; one that grows on `injected_context` is
-being fed the same reminders over and over; one that grows on `tool_calls` is
-passing large arguments around.
+Compare `total`, `cache_read` and the tool-result share. A session that grows fast on
+tool results is one that is re-reading or dumping large outputs. A session with a very
+high cache read ratio is re-serving the same context turn after turn. A session with a
+high prompt share is one where the user is doing the talking.
 
 ## Related
 
-- `aswath-token-guard` — the habits and the hooks.
-- `aswath-compact` — distil a session and release the window.
-- `token-dashboard` — cross-harness session collection (Claude Code store).
+- `aswath-token-guard` - the habits, and the live view of one session.
+- `aswath-token-evaluator` - the table and the cause breakdown.
+- `aswath-compact` - distil a session and release the window.
