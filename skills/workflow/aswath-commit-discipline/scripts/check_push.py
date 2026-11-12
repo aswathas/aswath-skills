@@ -180,6 +180,27 @@ def load_rules() -> dict:
     return rules
 
 
+def commits_reachable_remotely(repo: str, branch: str) -> bool:
+    """True when the branch is already merged into a remote branch, or carries
+    no commit that no remote has (a squashed merge counts as merged)."""
+    code, out, _ = git(repo, "branch", "--remotes", "--contains", branch, "--format=%(refname:short)")
+    if code == 0 and out.strip():
+        return True
+    # git cherry marks a commit '-' when an equivalent patch already exists upstream,
+    # which is what a squash-merged branch looks like.
+    remotes = git_lines(repo, "remote")
+    for remote in remotes:
+        code, out, _ = git(repo, "cherry", remote, branch)
+        if code != 0 or not out.strip():
+            continue
+        if all(line.startswith("-") for line in out.splitlines() if line.strip()):
+            return True
+    code, out, _ = git(repo, "rev-list", branch, "--not", "--remotes")
+    if code != 0:
+        return True
+    return not out.strip()
+
+
 def check_unpushed_work(repo: str, report: Report) -> None:
     """Documented work must reach the remote: local commits left behind."""
     branches = git_lines(repo, "for-each-ref", "--format=%(refname:short)%09%(upstream:short)%09%(upstream:track)", "refs/heads/")
@@ -189,12 +210,6 @@ def check_unpushed_work(repo: str, report: Report) -> None:
             continue
         name, upstream = parts[0], parts[1]
         track = parts[2] if len(parts) > 2 else ""
-        if not upstream:
-            report.warn(
-                "UNPUSHED_WORK",
-                f"local branch '{name}' has no upstream; its commits cannot reach GitHub",
-            )
-            continue
         if "ahead" in track:
             report.warn(
                 "UNPUSHED_WORK",
@@ -204,6 +219,14 @@ def check_unpushed_work(repo: str, report: Report) -> None:
             report.warn(
                 "UNPUSHED_WORK",
                 f"local branch '{name}' is behind '{upstream}'; push it before pushing again",
+            )
+        elif not upstream:
+            # No upstream: only a finding when the branch carries commits no remote has.
+            if commits_reachable_remotely(repo, name):
+                continue
+            report.warn(
+                "UNPUSHED_WORK",
+                f"local branch '{name}' has no upstream and holds commits no remote has",
             )
 
 
