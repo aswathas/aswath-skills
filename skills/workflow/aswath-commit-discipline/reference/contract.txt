@@ -1,0 +1,16 @@
+Commit discipline: this work does not leave the machine undocumented.
+
+Before it is committed and pushed, every one of these must be written down:
+
+- Every decision spoken with an AI (including the prompt that produced it) -> docs/reviews/decision-log.md
+- Every changed file -> one row in docs/reviews/change-inventory.md (what changed, why, how verified)
+- Every prompt that shaped the work -> logged (aswath-chronicle keeps this record)
+- Every skill added or changed -> what it answers, its triggers, its scripts, how it was verified
+
+Then push it: branch first, push on explicit instruction, never amend a published commit.
+
+The commit count is free. 100 documented commits are fine. The detail is not optional.
+One commit per meaningful unit is preferred, not required.
+
+Full contract and templates: /aswath-commit-discipline
+Push-time checker (read-only, warn only): python <skill>/scripts/check_push.py --repo <repo path>
