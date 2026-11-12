@@ -30,6 +30,7 @@
       "path": "skills/context/aswath-token-guard/SKILL.md",
       "description": "Use when the user asks why a session is expensive, how much context is being used, what is wasting tokens, where the context window went, or before a long task that would grow the window. Measures the live session, attributes every token to a cause, names the largest waste, and applies the four habits that cut it. Also the entry point when a PreToolUse hook blocks a repeat read.",
       "resources": [
+        "plugin",
         "scripts"
       ]
     },

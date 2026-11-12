@@ -244,7 +244,11 @@ def read_minimax(session_dir: str, usage: dict) -> dict:
                 role = message.get("role")
                 content = message.get("content")
                 if isinstance(content, str):
-                    causes["assistant output" if role == "assistant" else "user prompt"] += approx_tokens(content)
+                    if role == "toolResult":
+                        causes["tool result"] += approx_tokens(content)
+                        tool_outputs.append((str(message.get("toolName", "")), approx_tokens(content), content[:200]))
+                    else:
+                        causes["assistant output" if role == "assistant" else "user prompt"] += approx_tokens(content)
                     continue
                 if not isinstance(content, list):
                     continue
@@ -257,11 +261,17 @@ def read_minimax(session_dir: str, usage: dict) -> dict:
                         causes["tool result"] += approx_tokens(text)
                         tool_outputs.append((str(block.get("tool_use_id", "")), approx_tokens(text), text[:200]))
                     elif btype == "text":
-                        causes["assistant output" if role == "assistant" else "user prompt"] += approx_tokens(text)
-                    elif btype == "tool_use":
+                        if role == "toolResult":
+                            causes["tool result"] += approx_tokens(text)
+                            tool_outputs.append((str(message.get("toolName", "")), approx_tokens(text), text[:200]))
+                        else:
+                            causes["assistant output" if role == "assistant" else "user prompt"] += approx_tokens(text)
+                    elif btype in ("tool_use", "toolCall"):
                         name = str(block.get("name", ""))
-                        arg = block.get("input") or {}
-                        p = arg.get("file_path") or arg.get("path")
+                        arg = block.get("input") or block.get("arguments") or {}
+                        if isinstance(arg, str):
+                            arg = {}
+                        p = arg.get("file_path") or arg.get("path") or arg.get("filePath")
                         if name.lower() in ("read", "view", "read_file") and p:
                             file_reads[str(p)] += 1
 
