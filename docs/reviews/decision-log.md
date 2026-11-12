@@ -169,3 +169,140 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   once the records exist, and a range of forty documented commits produces no finding.
 - Consequence: the checker is quiet only when the records are actually there. The cost is that a
   first push of a new branch now reports what it is missing, which is the point of the rule.
+
+## D9 — One shared hook runner for every harness, not one script per harness
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task: "plug it into all ai agents in our computer")
+- Context: phase 1 covered MiniMax Code and the global git hook. Phase 2 had to reach Claude Code,
+  Codex, Cursor and Command Code. Four harnesses, four dialects on top of one shared stdin/JSON
+  envelope: Claude-style hook groups keyed by event name, Cursor's flat per-event list that answers
+  with a JSON verdict, Command Code's `bash|powershell` shell-tool matcher, and Codex's
+  `UserPromptSubmit` / `PreToolUse` pair.
+- Options:
+  - One hook script per harness, written in that harness's dialect. Four copies of the same warning
+    logic; the texts and the codes drift apart.
+  - One shared runner that reads the payload and branches on the event name, wired into every
+    config. One copy of the logic; the harness-specific part is the config entry.
+  - Wire only the harnesses that share one dialect and leave Cursor and Command Code on the global
+    git hook alone. Half the coverage.
+- Chosen: option 2. `scripts/hook.py` is the single runner. It reads `hook_event_name` and looks for
+  a command in `tool_input` or at the top level, so one code path serves all four payload shapes.
+- Evidence: 11 payload cases pass against the shared runner — Claude, Codex and Cursor prompt hits,
+  a Claude prompt miss, a Claude `PreToolUse` git push in a scratch repo, a Cursor
+  `beforeShellExecution` JSON verdict, a Command Code payload, a non-git command, a malformed
+  payload, raw malformed JSON and empty stdin. Every case exits 0.
+- Consequence: one fix to the warning text reaches every harness at once. The cost is a known blind
+  spot: the Codex, Cursor and Command Code event names were verified against the local payload
+  shapes, not against those products' runtimes, so an event name that differs would fall through to
+  the silent path.
+
+## D10 — The hook warns and never denies
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task)
+- Context: the phase-1 rule is warn-only everywhere, but the new surfaces invite the stronger
+  behaviour. Cursor's `beforeShellExecution` expects a permission verdict, and Claude Code's
+  `PreToolUse` treats exit code 2 as a refusal.
+- Options:
+  - Return `permission: "deny"` on a documentation gap, or exit 2, so an undocumented push cannot
+    run. Enforces the rule hard, but blocks work over a missing paragraph.
+  - Warn only: plain text everywhere, exit 0 everywhere, and let the missing record be the
+    response.
+- Chosen: option 2. Cursor shell events get `{"permission": "allow", "userMessage": "<warning>"}`.
+  The runner always exits 0, and every exception path exits 0 silently. For tool events the warning
+  goes to stdout (the context channel) and to stderr (the channel Claude Code shows the user for a
+  `PreToolUse` hook).
+- Evidence: the payload test asserts exit 0 on every case and asserts the Cursor verdict's
+  `permission` field is `allow`; the scratch-repo `PreToolUse` push case produced the checker output
+  on both stdout and stderr.
+- Consequence: the rule stays advisory end to end. A harness that shows only stdout sees the
+  contract, one that shows only stderr sees the gap, and none of them can refuse a push.
+
+## D11 — The contract text lives in one file
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task)
+- Context: the contract text is needed by the shared runner on a prompt event, by the mcode
+  PowerShell hook and by the skill's own documentation. Three hand-maintained copies drift, and the
+  skill's contract is the thing the whole system exists to enforce.
+- Options:
+  - Keep the text inside the runner script only. The mcode hook then has its own copy anyway.
+  - Keep the text in the docs only. The runner would have to parse Markdown to find it.
+  - One file, `reference/contract.txt`, read by the runner, with an inline fallback for the case
+    where the file cannot be read.
+- Chosen: option 3. The runner reads `reference/contract.txt` and falls back to a short inline
+  copy if the read fails, so a missing file degrades to a weaker contract instead of to silence.
+- Evidence: a prompt event printed the file's text, including the two lines the inline fallback does
+  not carry ("One commit per meaningful unit is preferred, not required." and the checker command
+  line). The first run of the runner looked for the file under `scripts/reference/` and silently used
+  the fallback; the path was corrected to the skill root and the file's text then appeared.
+- Consequence: editing the contract updates every harness that reads the file. The inline copy is a
+  safety net, not a second source, and it is allowed to be shorter.
+
+## D12 — One installer owns the wiring, and it is idempotent
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task)
+- Context: five config files and fourteen skill links had to be created on this PC. Hand-editing them
+  is not reproducible on another machine, and a second hand-edit can duplicate a hook entry.
+- Options:
+  - Hand-edit the five config files and create the junctions by hand. Fast once, unreproducible.
+  - One script per harness. Five scripts for one job.
+  - One idempotent installer that wires every config and creates every link, with a dry-run mode and
+    one-time backups.
+- Chosen: option 3. `scripts/install_harness_wiring.py` adds the prompt hook and the pre-commit/push
+  hook to each config, backs each file up once as `<file>.pre-commit-discipline.bak`, and creates the
+  plain-dir junctions with `cmd /c mklink /J`. A second run finds the hook command already present
+  and changes nothing.
+- Evidence: the dry run listed every change; the applied run reported `wired` for all five configs
+  and `linked` for the fourteen junctions; all five configs still parse as JSON and each backup file
+  exists next to its config.
+- Consequence: re-running the script after a harness reset or on a new machine is one command, and
+  the backup files make a bad edit recoverable without a version-control history.
+
+## D13 — The curated keep-list stays authoritative; `skillhub repair` is not run
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task)
+- Context: `skillhub status` reports five BROKEN Windows targets — `~/.claude/skills`,
+  `~/.config/opencode/skills`, `~/.commandcode/skills`, `~/.hermes/skills` and
+  `~/.minimax-code/skills` — each pointing at `~/.agents/skills-active` instead of the canonical
+  store. The tool's own advice is to run `skillhub repair`, which would repoint all five at the full
+  337-skill store and drop the user's curated 54-skill set.
+- Options:
+  - Run `skillhub repair`. The status report goes green, but the curated set is replaced by
+    everything, and the user's choice of 54 skills is lost.
+  - Leave the mismatch and accept five BROKEN lines in the status output.
+  - Repoint by hand, link by link, keeping the curated set.
+- Chosen: option 2 for now. The mismatch is deliberate: the 54-skill set in
+  `~/.agents/skills-active.list.json` is the curated set the user chose, and `skills-active` is where
+  those five harnesses read from. `skillhub repair` is not run.
+- Evidence: `skillhub status` shows `9/14 windows targets OK` with the five BROKEN lines naming the
+  `skills-active` target; the skill itself resolves under each of them, because the link points at a
+  directory that contains it.
+- Consequence: `skillhub status` stays noisy on this machine and its exit code stays non-zero. If
+  the full store is ever wanted for those harnesses, the repair has to be a manual repoint that keeps
+  the keep list, not `skillhub repair`.
+
+## D14 — Harness configs point at the store path, not the repo path
+
+- Date: 2026-11-13
+- Prompt: "finish all" (phase 2 of the same task)
+- Context: the canonical source of the skill is the skills repo, but a config entry must name a path
+  that exists on this PC and survives the repo being moved, renamed or not checked out. The global
+  `pre-push` hook already used `C:/Users/ADMIN/.agents/skills/aswath-commit-discipline/scripts/check_push.py`.
+- Options:
+  - Point at the repo path, `C:/Users/ADMIN/Projects/aswath-skills-wk/...`. One hop fewer, but the
+    config breaks when the repo moves and forces the repo to be present on every machine.
+  - Point at the store path, `C:/Users/ADMIN/.agents/skills/...`. The store entry is a junction into
+    the repo, so the content is still canonical and the config outlives a repo move.
+  - Put the hook on PATH and call it by name. Breaks if the PATH entry is missing.
+- Chosen: option 2. Every harness config uses
+  `python "C:/Users/ADMIN/.agents/skills/aswath-commit-discipline/scripts/hook.py"`, the same
+  convention the global git hook uses.
+- Evidence: all five configs contain that command twice (prompt hook and pre-commit/push hook); the
+  store entry `~/.agents/skills/aswath-commit-discipline` resolves to the repo path; the runner
+  executed from that path printed the contract and the checker's warnings.
+- Consequence: the wiring survives a repo rename and works on a machine that has the store but not a
+  checkout of the skills repo.
