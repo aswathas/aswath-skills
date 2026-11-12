@@ -7,13 +7,18 @@ script="$(dirname "$0")/token_guard_hook.py"
 payload="$(mktemp)"
 cat > "$payload"
 
-if command -v python3 >/dev/null 2>&1; then
-  py=python3
-elif command -v python >/dev/null 2>&1; then
-  py=python
-else
-  py=""
-fi
+# Pick an interpreter that actually runs. On Windows, `python3` can be the
+# Microsoft Store stub, which exits 0 without doing anything - so each
+# candidate has to prove it works before it is used.
+py=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    if "$candidate" -c 'import sys; sys.stdout.write("ok")' 2>/dev/null | grep -q ok; then
+      py="$candidate"
+      break
+    fi
+  fi
+done
 
 if [ -n "$py" ]; then
   "$py" "$script" --event "$event" --payload-file "$payload" 2>/dev/null || true
