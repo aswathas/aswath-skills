@@ -110,6 +110,51 @@ Run it by hand:
 python <skill>/scripts/check_push.py --repo <repo path>
 ```
 
+## Harness coverage
+
+The rule reaches every AI harness on this PC in three layers. Nothing in any layer blocks.
+
+| Layer | Where | What it does |
+|---|---|---|
+| Skill | this file | The contract, the procedure, the records. Loaded on demand by any harness that can read skills. |
+| Agent hooks | `scripts/hook.py`, wired into each harness config | States the contract when a prompt looks like commit/push work, and reports the checker's gaps before a `git commit` or `git push` runs. |
+| Git hook | `~/.githooks/pre-push` (`core.hooksPath`) | The floor: the checker runs on every push in every repo on this PC, including pushes by a human. |
+
+### The shared runner
+
+`scripts/hook.py` is one script for every harness that speaks a stdin/JSON hook protocol.
+
+- **Prompt events** (`UserPromptSubmit`, `beforeSubmitPrompt`): when the prompt matches commit,
+  push, GitHub, PR, branch, merge, publish, ship or documentation words, the contract from
+  `reference/contract.txt` is printed to stdout as context.
+- **Tool events** (`PreToolUse`, `beforeShellExecution`): when the command matches `git commit` or
+  `git push`, `scripts/check_push.py` runs and its output is printed to stdout and to stderr.
+- **Cursor** shell events answer with `{"permission": "allow", "userMessage": "..."}`, so a
+  documentation gap never refuses a command.
+- Every path exits 0. A malformed payload, a missing file or an unexpected exception exits 0
+  silently — a hook must never break a session.
+
+| Harness | Config | Events used |
+|---|---|---|
+| MiniMax Code | `~/.minimax/hooks.json` | `UserPromptSubmit`, `PreToolUse` (PowerShell hook) |
+| Claude Code | `~/.claude/settings.json` | `UserPromptSubmit`, `PreToolUse` (`Bash`) |
+| Codex | `~/.codex/hooks.json` | `UserPromptSubmit`, `PreToolUse` (`Bash`) |
+| Cursor | `~/.cursor/hooks.json` | `beforeSubmitPrompt`, `beforeShellExecution` (`^git\s+(commit\|push)`) |
+| Command Code | `~/.commandcode/settings.json` | `UserPromptSubmit`, `PreToolUse` (`bash\|powershell`) |
+| Continue, Trae, Roo, Kiro, Qoder, CodeBuddy, Augment, iFlow, Junie, Zcode, Grok, Vibe, OpenClaw | `~/.<harness>/skills/` | no hook surface — skill link plus the global git hook |
+| MiniMax app | `~/.minimax/skills/` | curated skills dir — skill link |
+
+### Installing the wiring
+
+```
+python <skill>/scripts/install_harness_wiring.py --dry-run   # report only
+python <skill>/scripts/install_harness_wiring.py             # apply
+```
+
+The installer is idempotent: it adds the hook groups only when they are absent, backs each config
+up once as `<file>.pre-commit-discipline.bak`, and creates the skill junctions for the harnesses
+that have no hook surface.
+
 ## Repairing a bad push
 
 Work that was already pushed badly is not lost; document it forward.
