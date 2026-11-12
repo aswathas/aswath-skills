@@ -1,0 +1,13 @@
+# MiniMax Code runtime config (C:\Users\ADMIN\.minimax\config.yaml)
+#
+# Compact the conversation every 100k tokens.
+#
+# contextManagement.compactionTriggerAt accepts either:
+#   - a ratio in (0, 1], e.g. 0.8
+#   - an integer token count > 1, e.g. 100000
+#
+# The effective trigger is min(ratio-derived cap, compactionTriggerAt), so an
+# integer count acts as an upper bound and never raises the trigger above the
+# runtime's own safety cap.
+contextManagement:
+  compactionTriggerAt: 100000
