@@ -80,6 +80,7 @@ Two ways in, and they are the same units.
 | `aswath-first-principles` | Research → questions → spec → approval, before any implementation. The template other tasks route into. | `/aswath-first-principles` |
 | `aswath-forge` | Routes a task to a minted skill if one exists, otherwise into first-principles, then mints the asset afterwards. | `/aswath-forge` |
 | `aswath-commit` | Decision log and file-by-file change inventory, then commits. No mass dumps. | `/aswath-commit` |
+| `aswath-commit-discipline` | Push-time gate: every decision spoken with an AI, every edit, every prompt and every new skill documented in detail, then committed and pushed. Commit count is free; detail is not. Ships a warn-only checker. | `/aswath-commit-discipline` |
 | `aswath-chronicle` | Persistent audit trail of prompts, choices and git history without re-printing docs into context. | `/aswath-chronicle` |
 | `aswath-throw` | Raw request → harness work item → leader-authored test → agent pool → two independent verifiers → report. | `/aswath-throw` |
 | `aswath-thevai` | A real person is the source of the brief. Warm, one-question-at-a-time conversation over WhatsApp → an approved brief → build, QA, deliver. Ships with the `thevai-agent`. | `/aswath-thevai` |
@@ -112,7 +113,7 @@ Two ways in, and they are the same units.
 skills/
   context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator, aswath-minimax-compaction-handoff
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
-  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-chronicle, aswath-throw, aswath-thevai, aswath-thinking
+  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-throw, aswath-thevai, aswath-thinking
   orchestration/    aswath-capability, aswath-manual-demo
   writing/          aswath-talk
   utilities/        aswath-csvjson
