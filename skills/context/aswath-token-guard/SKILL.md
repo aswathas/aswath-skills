@@ -51,13 +51,32 @@ split as a method.
 4. **Read narrow.** grep or glob with a pattern before opening a whole file; prefer
    an explicit `offset`/`limit` over a full read.
 
-## Step 3 — The hooks, where they exist
+## Step 3 — The hooks
 
-The repeat-read blocker and the live orientation are MiniMax Code plugin hooks. They
-run only in a MiniMax Code runtime that has the plugin installed.
+The plugin ships with this skill, in `plugin/`. Install it once:
 
-The measurement above works in any runtime, on any session, with no plugin at all. So
-measure first, and never assume a hook is running just because a habit was mentioned.
+```bash
+python ~/.agents/skills/aswath-token-guard/plugin/install.py
+```
+
+It copies three files into the MiniMax Code data directory and adds three hook groups
+to `hooks.json`:
+
+| Event | What it does |
+|---|---|
+| `SessionStart` | injects the orientation once: the live context number and the four habits |
+| `UserPromptSubmit` | stays silent until the session passes 200k tokens, then speaks again only after another 25k of growth |
+| `PreToolUse` (read) | denies an exact repeat read of a file that has not changed since the session began |
+
+The numbers come from the runtime's own records - `context_usage.usedTokens` on the
+session's messages - so nothing is estimated.
+
+`python plugin/install.py uninstall` removes the groups. The installer only touches
+the groups it owns: every other hook in the file is left alone, and running it twice
+changes nothing.
+
+The measurement in Step 1 works in any runtime, with no plugin at all. So measure
+first, and never assume a hook is running just because a habit was mentioned.
 
 ## Reporting to the user
 
