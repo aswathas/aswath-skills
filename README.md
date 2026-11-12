@@ -49,6 +49,7 @@ Two ways in, and they are the same units.
 | [`ship-and-publish`](workflows/ship-and-publish.md) | commit → chronicle → publish-github | work is done, needs to leave the machine |
 | [`publish-everywhere`](workflows/publish-everywhere.md) | publish-github + publish-linkedin + publish-instagram | one artefact, several destinations |
 | [`delegate-a-request`](workflows/delegate-a-request.md) | throw → capability | raw request in, proven artefact out |
+| [`thevai-a-request`](workflows/thevai-a-request.md) | thevai → publish-github | a real person is the source of the brief |
 
 ---
 
@@ -80,6 +81,7 @@ Two ways in, and they are the same units.
 | `aswath-commit` | Decision log and file-by-file change inventory, then commits. No mass dumps. | `/aswath-commit` |
 | `aswath-chronicle` | Persistent audit trail of prompts, choices and git history without re-printing docs into context. | `/aswath-chronicle` |
 | `aswath-throw` | Raw request → harness work item → leader-authored test → agent pool → two independent verifiers → report. | `/aswath-throw` |
+| `aswath-thevai` | A real person is the source of the brief. Warm, one-question-at-a-time conversation over WhatsApp → an approved brief → build, QA, deliver. Ships with the `thevai-agent`. | `/aswath-thevai` |
 
 ### orchestration — assemble the thing
 
@@ -108,7 +110,7 @@ Two ways in, and they are the same units.
 skills/
   context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
-  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-chronicle, aswath-throw
+  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-chronicle, aswath-throw, aswath-thevai
   orchestration/    aswath-capability, aswath-manual-demo
   writing/          aswath-talk
   utilities/        aswath-csvjson
