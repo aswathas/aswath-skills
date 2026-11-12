@@ -21,26 +21,32 @@ Run the helper. It is deterministic; it gathers raw material and reports the rea
 numbers. It does not decide what matters.
 
 ```bash
-python "$env:USERPROFILE\.minimax\plugins\aswath-compact\scripts\compact.py" --session-id <session id>
+python ~/.agents/skills/aswath-minimax-compaction-handoff/scripts/compaction-handoff.py \
+  --session-id <session id> --cwd <your project dir>
 ```
 
-If that path is missing, the script also ships as a copy inside the plugin folder
-under `scripts/compact.py`; look for it with a single glob before concluding it
-is gone. It is stdlib-only Python 3.9+, and needs no arguments beyond the
-session id.
+That script ships with the `aswath-minimax-compaction-handoff` skill. Install it once:
 
-If the session id is unknown, omit `--session-id` and it picks the newest session with a
-transcript. The helper writes `handoff-raw.md` into the session directory and prints a
-summary: message count, estimated context tokens, files touched, repo HEADs, and any
-errors seen.
+```bash
+npx skills add aswathas/aswath-skills@aswath-minimax-compaction-handoff -g
+```
 
-Read the printed summary first. If the estimated context is small, say so and stop — do
-not manufacture a handoff nobody needs.
+It is stdlib-only Python 3.9+, needs no network, and reads the session transcript from
+the local runtime database. It writes `HANDOFF.md` into `--cwd` with five sections:
+Session Intent, Files Modified, Decisions Made, Current State, Next Steps. Every fact
+is extracted verbatim - no model call, nothing guessed.
+
+If the session id is unknown, take it from the session store:
+`~/.minimax/v2/sessions/<yyyy>/<mm>/<dd>/*/manifest.json` holds `sessionId`.
+
+Read `HANDOFF.md` before you write anything. If the measured context is small, say so
+and stop - do not manufacture a handoff nobody needs.
 
 ## Step 2 — Distil it yourself
 
-Write a curated **`handoff.md`** next to `handoff-raw.md` (same session
-directory). This is the artifact that replaces the transcript.
+The script's `HANDOFF.md` is the raw material: verbatim facts, no judgement. Read it,
+then write a curated **`handoff.md`** next to it in the same directory. This is the
+artifact that replaces the transcript.
 
 Use the official **`handoff-doc`** skill for the document shape (Goal, Decisions
 made, Constraints to keep, Ruled out, Current state, Next steps, Watch out for,

@@ -5,29 +5,42 @@ description: Use when the user asks why a session is expensive, how much context
 
 # Aswath Token Guard — measure, then stop wasting
 
-Four habits, one measurement, no ceremony. The hooks enforce three of the four
-automatically; this skill is how you see the ledger and how you talk about it.
+Four habits, one measurement, no ceremony. The measurement tells you what the habits
+would have saved.
 
 ## Step 1 — Measure
 
 ```bash
-python "$env:USERPROFILE\.minimax\plugins\aswath-token-guard\scripts\token_guard.py" --session-id <session id>
+python ~/.agents/skills/aswath-token-guard/scripts/token_guard.py --view guard
 ```
 
-Add `--json` for machine-readable output. Omit `--session-id` to pick the newest
-session with a transcript. The script is stdlib-only Python 3.9+ and needs no
-network.
+The script ships with this skill. Stdlib-only Python 3.9+, no network.
+
+Three views of the same numbers:
+
+- `--view guard` (default) - the newest session: what it cost, what the context is
+  mostly made of, the files that were read more than once.
+- `--view stats` - a table of sessions, then where the context went.
+- `--view ledger` - every session as a line item, the costliest tool outputs, the
+  repeat reads.
+
+Other flags: `--last N` (the N newest sessions, default 1), `--all` (every session in
+the store), `--session-id <id>` (one session), `--json` (machine-readable),
+`--store claude|minimax|both`.
 
 What the report gives you:
 
-- **Where it went** — tokens split into tool results, thinking, tool-call
-  arguments, assistant text, your prompts, and injected harness context.
-- **Costliest results** — the single tool outputs that cost the most.
-- **Repeat reads** — files read more than once in the same session.
-- **Injected context** — reminders and plumbing that are not the user's intent.
+- **Where it went** - the context split into tool results, your prompts and the
+  assistant's own output, with the share each one takes.
+- **Costliest results** - the single tool outputs that cost the most.
+- **Repeat reads** - files read more than once in the same session.
+- **The cache read ratio** - how much of the spend is the same context read again.
 
-The estimate is a relative measure (about 3.6 characters per token plus framing),
-not a billing number. Quote it as an order of magnitude, never as an invoice.
+Token counts come from the usage objects the runtime reports, not from an estimate:
+Claude Code records them per assistant message, the MiniMax Code runtime per turn in
+its local database. The totals are exact. The split by cause is attributed by content
+weight inside each turn, and the script says so - quote the total as a fact and the
+split as a method.
 
 ## Step 2 — The four habits
 
@@ -38,15 +51,13 @@ not a billing number. Quote it as an order of magnitude, never as an invoice.
 4. **Read narrow.** grep or glob with a pattern before opening a whole file; prefer
    an explicit `offset`/`limit` over a full read.
 
-## Step 3 — What the hooks already did
+## Step 3 — The hooks, where they exist
 
-- **SessionStart** injects a short orientation with the live numbers and these
-  four habits.
-- **UserPromptSubmit** stays silent until the session passes 200k tokens, and then
-  only fires again after another 25k of growth. A silent hook is the point.
-- **PreToolUse (read)** denies an exact repeat read of a file that has not changed.
-  If it blocks you, the file changed or you want a different range — read that
-  instead of retrying the same call.
+The repeat-read blocker and the live orientation are MiniMax Code plugin hooks. They
+run only in a MiniMax Code runtime that has the plugin installed.
+
+The measurement above works in any runtime, on any session, with no plugin at all. So
+measure first, and never assume a hook is running just because a habit was mentioned.
 
 ## Reporting to the user
 
