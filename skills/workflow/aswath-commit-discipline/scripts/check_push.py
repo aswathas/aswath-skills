@@ -29,6 +29,9 @@ from pathlib import Path
 
 RULES_FILE = Path(__file__).resolve().parent.parent / "reference" / "doc-rules.json"
 
+# git's canonical empty tree; used as the base when a range has no lower bound.
+EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
 DEFAULT_RULES = {
     "decision_log": "docs/reviews/decision-log.md",
     "change_inventory": "docs/reviews/change-inventory.md",
@@ -107,19 +110,33 @@ def resolve_range(repo: str, explicit: str | None) -> tuple[str, str, str]:
         desc = f"{upstream}..HEAD"
         return base, head, desc
 
+    head_sha = rev_parse(repo, head)
+
     # No upstream on this branch: fall back to the remote's default branch.
     for candidate in ("origin/main", "origin/master", "main", "master"):
-        code, _, _ = git(repo, "rev-parse", "--verify", "--quiet", candidate)
-        if code == 0:
-            return candidate, head, f"{candidate}..HEAD"
+        code, out, _ = git(repo, "rev-parse", "--verify", "--quiet", candidate)
+        if code != 0:
+            continue
+        # A candidate that points at HEAD would make the range empty and hide
+        # every documentation finding.
+        if out.strip() == head_sha:
+            continue
+        return candidate, head, f"{candidate}..HEAD"
+
+    # No usable reference: check the commits the push would actually carry.
+    code, out, _ = git(repo, "rev-list", "--max-count=1", head, "--not", "--remotes")
+    if code == 0 and out.strip():
+        newest = out.strip()
+        code, out, _ = git(repo, "rev-parse", "--verify", "--quiet", f"{newest}^")
+        if code == 0 and out.strip():
+            base = out.strip()
+            return base, head, f"{base[:7]}..HEAD (commits the push would carry)"
+        return "", head, "(every commit; nothing is on a remote yet)"
 
     # No reference at all: fall back to the last commit only.
-    code, _, _ = git(repo, "rev-parse", "--verify", "--quiet", "HEAD")
-    if code != 0:
-        return "", "", "(no commits)"
     code, out, _ = git(repo, "rev-parse", "--verify", "--quiet", "HEAD~1")
     if code != 0:
-        return "", head, "(initial commit)"
+        return "", "", "(no commits)"
     return out.strip(), head, "HEAD~1..HEAD"
 
 
@@ -153,7 +170,9 @@ def files_in_range(repo: str, base: str, head: str) -> list[str]:
     if base:
         rev = f"{base}..{head}"
     else:
-        rev = head
+        # No base means "every commit": diff against the empty tree so the file
+        # list is the whole tree the push would carry, not an empty diff.
+        rev = f"{EMPTY_TREE}..{head}"
     out = git_lines(repo, "diff", "--name-only", rev)
     return [p.replace("\\", "/") for p in out]
 

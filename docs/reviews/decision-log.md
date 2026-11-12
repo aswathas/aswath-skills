@@ -145,3 +145,27 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Consequence: the checker makes one read-only network call per branch. It stays warn-only and
   still exits 0. When the remote cannot be reached it falls back to the local tracking refs, which
   is the old behaviour.
+
+## D8 — The range must be the commits the push would actually carry
+
+- Date: 2026-11-13
+- Prompt: "Implement this plan" (verification phase of the same task)
+- Context: the scratch-repository proof showed the checker going quiet on a push it should have
+  reported. A brand-new branch in a repo whose fetch refspec covers one branch only has no upstream
+  and no remote-tracking ref, so the range fell back to the local branch itself. The base then
+  pointed at HEAD, the range was empty, and every documentation finding was skipped. The second
+  defect sat in the same place: with no base, the file list came from a diff of HEAD against the
+  working tree, and a clean working tree produced no files at all.
+- Options:
+  - Leave the range as it was and rely on the agent to write the records anyway.
+  - Make the range resolution mirror what the push carries: skip a candidate base that resolves to
+    HEAD, and fall back to the commits that are on no remote.
+- Chosen: option 2. A candidate base whose sha equals HEAD's sha is skipped, because it makes the
+  range empty. When no remote reference can be used, the range is the newest commit that no remote
+  has, and with no lower bound the file list is a diff against git's empty tree.
+- Evidence: in the scratch repository, before the change the checker reported one warning (the
+  unpushed work) for a push that changed a file with no records at all; after the change it reports
+  `NO_DECISION_DOC` and `NO_INVENTORY_DOC` for the same push. The documented case is silent again
+  once the records exist, and a range of forty documented commits produces no finding.
+- Consequence: the checker is quiet only when the records are actually there. The cost is that a
+  first push of a new branch now reports what it is missing, which is the point of the rule.
