@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Push-time documentation checker for aswath-commit-discipline.
 
-Warn only. Never blocks a push, never changes repo state, never touches the
-network. The metric is documentation detail, not commit count: the number of
-commits in a range is never a finding.
+Warn only. Never blocks a push, never changes repo state. The metric is
+documentation detail, not commit count: the number of commits in a range is
+never a finding.
+
+Network: one read-only "git ls-remote --heads" per branch, to learn what the
+remote really has. It reads refs and nothing else. When the remote cannot be
+reached, the checker falls back to the local remote-tracking refs.
 
 Usage:
     python check_push.py --repo <path> [--range <base>..<head>] [--strict]
@@ -180,25 +184,104 @@ def load_rules() -> dict:
     return rules
 
 
-def commits_reachable_remotely(repo: str, branch: str) -> bool:
-    """True when the branch is already merged into a remote branch, or carries
-    no commit that no remote has (a squashed merge counts as merged)."""
-    code, out, _ = git(repo, "branch", "--remotes", "--contains", branch, "--format=%(refname:short)")
-    if code == 0 and out.strip():
-        return True
-    # git cherry marks a commit '-' when an equivalent patch already exists upstream,
-    # which is what a squash-merged branch looks like.
+def rev_parse(repo: str, rev: str) -> str:
+    code, out, _ = git(repo, "rev-parse", "--verify", "--quiet", rev)
+    return out.strip() if code == 0 else ""
+
+
+def object_exists(repo: str, sha: str) -> bool:
+    if not sha:
+        return False
+    code, _, _ = git(repo, "cat-file", "-e", f"{sha}^{{commit}}")
+    return code == 0
+
+
+def remote_head_shas(repo: str, remote: str) -> dict[str, str] | None:
+    """Heads the remote actually has, as {branch name: sha}.
+
+    None when the remote cannot be reached. This is the only network call the
+    checker makes, and it only reads refs. Local remote-tracking refs are not
+    enough on their own: a repo whose fetch refspec covers one branch only
+    (a common setup) keeps no tracking ref for the others, and those branches
+    look unpushed even right after a successful push.
+    """
+    code, out, _ = git(repo, "ls-remote", "--heads", remote)
+    if code != 0:
+        return None
+    heads: dict[str, str] = {}
+    for line in out.splitlines():
+        if "\t" not in line:
+            continue
+        sha, ref = line.split("\t", 1)
+        ref = ref.strip()
+        if ref.startswith("refs/heads/"):
+            heads[ref[len("refs/heads/") :]] = sha.strip()
+    return heads
+
+
+def local_tracking_shas(repo: str, remote: str) -> list[str]:
+    return [
+        ln.strip()
+        for ln in git_lines(repo, "for-each-ref", "--format=%(objectname)", f"refs/remotes/{remote}/")
+        if ln.strip()
+    ]
+
+
+def configured_remote(repo: str, branch: str) -> str:
+    """Remote this branch tracks, from config, so a missing tracking ref does
+    not hide it."""
+    code, out, _ = git(repo, "config", "--get", f"branch.{branch}.remote")
+    remote = out.strip() if code == 0 else ""
+    if remote and remote != ".":
+        return remote
     remotes = git_lines(repo, "remote")
-    for remote in remotes:
-        code, out, _ = git(repo, "cherry", remote, branch)
+    return remotes[0] if remotes else ""
+
+
+def configured_remote_branch(repo: str, branch: str) -> str:
+    code, out, _ = git(repo, "config", "--get", f"branch.{branch}.merge")
+    merge = out.strip() if code == 0 else ""
+    if merge.startswith("refs/heads/"):
+        return merge[len("refs/heads/") :]
+    return branch
+
+
+def all_remote_tips(repo: str, remote: str, heads: dict[str, str] | None) -> list[str]:
+    """Remote tips whose objects exist locally, so ancestry can be tested."""
+    if heads is None:
+        return local_tracking_shas(repo, remote)
+    return [sha for sha in heads.values() if object_exists(repo, sha)]
+
+
+def merged_by_patch(repo: str, tips: list[str], branch: str) -> bool:
+    """True when every commit of the branch has an equivalent patch upstream
+    (git cherry marks those '-'), which is what a squash-merged branch looks
+    like."""
+    for tip in tips:
+        code, out, _ = git(repo, "cherry", tip, branch)
         if code != 0 or not out.strip():
             continue
         if all(line.startswith("-") for line in out.splitlines() if line.strip()):
             return True
-    code, out, _ = git(repo, "rev-list", branch, "--not", "--remotes")
+    return False
+
+
+def commits_reachable_remotely(repo: str, branch: str) -> bool:
+    """True when the branch is already merged into a remote branch, or carries
+    no commit that no remote has (a squashed merge counts as merged)."""
+    remote = configured_remote(repo, branch)
+    if not remote:
+        return False
+    heads = remote_head_shas(repo, remote)
+    tips = all_remote_tips(repo, remote, heads)
+    if not tips:
+        return False
+    code, out, _ = git(repo, "rev-list", branch, "--not", *tips)
     if code != 0:
         return True
-    return not out.strip()
+    if not out.strip():
+        return True
+    return merged_by_patch(repo, tips, branch)
 
 
 def check_unpushed_work(repo: str, report: Report) -> None:
@@ -215,19 +298,58 @@ def check_unpushed_work(repo: str, report: Report) -> None:
                 "UNPUSHED_WORK",
                 f"local branch '{name}' is ahead of '{upstream}'; those commits are not pushed",
             )
-        elif "behind" in track:
+            continue
+        if "behind" in track:
             report.warn(
                 "UNPUSHED_WORK",
                 f"local branch '{name}' is behind '{upstream}'; push it before pushing again",
             )
-        elif not upstream:
-            # No upstream: only a finding when the branch carries commits no remote has.
+            continue
+        if upstream:
+            # Tracking ref exists and the branch is level with it.
+            continue
+
+        # No local tracking ref. The branch may still be pushed, and the remote
+        # is the only authority on that.
+        remote = configured_remote(repo, name)
+        if not remote:
             if commits_reachable_remotely(repo, name):
                 continue
             report.warn(
                 "UNPUSHED_WORK",
-                f"local branch '{name}' has no upstream and holds commits no remote has",
+                f"local branch '{name}' has no remote and holds commits no remote has",
             )
+            continue
+
+        remote_branch = configured_remote_branch(repo, name)
+        heads = remote_head_shas(repo, remote)
+        local_tip = rev_parse(repo, name)
+        remote_tip = heads.get(remote_branch) if heads else None
+
+        if remote_tip and remote_tip == local_tip:
+            # Pushed: the remote head is exactly this branch.
+            continue
+
+        tips = all_remote_tips(repo, remote, heads)
+        code, out, _ = git(repo, "rev-list", name, "--not", *tips) if tips else (1, "", "")
+        if code == 0 and not out.strip():
+            # Every commit is already contained in some remote branch.
+            continue
+        if tips and merged_by_patch(repo, tips, name):
+            # Squash-merged upstream.
+            continue
+        if remote_tip and object_exists(repo, remote_tip):
+            code, _, _ = git(repo, "merge-base", "--is-ancestor", name, remote_tip)
+            if code == 0:
+                report.warn(
+                    "UNPUSHED_WORK",
+                    f"local branch '{name}' is behind '{remote}/{remote_branch}'; pull before pushing again",
+                )
+                continue
+        report.warn(
+            "UNPUSHED_WORK",
+            f"local branch '{name}' holds commits that '{remote}/{remote_branch}' does not have",
+        )
 
 
 def check_dirty(repo: str, report: Report) -> None:

@@ -116,3 +116,32 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Evidence: the decision log above and the change inventory beside it; both are committed with
   the work they describe.
 - Consequence: the rule ships with a worked example in the repo that enforces it.
+
+## D7 — The checker asks the remote, not the local remote-tracking refs
+
+- Date: 2026-11-13
+- Prompt: "Implement this plan" (verification phase of the same task)
+- Context: after the first real push of `feat/aswath-commit-discipline`, the checker still warned
+  `UNPUSHED_WORK` on that branch: "has no upstream and holds commits no remote has". The push had
+  succeeded and the remote head was exactly the local tip. The cause was the repo's fetch
+  refspec, which covers one branch only (`+refs/heads/main:refs/remotes/origin/main`), so git kept
+  no remote-tracking ref for the feature branch. `git rev-list <branch> --not --remotes` therefore
+  counted the pushed commits as unpushed. A false positive on the very first push is the worst
+  place for it: it teaches the user to ignore the warning.
+- Options:
+  - Keep the local-only check and accept the false positive on narrow-refspec repos.
+  - Ask the remote for its heads (`git ls-remote --heads`, read-only) and treat the remote as the
+    authority, falling back to the local tracking refs when the remote is unreachable.
+  - Fetch the missing tracking refs, which writes to the repo and contradicts the read-only
+    contract of the checker.
+- Chosen: option 2. The checker now resolves the branch's configured remote and remote branch from
+  git config (independent of the tracking ref), lists the remote heads once, and compares the local
+  tip against the remote head. Squash-merged branches are still recognised through `git cherry`,
+  now run against the remote head rather than against the tracking ref.
+- Evidence: the false positive was reproduced live (`git rev-parse --abbrev-ref @{u}` failed with
+  "upstream branch not stored as a remote-tracking branch", `git ls-remote --heads origin` showed
+  the pushed head, and the checker warned anyway) and disappeared after the fix. The checker now
+  reports no `UNPUSHED_WORK` for the pushed branch.
+- Consequence: the checker makes one read-only network call per branch. It stays warn-only and
+  still exits 0. When the remote cannot be reached it falls back to the local tracking refs, which
+  is the old behaviour.

@@ -85,8 +85,10 @@ Before `git push`, every box is ticked:
 
 ## What the checker warns about
 
-`scripts/check_push.py` inspects the range a push would carry. Read-only git commands only, no
-network, always exits 0.
+`scripts/check_push.py` inspects the range a push would carry. Read-only git commands only, always exits 0.
+One read-only network call (`git ls-remote --heads`) per branch, to learn what the remote really has; local
+remote-tracking refs alone are not enough, because a repo whose fetch refspec covers one branch only keeps
+no tracking ref for the others and looks unpushed right after a successful push.
 
 | Code | Meaning |
 |---|---|
