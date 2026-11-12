@@ -1,0 +1,22 @@
+{
+  "decision_log": "docs/reviews/decision-log.md",
+  "change_inventory": "docs/reviews/change-inventory.md",
+  "prompt_record_patterns": [
+    "docs/reviews/decision-log.md",
+    "docs/reviews/prompts.md",
+    "docs/reviews/change-inventory.md",
+    "docs/chronicle/"
+  ],
+  "doc_path_prefixes": ["docs/", ".github/", "notes/"],
+  "doc_file_names": ["README.md", "CHANGELOG.md", "LICENSE", "LICENSE.md"],
+  "skill_path_prefixes": ["skills/"],
+  "min_commit_body_chars": 20,
+  "placeholder_subject_patterns": [
+    "wip",
+    "fixup",
+    "squash",
+    "tmp",
+    "asdf",
+    "test commit"
+  ]
+}
