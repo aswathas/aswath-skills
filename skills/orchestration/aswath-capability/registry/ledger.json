@@ -1,0 +1,411 @@
+{
+ "skills": {
+  "caveman": {
+   "accepts": 3,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 12 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 75,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "mcode-tools-master": {
+   "accepts": 6,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 28 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 86,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "diagnosing-bugs": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 3 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "brainstorming": {
+   "accepts": 0,
+   "rejects": 1,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: reject",
+     "excerpt": "the file this skill produced was deleted",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": -50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "a2a-orchestrator": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 1 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "graphify": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 7 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "impeccable": {
+   "accepts": 2,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "you can use /anatomy skill and build a showcase in a page for showing the logs or how our app works any ui component realtedto our  project so that it can be good showcase ( also mostly fill our site ",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 67,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "anatomy": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 15 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "git-author-aswathas": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 1 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "learn-by-doing": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 3 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "diagram-explainer": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 12 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "find-skills": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 19 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "ponytail": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 8 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "frontend-design": {
+   "accepts": 1,
+   "rejects": 1,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: reject",
+     "excerpt": "the file this skill produced was deleted",
+     "at": "2026-11-09T20:32:40"
+    },
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 38 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 0,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "browser-use:control-in-app-browser": {
+   "accepts": 3,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "use the github and and its stuructre to get the details it works by getting the logs and 3-4 layer of filetereation of logs to solve this i want you to creaete whatever given in the template from mark",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 75,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "setup-pstack": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 1 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "minimax-code-product": {
+   "accepts": 1,
+   "rejects": 0,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: accept",
+     "excerpt": "this skill produced 8 edit(s) that stood",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": 50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "composio": {
+   "accepts": 0,
+   "rejects": 1,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: reject",
+     "excerpt": "the file this skill produced was deleted",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": -50,
+   "updated": "2026-11-09T20:32:40"
+  },
+  "gws": {
+   "accepts": 0,
+   "rejects": 1,
+   "partials": 0,
+   "notes": [
+    {
+     "note": "learned from session history: reject",
+     "excerpt": "the file this skill produced was deleted",
+     "at": "2026-11-09T20:32:40"
+    }
+   ],
+   "score": -50,
+   "updated": "2026-11-09T20:32:40"
+  }
+ },
+ "authored": {},
+ "history": [
+  {
+   "skill": "caveman",
+   "outcome": "batch",
+   "accepts": 3,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "mcode-tools-master",
+   "outcome": "batch",
+   "accepts": 6,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "diagnosing-bugs",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "brainstorming",
+   "outcome": "batch",
+   "accepts": 0,
+   "rejects": 1,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "a2a-orchestrator",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "graphify",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "impeccable",
+   "outcome": "batch",
+   "accepts": 2,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "anatomy",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "git-author-aswathas",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "learn-by-doing",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "diagram-explainer",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "find-skills",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "ponytail",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "frontend-design",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 1,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "browser-use:control-in-app-browser",
+   "outcome": "batch",
+   "accepts": 3,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "setup-pstack",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "minimax-code-product",
+   "outcome": "batch",
+   "accepts": 1,
+   "rejects": 0,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "composio",
+   "outcome": "batch",
+   "accepts": 0,
+   "rejects": 1,
+   "at": "2026-11-09T20:32:40"
+  },
+  {
+   "skill": "gws",
+   "outcome": "batch",
+   "accepts": 0,
+   "rejects": 1,
+   "at": "2026-11-09T20:32:40"
+  }
+ ]
+}

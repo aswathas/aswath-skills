@@ -1,0 +1,164 @@
+{
+    "name":  "aswath-skills",
+    "version":  "1.0.0",
+    "author":  "Aswath S",
+    "license":  "MIT",
+    "updated":  "2026-11-12",
+    "invocation":  {
+                       "manual":  "/\u003cskill-name\u003e",
+                       "example":  "/aswath-token-guard",
+                       "install":  "install.ps1 (Windows) or install.sh (WSL/macOS)"
+                   },
+    "skills":  [
+                   {
+                       "name":  "aswath-compact",
+                       "category":  "context",
+                       "path":  "skills/context/aswath-compact/SKILL.md",
+                       "description":  "Use when the session\u0027s context is filling, before a long task, or when the user says \"compact\", \"free up context\", \"too much in context\", or asks how much context is being used. Measures what the session is actually carrying, distils it into a dense handoff file, persists that handoff so any later session can resume from it, and reports how to actually release the window.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-token-evaluator",
+                       "category":  "context",
+                       "path":  "skills/context/aswath-token-evaluator/SKILL.md",
+                       "description":  "Use when the user asks how many tokens a session used, what the context was spent on, how much was saved, whether the token guard is working, or wants a statistics report after a session. Produces a per-session table, a cause breakdown, measured savings from blocked reads, counterfactual savings from repeat reads, and a before/after comparison around the guard.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-token-guard",
+                       "category":  "context",
+                       "path":  "skills/context/aswath-token-guard/SKILL.md",
+                       "description":  "Use when the user asks why a session is expensive, how much context is being used, what is wasting tokens, where the context window went, or before a long task that would grow the window. Measures the live session, attributes every token to a cause, names the largest waste, and applies the four habits that cut it. Also the entry point when a PreToolUse hook blocks a repeat read.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-token-ledger",
+                       "category":  "context",
+                       "path":  "skills/context/aswath-token-ledger/SKILL.md",
+                       "description":  "Use when the user wants the raw context ledger of a session - every token attributed to a cause, the costliest tool outputs, files read more than once - or wants to compare token spend across sessions. Reads the MiniMax Code transcript store directly, including sessions that predate the token-guard hooks.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-capability",
+                       "category":  "orchestration",
+                       "path":  "skills/orchestration/aswath-capability/SKILL.md",
+                       "description":  "Orchestrator that takes a whole project from a one-line brief to shipped work. Use for \u0027build me an ecommerce site\u0027, \u0027build a project\u0027, \u0027I want to build X\u0027, \u0027start a project\u0027, or any end-to-end build that spans UI, architecture, and execution. It brainstorms the brief with you, researches whether the idea will actually work, plans UI and architecture, then resolves and invokes the right skills, subagents, hooks, MCPs and plugins from the registry - authoring missing ones mid-build when a real gap appears. Also use to run a UI design pass, a roast-and-fix cycle, or to discover what skills ex...",
+                       "resources":  [
+                                         "scripts",
+                                         "reference",
+                                         "registry",
+                                         "skillsets",
+                                         "workflows",
+                                         "agents",
+                                         "docs"
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-manual-demo",
+                       "category":  "orchestration",
+                       "path":  "skills/orchestration/aswath-manual-demo/SKILL.md",
+                       "description":  "Use when you want to see how a hand-written skill is captured into the shared catalog",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-publish-github",
+                       "category":  "publishing",
+                       "path":  "skills/publishing/aswath-publish-github/SKILL.md",
+                       "description":  "Use when creating a GitHub repository, pushing a project, opening a pull request, cutting a release, or publishing a gist — including phrases like \"push to GitHub\", \"create a repo\", \"open a PR\", \"make a release\", or \"publish this to GitHub\".",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-publish-instagram",
+                       "category":  "publishing",
+                       "path":  "skills/publishing/aswath-publish-instagram/SKILL.md",
+                       "description":  "Use when publishing, scheduling, or checking Instagram posts, reels, carousels, or stories from an AI agent — including phrases like \"post to Instagram\", \"publish a reel\", \"share this carousel on Instagram\", or any task naming Instagram as the destination.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-publish-linkedin",
+                       "category":  "publishing",
+                       "path":  "skills/publishing/aswath-publish-linkedin/SKILL.md",
+                       "description":  "Use when publishing, scheduling, deleting, or checking LinkedIn posts from an AI agent — including phrases like \"post to LinkedIn\", \"share on LinkedIn\", \"publish my update\", \"check my LinkedIn posts\", or any task naming LinkedIn as the destination.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-csvjson",
+                       "category":  "utilities",
+                       "path":  "skills/utilities/aswath-csvjson/SKILL.md",
+                       "description":  "Use when converting CSV files to JSON, or when adding a CSV-to-JSON command to an existing tool",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-chronicle",
+                       "category":  "workflow",
+                       "path":  "skills/workflow/aswath-chronicle/SKILL.md",
+                       "description":  "Use when building features, refactoring, or making non-trivial decisions that require a persistent audit trail of user prompts, agent choices, and git history without wasting LLM tokens.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-commit",
+                       "category":  "workflow",
+                       "path":  "skills/workflow/aswath-commit/SKILL.md",
+                       "description":  "Use when a change set is ready to commit and the reasoning must be written down. Produces a decision log and a file-by-file change inventory, then commits. No mass dumps.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-first-principles",
+                       "category":  "workflow",
+                       "path":  "skills/workflow/aswath-first-principles/SKILL.md",
+                       "description":  "Use when a new project, feature, or build task has no approved spec yet, and the work would otherwise start from assumptions",
+                       "resources":  [
+                                         "reference"
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-forge",
+                       "category":  "workflow",
+                       "path":  "skills/workflow/aswath-forge/SKILL.md",
+                       "description":  "Use when starting any task that may already have a minted skill for it, or when a task needs a spec before any code is written",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-throw",
+                       "category":  "workflow",
+                       "path":  "skills/workflow/aswath-throw/SKILL.md",
+                       "description":  "Use when the owner hands over a raw request, idea, or build-this and wants it executed end to end without hand-holding - the request is turned into a harness work item, gated by a leader-authored test, run by the agent pool, checked by two independent verifiers (one adversarial), projected for time, and reported back when it closes.",
+                       "resources":  [
+
+                                     ]
+                   },
+                   {
+                       "name":  "aswath-talk",
+                       "category":  "writing",
+                       "path":  "skills/writing/aswath-talk/SKILL.md",
+                       "description":  "[simple] How Aswath wants replies written — plain words, short sentences, no jargon walls, minimal ceremony, plus the \"smallest thing that actually works\" pushback. Use when the user says \"aswath-talk\", \"talk like me\", \"plain english\", \"simpler\", \"too long\", \"i dont understand\", or when a reply needs to be short and readable instead of dense. Combines caveman-style compression with ponytail-style minimalism and everyday wording.",
+                       "resources":  [
+
+                                     ]
+                   }
+               ]
+}
