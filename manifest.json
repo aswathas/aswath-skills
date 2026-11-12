@@ -39,6 +39,16 @@
             "resources": []
         },
         {
+            "name": "aswath-minimax-compaction-handoff",
+            "category": "context",
+            "path": "skills/context/aswath-minimax-compaction-handoff/SKILL.md",
+            "description": "Use when asked to set up, install, verify, or debug automatic context compaction for the MiniMax Code runtime, the 100k compaction trigger, HANDOFF.md generation before compaction using the context-compression structure (Session Intent, Files Modified, Decisions Made, Current State, Next Steps), or the PreCompact/PostCompact/SessionStart hook wiring in MiniMax Code.",
+            "resources": [
+                "reference",
+                "scripts"
+            ]
+        },
+        {
             "name": "aswath-capability",
             "category": "orchestration",
             "path": "skills/orchestration/aswath-capability/SKILL.md",

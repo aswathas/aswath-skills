@@ -1,0 +1,45 @@
+{
+  "enabled": true,
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "name": "Write HANDOFF.md before compaction",
+            "command": "sh \"$HOME/.minimax/compaction-handoff.sh\"",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\ADMIN\\.minimax\\compaction-handoff.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "name": "Log compaction to session handoff records",
+            "command": "sh \"$HOME/.minimax/compaction-handoff.sh\"",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\ADMIN\\.minimax\\compaction-handoff.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "name": "Re-inject HANDOFF.md after compaction",
+            "command": "sh \"$HOME/.minimax/compaction-handoff.sh\"",
+            "commandWindows": "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\ADMIN\\.minimax\\compaction-handoff.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
