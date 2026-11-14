@@ -7,6 +7,7 @@
 | 1 | `aswath-thevai` | The conversation ends with a brief the person approved. **Gate: they say yes.** No building before this. |
 | 2 | `aswath-thevai` (build phase) | Deliverables built to the approved brief, each one rendered and looked at before it is sent. |
 | 3 | `aswath-publish-github` | When the work is done and needs to leave the machine. |
+| 4 | `aswath-delivery` | The person's chat holds only the final version: the superseded files and status messages are deleted, the current build is sent once, and the staging copies are removed. |
 
 ## Rules
 
@@ -18,4 +19,4 @@
 
 ## Done when
 
-Both deliverables are with the person, they have confirmed the result, and the work is committed.
+Both deliverables are with the person exactly once, the chat holds no superseded copy of either, they have confirmed the result, and the work is committed.
