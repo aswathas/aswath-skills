@@ -76,3 +76,12 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `skills-active/aswath-commit-discipline/scripts/hook.py` | The new shared runner, mirrored into the store's active set | The active set is what MiniMax Code resolves, and it must carry the same runner | Read through the junction; the file resolves and matches the canonical one |
 | `skills-active/aswath-commit-discipline/scripts/install_harness_wiring.py` | The new installer, mirrored into the store's active set | The active set mirrors the whole skill, not a subset | Read through the junction; the file resolves and matches the canonical one |
 | `skills-active/aswath-commit-discipline/reference/contract.txt` | The new contract file, mirrored into the store's active set | Same reason: the active set carries the whole skill | Read through the junction; the file resolves and matches the canonical one |
+## The aswath-delivery skill
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-delivery/SKILL.md` | New skill: delete the superseded messages and files first, send the current build once, remove the staging copies, report the clean-up to the owner | The chat had accumulated four copies of the report and two dead links, and the person had no way to tell which file was current | Read back after install; the skill resolves through the harness link |
+| `manifest.json` | The row for the new skill, and the `updated` date | The manifest is the catalogue the installer reads | Parsed as JSON; the skill appears once with its category and path |
+| `README.md` | The table row, the category list and the workflow chain description | The README is the catalogue a reader scans | Read back after the change |
+| `docs/categories.md` | The judgement note: thevai and delivery are the same conversation at its two ends, so both are workflow | The category rule is "the question the skill answers", and that question needed a stated call | Read back after the change |
+| `workflows/thevai-a-request.md` | Step 4 is now the delivery, and the done condition says the chat holds no superseded copy | The chain ends with the work leaving the machine, and leaving it clean is part of that | Read back after the change |
