@@ -306,3 +306,33 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   executed from that path printed the contract and the checker's warnings.
 - Consequence: the wiring survives a repo rename and works on a machine that has the store but not a
   checkout of the skills repo.
+## D1 — A chat is a shelf, not a ledger: the delivery skill
+
+- Date: 2026-11-14
+- Prompt: "just delte unwanted messages in wahtsapp and give only perfectly final needed whenever
+  you update or improve things remove unwated from whatsapp add this to our /aswath-delivery
+  skill linked with /aswath-thevai create a enw skill"
+- Context: work handed to a person on WhatsApp had accumulated four copies of the report, two
+  dead links and a run of "sent, sorry, here it is again". The person had no way to tell which
+  file was current, and the stale one was the one they opened. `aswath-thevai` already owns the
+  first half of that conversation; nothing owned the last half.
+- Options:
+  - Add a rule to the global instructions. Applies everywhere but lives nowhere; it drifts and is
+    not discoverable as a skill.
+  - Fold the cleanup into `aswath-thevai`. One file, but a skill that does two jobs, and the
+    description would need an "and" to be accurate.
+  - A separate skill in the same category, joined to the thevai chain. One job each, the pair
+    reads as the two ends of one conversation.
+  - Put it in `publishing/` beside publish-github. That folder answers "how does this leave the
+    machine" for public channels; this is one person on one private channel.
+- Chosen: a separate `aswath-delivery` skill in `workflow/`, beside `aswath-thevai`, with the
+  delete-first order, the rules about what stays and what goes, and a step at the end of the
+  `thevai-a-request` workflow. Delete before sending, send once, remove the staging copies.
+  The judgement note in `docs/categories.md` records why it sits with thevai and not with the
+  publishing skills.
+- Evidence: the skill is linked into `~/.claude/skills` and `~/.agents/skills` by `install.ps1`
+  and resolves to the repo; the chain in `workflows/thevai-a-request.md` names it as step 4 with
+  its gate; the chat it was written for now holds the current report and deck exactly once each,
+  with the earlier copies and the stale status messages removed.
+- Consequence: every delivery on a chat channel ends with one final state rather than a
+  sequence, and the person never has to work out which file is the real one.
