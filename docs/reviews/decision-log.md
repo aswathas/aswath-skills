@@ -590,3 +590,49 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   the same path.
 - Consequence: the catalogue and the skill describe the same contract, and the version
   records that the contract changed.
+
+## D12 — The runtime spec: eight gaps, four skills, and one gate the loop cannot skip
+
+- Date: 2026-11-17
+- Prompt: "so how can we solve this in our system", "i want to create a engine like swamp which
+  can learn and update this", "tell us our gaps in simple words", "how to solve thiss", and four
+  answers: the skill code is public and the data is private; all eight gaps in one spec; the
+  ledger lives in the private store and is git-tracked; a learning-loop change that passes its
+  checks merges on its own.
+- Context: the estate runs several harnesses on two Windows PCs, and nothing in it knew the
+  truth about itself. The live `aswath-capability` skill was ahead of its published copy (265
+  lines against 252), so the catalogue described a skill that was not the one running; four
+  skills in `skills-active` were real directories instead of junctions; no ledger recorded what
+  a run produced or what was delivered; the router's scores lived in a MiniMax-named, untracked
+  folder so the second PC had a different state; the MiniMax runtime database already held nine
+  scheduler jobs (all one-shot, all deleted) and 3683 background-task records; and no recurring
+  job had ever run on this machine.
+- Options:
+  - Fix the gaps one at a time, each with its own design. Slowest to a working system, and each
+    fix would land on a moving base.
+  - One spec covering all eight gaps, built as eight skills. One document, but eight descriptions
+    added to the per-turn token bill, and four of the eight gaps are the same mechanism wearing
+    different names.
+  - One spec covering all eight gaps, built as four skills, one question each, with the learning
+    loop gated by a suite that must pass before a merge and a revert if the merge breaks something.
+  - Adopt `swamp` and inherit its scheduler, ledger and learning loop. It is AGPLv3 and is a
+    Deno-compiled automation runtime, not an agent host; linking it into this MIT estate is a
+    licence decision the user did not make.
+- Chosen: option 3. The spec is `docs/superpowers/specs/2026-11-17-runtime-design.md` and it
+  mints `aswath-catalog` (what exists where, and do both PCs agree), `aswath-record` (what ran,
+  what it produced, where the secrets are), `aswath-improve` (what failed, what should change) and
+  `aswath-schedule` (when it runs). Auto-merge is kept, as the user asked, and made safe by
+  construction: a path allow-list, a local gate suite, a post-merge verification and an automatic
+  revert commit — never an amend, because the commit is public. `swamp` is not vendored, wrapped
+  or executed.
+- Evidence: the drift is measured, not assumed — `diff` shows the live `aswath-capability`
+  `SKILL.md` at 265 lines against the published 252, and `readlink` shows `skills-active` holding
+  57 junctions and 4 real directories; `~/.claude/scheduled_tasks.json` holds `{"tasks": []}`;
+  `schtasks` lists no task of ours; the MiniMax runtime database holds 9 scheduler jobs, 9 cron
+  definitions, 9 cron runs and 3683 background-task rows (3118 succeeded, 505 failed, 30 canceled,
+  3 lost); `gh auth status` is green as `aswathas` and the public repo's `main` reports "Branch
+  not protected".
+- Consequence: the spec is written and waits for approval; no implementation file exists yet.
+  The auto-merge decision is bounded by the gate — if the gate does not pass on today's `main`,
+  the loop ships with merge disabled. The learn half of the loop is the part that is new: the
+  router already recorded skill outcomes, and now something reads them back into a skill diff.

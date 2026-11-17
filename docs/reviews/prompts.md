@@ -28,3 +28,24 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: the delivery plan for this change itself
   (`docs/reviews/delivery-plan.md`, three units), and the checker work that follows in the
   second unit.
+
+## 2026-11-17 — the runtime spec
+
+- Prompt: "https://github.com/swamp-club/swamp/ , analyse this"
+- Prompt: "do /leanrea on this github repo"
+- Prompt: "use simple caveman termsn adn explain me what is swamp"
+- Prompt: "swamps owns the half we fake , whats the meaning?"
+- Prompt: "so how can we solve this in our system"
+- Prompt: "i want to create a engine like swamp which can learn and update this ( will this owrk) /ponytail"
+- Prompt: "tell us our gaps in simple words"
+- Prompt: "how to solve thiss"
+- Decision it produced: D12 in `decision-log.md` — the eight gaps, the four skills, the gate and
+  the revert. The spec is `docs/superpowers/specs/2026-11-17-runtime-design.md`.
+- Answers given to the four questions the spec depended on:
+  1. "Split: skill public, data private" — the skill code lands in `aswathas/aswath-skills`, the
+     ledger, the state, the map and the secrets land in `aswathas/agent-store`.
+  2. "All 8 gaps in one spec" — one document covers all eight.
+  3. "Private store, git-tracked" — the ledger is `~/.agents/ledger/<project>.jsonl`, tracked.
+  4. "Auto-merge when checks pass" — the loop merges its own pull request when the gate is green,
+     and reverts the merge if the post-merge check fails.
+- Work it caused: the spec, and the decision log entry that records why `swamp` is not adopted.

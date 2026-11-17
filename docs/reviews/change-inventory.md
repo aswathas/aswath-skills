@@ -133,3 +133,13 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/change-inventory.md` | This section | The contract requires one row per changed file | Read back after the change |
 | `docs/reviews/delivery-plan.md` | Unit 3 marked `done` | The plan is the record of what landed and what is left | Read back after the change |
 | `BUILDLOG.md` | Unit 3 entry: what shipped, and the self-check that proved it | The build log is the running narrative of what shipped | Read back after the change |
+
+## The runtime spec (2026-11-17)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `docs/superpowers/specs/2026-11-17-runtime-design.md` | New. The spec for the eight gaps: skill-location truth, the run/artifact ledger, the secrets home, the learning loop, the shared skill state, scheduling, two-PC coordination and metrics | The work starts from assumptions about what the estate knows about itself; the decisions belong on paper before any code | Read back; all ten sections filled; a placeholder scan for `TBD`, `TODO`, `FIXME`, `XXX` and `...` returns no match |
+| `docs/reviews/decision-log.md` | Changed. Entry D12 added: what was chosen, what was rejected, and the evidence for each | The rule requires the reasoning behind a change to be written down before it is pushed | Read back; the entry carries its source prompts, its options and its evidence |
+| `docs/reviews/prompts.md` | Changed. A dated section for the runtime work, with the four answers the spec depended on | The rule requires every prompt that shaped the work to be recorded | Read back; the section names each prompt and the decision each one produced |
+| `docs/reviews/delivery-plan.md` | Changed. The five units of this work, in build order | The plan is written before the first commit, so the commit count and the push count are known | Read back; the unit table lists each unit with its commit subject |
+| `docs/reviews/change-inventory.md` | Changed. This section, one row per changed file | The rule requires every changed file to be accounted for | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
