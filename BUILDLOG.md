@@ -22,3 +22,25 @@ What shipped, when, and where. Each entry names the branch, the change and how i
   "build me a login screen" printed the delivery rule, and "now push it" printed the full
   contract.
 - Records: `docs/reviews/decision-log.md` (D4-D6), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — commit discipline, unit delivery (unit 2 of 3)
+- Branch: `feat/commit-discipline-unit-delivery`
+- Shipped:
+  - `skills/workflow/aswath-commit-discipline/scripts/check_push.py` — three new
+    warnings. `BULK_COMMIT` when one commit carries more files or lines than the rules
+    file allows. `COMMIT_NOT_PLANNED` when a commit in the range matches no unit of the
+    plan. `UNIT_NOT_COMMITTED` when a unit is marked `done` and no commit on the branch
+    carries it.
+  - The plan governs only the work it was written for: it applies when it changed in the
+    range, or when it does not exist at the point the branch forked from. A plan merged
+    earlier governs that merge, not later work.
+  - `skills/workflow/aswath-commit-discipline/reference/doc-rules.json` — the plan path
+    and the two bulk thresholds.
+  - `skills/workflow/aswath-commit-discipline/SKILL.md` — the wording of the two new
+    codes now matches what the checker says.
+- Verified: a scratch repository with a `main` branch and a feature branch produced
+  `BULK_COMMIT` for a 32-file commit, `COMMIT_NOT_PLANNED` for a commit matching no
+  unit, `UNIT_NOT_COMMITTED` for a unit marked done with no commit, and nothing for the
+  `chore:` commit. A second scratch repository with the plan merged to `main` reported
+  neither new warning for a later unrelated branch.
+- Records: `docs/reviews/decision-log.md` (D7-D9), `docs/reviews/change-inventory.md`.
