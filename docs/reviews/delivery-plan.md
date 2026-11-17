@@ -25,5 +25,6 @@ unit also pushes to the private store, where its data half lives.
 | 3 | `aswath-record`: the ledger, the delivery link, the secrets convention, the metrics | feat(record): keep a ledger of runs and artifacts | done |
 | 4 | `aswath-improve`: the learning loop, the gate, the merge policy, the revert | feat(improve): let the estate learn from its own runs | done |
 | 5 | `aswath-schedule`: the scheduled jobs and the harness-scheduler report | feat(schedule): run the loop and the check on a clock | planned |
+| 6 | the loop's own fix: a blank line before the section it writes | fix(improve): keep a blank line before the new heading | planned |
 
 Unit 1 landed on approval. Units 3 to 5 stay `planned` until then.
