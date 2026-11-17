@@ -17,6 +17,7 @@ Usage:
 import argparse
 import json
 import re
+import os
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -76,7 +77,15 @@ def name_token_exact(name_low, keyword):
 # or the two installs drift and the router ranks differently depending on
 # who is asking. Shared location: ~/.minimax/local-runtime/skill-learning/
 def shared_state_dir():
-    return Path.home() / '.minimax' / 'local-runtime' / 'skill-learning'
+    """Where the mutable router state lives.
+
+    Overridable so the router can run from a checkout, a container or a
+    CI job instead of one machine's home directory.
+    """
+    env = os.environ.get("SKILL_ROUTER_STATE_DIR")
+    if env:
+        return Path(env)
+    return Path.home() / ".agents" / "state"
 
 
 def shared_registry_path():

@@ -40,9 +40,17 @@ TAGLINE_RE = re.compile(r"^\s*-\s+(.+)$", re.MULTILINE)
 # root, other harnesses read theirs). The mutable state - the registry index
 # and the outcome ledger - must have exactly one copy, or the two installs
 # drift and the router ranks differently depending on who is asking.
-# Shared location: ~/.minimax/local-runtime/skill-learning/
+# Shared location: ~/.agents/state/ (the store; tracked in git)
 def shared_state_dir():
-    return Path.home() / ".minimax" / "local-runtime" / "skill-learning"
+    """Where the mutable router state lives.
+
+    Overridable so the router can run from a checkout, a container or a
+    CI job instead of one machine's home directory.
+    """
+    env = os.environ.get("SKILL_ROUTER_STATE_DIR")
+    if env:
+        return Path(env)
+    return Path.home() / ".agents" / "state"
 
 
 def shared_registry_path():
@@ -225,39 +233,66 @@ def tag_capabilities(text, name, capability_map, files=""):
     return sorted(tags)
 
 
+def skill_roots(home):
+    """Every root that holds installed skills, most authoritative first.
+
+    The data dir root is always scanned by the host, so its skills are
+    always installed and must never be missing from the registry. The
+    external roots come next. A skill name found in an earlier root wins,
+    so the always-installed copy is the one that gets recorded.
+    """
+    roots = [
+        home / ".minimax" / "skills",
+        home / ".minimax" / ".builtin-skills",
+        home / ".agents" / SKILL_DIR_NAME,
+        home / ".claude" / SKILL_DIR_NAME,
+        home / ".codex" / SKILL_DIR_NAME,
+    ]
+    out = []
+    for r in roots:
+        if r.is_dir() and r not in out:
+            out.append(r)
+    return out
+
+
 def scan_local_skills(home, capability_map, excluded=None):
     excluded = excluded or set()
-    base = home / ".agents" / SKILL_DIR_NAME
-    if not base.is_dir():
-        base = home / ".claude" / SKILL_DIR_NAME
     out = []
-    if not base.is_dir():
-        return out
-    for entry in sorted(base.iterdir()):
-        md = entry / "SKILL.md"
-        if not md.is_file():
+    seen = set()
+    for base in skill_roots(home):
+        try:
+            entries = sorted(base.iterdir())
+        except OSError:
             continue
-        name, desc, ver, block = read_frontmatter(md)
-        if not name:
-            continue
-        size = md.stat().st_size
-        text = f"{desc} {block}"
-        files = skill_file_evidence(entry)
-        out.append({
-            "name": name,
-            "slug": slugify(name),
-            "description": (desc or "")[:600],
-            "version": ver,
-            "source": "local",
-            "path": str(md),
-            "tokens_est": chars_to_tokens(size),
-            "auto_invocable": "disable-model-invocation: true" not in block,
-            "tags": [] if name in excluded else tag_capabilities(text, name, capability_map, files),
-            "router": name in excluded,
-            "file_evidence": len(files),
-            "evidence_stems": sorted(files)[:12],
-        })
-    return out
+        for entry in entries:
+            md = entry / "SKILL.md"
+            if not md.is_file():
+                continue
+            if entry.name in seen:
+                continue
+            name, desc, ver, block = read_frontmatter(md)
+            if not name or name in seen:
+                continue
+            seen.add(entry.name)
+            seen.add(name)
+            size = md.stat().st_size
+            text = f"{desc} {block}"
+            files = skill_file_evidence(entry)
+            out.append({
+                "name": name,
+                "slug": slugify(name),
+                "description": (desc or "")[:600],
+                "version": ver,
+                "source": "local",
+                "path": str(md),
+                "tokens_est": chars_to_tokens(size),
+                "auto_invocable": "disable-model-invocation: true" not in block,
+                "tags": [] if name in excluded else tag_capabilities(text, name, capability_map, files),
+                "router": name in excluded,
+                "file_evidence": len(files),
+                "evidence_stems": sorted(files)[:12],
+            })
+    return sorted(out, key=lambda s: s["name"])
 
 
 def scan_marketplace(home):
@@ -323,51 +358,59 @@ def scan_marketplace(home):
     return out
 
 
-def scan_plugin_skills(home, capability_map, excluded=None):
-    """Skills shipped by installed plugins (claude-mem, context-mode, ...).
+def plugin_roots(home):
+    """Directories that hold plugin-provided skills."""
+    out = []
+    for r in (home / ".claude" / "plugins", home / ".minimax" / "plugins"):
+        if r.is_dir() and r not in out:
+            out.append(r)
+    return out
 
-    These live under ~/.claude/plugins/<cache|marketplaces>/.../skills/<name>/.
-    They are invokable exactly like local skills, so the registry must see
-    them - otherwise a skillset referencing one resolves to nothing.
+
+def scan_plugin_skills(home, capability_map, excluded=None):
+    """Skills shipped by installed plugins.
+
+    They live under <plugins>/<cache|marketplaces>/.../skills/<name>/ and
+    under the host's own plugin directory. They are invokable exactly like
+    local skills, so the registry must see them - otherwise a skillset
+    referencing one resolves to nothing.
     """
     excluded = excluded or set()
-    plugins_root = home / ".claude" / "plugins"
-    if not plugins_root.is_dir():
-        return []
     seen = {}
-    try:
-        candidates = plugins_root.rglob("SKILL.md")
-    except OSError:
-        return []
-    for md in candidates:
+    for plugins_root in plugin_roots(home):
         try:
-            rel = md.relative_to(plugins_root)
-        except ValueError:
+            candidates = list(plugins_root.rglob("SKILL.md"))
+        except OSError:
             continue
-        parts = rel.parts
-        if "skills" not in parts:
-            continue
-        idx = parts.index("skills")
-        if idx + 1 >= len(parts) - 1:
-            continue
-        plugin = parts[idx - 1] if idx > 0 else "plugin"
-        name, desc, ver, block = read_frontmatter(md)
-        if not name or name in excluded or name in seen:
-            continue
-        files = skill_file_evidence(md.parent)
-        seen[name] = {
-            "name": name,
-            "slug": slugify(name),
-            "description": (desc or "")[:600],
-            "version": ver,
-            "source": "plugin",
-            "plugin": plugin,
-            "path": str(md),
-            "tokens_est": chars_to_tokens(md.stat().st_size),
-            "auto_invocable": "disable-model-invocation: true" not in block,
-            "tags": tag_capabilities(f"{desc} {block}", name, capability_map, files),
-            "file_evidence": len(files),
-        }
+        for md in candidates:
+            try:
+                rel = md.relative_to(plugins_root)
+            except ValueError:
+                continue
+            parts = rel.parts
+            if "skills" not in parts:
+                continue
+            idx = parts.index("skills")
+            if idx + 1 >= len(parts) - 1:
+                continue
+            plugin = parts[idx - 1] if idx > 0 else "plugin"
+            name, desc, ver, block = read_frontmatter(md)
+            if not name or name in excluded or name in seen:
+                continue
+            files = skill_file_evidence(md.parent)
+            seen[name] = {
+                "name": name,
+                "slug": slugify(name),
+                "description": (desc or "")[:600],
+                "version": ver,
+                "source": "plugin",
+                "plugin": plugin,
+                "path": str(md),
+                "tokens_est": chars_to_tokens(md.stat().st_size),
+                "auto_invocable": "disable-model-invocation: true" not in block,
+                "tags": tag_capabilities(f"{desc} {block}", name, capability_map, files),
+                "file_evidence": len(files),
+            }
     return sorted(seen.values(), key=lambda s: s["name"])
 
 
@@ -493,6 +536,19 @@ def main():
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(registry, indent=1, ensure_ascii=False), encoding="utf-8")
+
+    # CAPABILITY_PUBLISH: the auditor loads capabilities.json and ledger.json
+    # from the same shared state dir. Without them it reads an empty taxonomy
+    # and reports every tag as unsupported (781 phantom stale tags).
+    _skill_root = home / ".claude" / SKILL_DIR_NAME / "aswath-capability" / "registry"
+    for _name in ("capabilities.json", "ledger.json"):
+        _src = _skill_root / _name
+        _dst = out_path.parent / _name
+        if _src.is_file() and (not _dst.is_file() or _name == "capabilities.json"):
+            try:
+                _dst.write_text(_src.read_text(encoding="utf-8"), encoding="utf-8")
+            except OSError:
+                pass
 
     if not args.quiet:
         c = registry["counts"]

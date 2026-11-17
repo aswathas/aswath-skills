@@ -1,0 +1,17 @@
+{
+ "staged": [
+  {
+   "staged_at": "2026-11-05T01:43:10",
+   "plugin": "wake-storefront",
+   "version": "1.0.0",
+   "summary": "Wake Commerce development assistance for headless storefronts. Teaches product queries, checkout flow, cart, customer API, and GraphQL patterns.",
+   "repo": "https://github.com/wake-engineering/ai-plugin",
+   "repo_path": null,
+   "reviewed_by": null,
+   "ships": {},
+   "skills": [],
+   "install_command": "/plugin install wake-storefront@claude-plugins-official",
+   "status": "awaiting-approval"
+  }
+ ]
+}

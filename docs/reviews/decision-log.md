@@ -636,3 +636,46 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   The auto-merge decision is bounded by the gate — if the gate does not pass on today's `main`,
   the loop ships with merge disabled. The learn half of the loop is the part that is new: the
   router already recorded skill outcomes, and now something reads them back into a skill diff.
+
+## D13 — One canonical copy per skill, and the map compares places, not paths
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — the approval that lifted the gate on the runtime spec.
+- Context: unit 2 of the runtime build, `aswath-catalog`. The estate resolves its skills through
+  four directories (`~/.claude/skills`, `~/.commandcode/skills`, `~/.agents/skills-active`,
+  `~/.agents/skills`) and nothing said which copy was real. Measured before the change: the live
+  `aswath-capability` `SKILL.md` was 265 lines against 252 published; `skills-active` held 57
+  junctions and 4 real directories, each of those 4 duplicated into `~/.claude/skills` as well.
+  Windows makes this worse than it looks: `Path.exists()` is False for a broken junction, so the
+  usual "does it exist" test says a dead link is missing, and `mklink /J` then refuses to
+  overwrite it.
+- Options:
+  - Publish the map and call the drift solved. The map would describe a layout that the machine
+    did not have, and the next `install.ps1` would put the drift back.
+  - Compare copies by content hash and report every difference. Every store copy is a link, so
+    the hash of a link is the hash of its target: the check would find nothing and prove nothing.
+  - One canonical copy per skill, every other location a junction, and a checker that reads the
+    link chain rather than the files.
+- Chosen: option 3. The canonical copy is the repo path for published skills and the store path
+  for vendored ones; every other location is a junction to it. The checker reports the shape of
+  the chain (`MISSING_STORE`, `SHADOWED_COPY`, `WRONG_TARGET`, `COPY_IN_ACTIVE`, `ACTIVE_WRONG_TARGET`,
+  `MISSING_ACTIVE`, `KEEP_NOT_ACTIVE`, `ACTIVE_NOT_KEPT`) rather than comparing content. `fix`
+  re-points a link, and refuses in exactly one case: a store copy holding files the published
+  copy does not, because that copy may be the newer one.
+- The map is compared by *place*, not by absolute path. Both PCs carry `skill-map.json` in the
+  private store, but the two machines have different home directories, so an absolute-path
+  comparison would report every skill as moved. Each entry therefore carries `rel`
+  (`skills/utilities/aswath-catalog`) next to its absolute `canonical`, and `verify` compares the
+  relative place.
+- Evidence: `catalog check` exits 0 on this machine with 354 skills mapped and 66 entries in the
+  active set, all junctions, all matching the keep list. `selftest.py` runs 9 cases against a
+  scratch estate — a clean estate, a shadowed copy, a copy in the active set, keep-list drift, a
+  broken link rebuilt, a missing store link created, the map written with the relative place, the
+  two-PC comparison agreeing on a different absolute root, and the lease taken, refused and
+  released — and reports `9/9 case(s) passed`.
+- Consequence: the store's `.gitignore` now states in words what travels and what stays: only the
+  derived per-skill scores under `state/scores/` are tracked, the raw event stream, the router's
+  working files and the write lease stay on the machine, and `secrets/` never leaves it. The
+  router's state moved to `~/.agents/state/`, with the old MiniMax path left as a junction so the
+  plugin needed no change. The catalogue skill itself is published here, and its store copy is a
+  junction to this repo.
