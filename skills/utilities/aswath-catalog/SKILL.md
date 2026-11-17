@@ -97,3 +97,11 @@ python skills/utilities/aswath-catalog/scripts/selftest.py
 ```
 
 Runs against a scratch directory. It never touches the real estate.
+
+## Known failures
+
+Recorded from the run ledger. A job listed here failed and was never
+followed by a success.
+
+- `the keep list and the active set stay in step after a publish`: 2 failures, last on 2026-11-17
+

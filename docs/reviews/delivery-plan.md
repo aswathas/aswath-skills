@@ -29,3 +29,11 @@ unit also pushes to the private store, where its data half lives.
 | 7 | the loop's own fixes: the patch and the plan row are written in bytes | fix(improve): write the patch and the plan row in bytes | planned |
 
 Unit 1 landed on approval. Units 3 to 5 stay `planned` until then.
+
+## The loop's own units
+
+Rows the learning loop added. Each row is a commit the loop pushed.
+
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 1 | aswath-catalog learns from the ledger | fix(aswath-catalog): record 2 open failures | done |
