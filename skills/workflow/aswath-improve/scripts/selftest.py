@@ -162,6 +162,9 @@ def env_for(root: Path, repo: Path) -> dict:
     env["ASWATH_LEDGER"] = str(root / "ledger")
     env["ASWATH_STATE"] = str(root / "state")
     env["ASWATH_SKILLS_REPO"] = str(repo)
+    # Without this the imported ledger module leaves a __pycache__ in the
+    # scratch repo and the run refuses to start on a dirty tree.
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
     return env
 
 
@@ -300,6 +303,32 @@ def t_run_merge(root: Path) -> None:
     assert "pr merge" in log, log
     assert "pr create" in log, log
     assert "And the gate." in (repo / rel).read_text(encoding="utf-8")
+
+
+@case("a merged proposal closes the failure it fixed")
+def t_run_closes(root: Path) -> None:
+    repo = build_repo(root / "i")
+    write_gh(root / "i")
+    env = env_for(root / "i", repo)
+    ledger = root / "i" / "ledger"
+    ledger.mkdir(parents=True, exist_ok=True)
+    (ledger / "scratch.jsonl").write_text(json.dumps({
+        "id": "1", "ts": "2026-11-10T10:00:00Z", "project": "scratch", "kind": "run",
+        "job": "build the thing", "outcome": "failed", "skill": "demo"}) + "\n",
+        encoding="utf-8")
+    out = run([sys.executable, str(IMPROVE), "--run", "--project", "scratch",
+               "--repo", str(repo), "--skill", "demo"], env)
+    assert out.returncode == 0, (out.stdout, out.stderr)
+    records = [json.loads(line) for line
+               in (ledger / "scratch.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    closed = [r for r in records
+              if r.get("job") == "build the thing" and r.get("outcome") == "ok"]
+    assert closed, records
+    # and the next pass has nothing to do, which is not a failure
+    out = run([sys.executable, str(IMPROVE), "--dry-run", "--project", "scratch",
+               "--repo", str(repo)], env)
+    assert out.returncode == 0, (out.stdout, out.stderr)
+    assert "nothing to do" in (out.stdout + out.stderr).lower(), out.stdout
 
 
 @case("run refuses to merge a change that touches the manifest")

@@ -38,6 +38,10 @@ PLAN_SECTION = "## The loop's own units"
 KNOWN = "## Known failures"
 
 
+class NothingToDo(Exception):
+    """The loop checked and there was nothing to change."""
+
+
 # ---------------------------------------------------------------- locations
 
 
@@ -153,7 +157,7 @@ def propose(repo: Path, project: str, out: str = "") -> tuple:
         raise RuntimeError("aswath-record is not installed, so the ledger cannot be read.")
     failures = open_failures(ledger.read_records(project))
     if not failures:
-        raise RuntimeError(f"no open failure names a skill for project '{project}'.")
+        raise NothingToDo(f"no open failure names a skill for project '{project}'.")
 
     counts = {}
     for (skill, job), recs in failures.items():
@@ -184,7 +188,7 @@ def propose(repo: Path, project: str, out: str = "") -> tuple:
         )
     )
     if not diff:
-        raise RuntimeError(f"{skill} already records these failures. Nothing to propose.")
+        raise NothingToDo(f"{skill} already records these failures.")
 
     path = Path(out) if out else state_root() / "improve" / f"{skill}.diff"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -200,6 +204,9 @@ def propose(repo: Path, project: str, out: str = "") -> tuple:
 def cmd_dry_run(args) -> int:
     try:
         propose(Path(args.repo).resolve(), args.project, args.out)
+    except NothingToDo as exc:
+        print(f"improve: nothing to do: {exc}")
+        return 0
     except RuntimeError as exc:
         print(f"improve: {exc}", file=sys.stderr)
         return 1
@@ -294,6 +301,7 @@ def cmd_run(args) -> int:
         return 1
 
     skill = args.skill
+    fixed_jobs = []
     if args.diff:
         diff_path = Path(args.diff).resolve()
         if not diff_path.is_file():
@@ -301,10 +309,14 @@ def cmd_run(args) -> int:
             return 1
     else:
         try:
-            skill, _jobs, diff_path = propose(repo, args.project, args.out)
+            skill, jobs, diff_path = propose(repo, args.project, args.out)
+        except NothingToDo as exc:
+            print(f"improve: nothing to do: {exc}")
+            return 0
         except RuntimeError as exc:
             print(f"improve: {exc}", file=sys.stderr)
             return 1
+        fixed_jobs = [job for job, _recs in jobs]
 
     dirty = git(repo, "status", "--porcelain").stdout.strip()
     if dirty:
@@ -396,15 +408,19 @@ def cmd_run(args) -> int:
         print(f"improve: merged and verified. {sha[:7]} on {args.base}.")
         ledger = load_ledger(repo)
         if ledger is not None:
-            ledger.append_record({
-                "id": f"improve:{sha[:12]}",
-                "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "project": args.project,
-                "kind": "run",
-                "job": f"improve {skill}",
-                "outcome": "ok",
-                "skill": skill,
-            })
+            stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            # Each job the proposal fixed is closed by this merge, so the
+            # failure it recorded stops being open.
+            for job in fixed_jobs or [f"improve {skill}"]:
+                ledger.append_record({
+                    "id": f"improve:{sha[:12]}:{job}".replace(" ", "-"),
+                    "ts": stamp,
+                    "project": args.project,
+                    "kind": "run",
+                    "job": job,
+                    "outcome": "ok",
+                    "skill": skill,
+                })
         return 0
     except RuntimeError as exc:
         print(f"improve: {exc}", file=sys.stderr)

@@ -29,7 +29,8 @@ ledger failures -> a diff on one skill -> a pull request -> the gate -> merge, o
    and no later successful run of the same job. A later success closes it; a failure that names
    no skill has no skill to change and is left alone.
 2. **Write the diff.** `--dry-run` records the open failures in the skill that owns them, as a
-   `## Known failures` section. It touches no git state: the output is a diff file.
+   `## Known failures` section. It touches no git state: the output is a diff file. When there is
+   nothing to change it says so and exits 0 — a check that found nothing is not a failure.
 3. **Take it to a pull request.** `--run` branches from the base, applies the diff, adds the unit
    to the delivery plan, commits, pushes and opens the PR. With no `--diff` it writes the
    proposal first and runs that.
@@ -70,6 +71,16 @@ fails, the loop:
 
 The revert is a new commit. The merged commit stays in the history, because the history is what
 tells the next session what happened.
+
+## The closing
+
+A merge closes the failures it fixed. After it, the ledger holds a successful run of each job the
+proposal fixed, so those failures stop being open and the next pass does not propose them again.
+Without this the loop would propose the same fix every day and the scheduled job would report a
+failure every day.
+
+A failure is closed by a success of the *same job*. A merge that fixed another job does not close
+it.
 
 ## Commands
 

@@ -832,3 +832,30 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   this machine both tasks are created and visible with their next run times, and the verify task
   was run by hand: it returned exit 1 and named the one real difference, the new skill that was not
   yet in the store's map, which is the check working.
+
+## D18 — A merge closes the failure it fixed, and a check with nothing to do is not a failure
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — unit 9 of the runtime build, found while scheduling
+  the loop.
+- Context: the scheduled job made a defect visible that no hand-run had. The loop recorded its
+  success under the job name `improve <skill>`, not under the name of the job it had fixed, so the
+  failure it had repaired stayed open forever. The next pass found the same failure again, wrote no
+  diff, and exited 1 — every day, forever, on a healthy estate. A job that reports a failure when
+  there is nothing wrong is a job nobody watches.
+- Decision:
+  - A merge closes what it fixed. After a successful merge the ledger holds a successful run of
+    each job the proposal fixed, under that job's own name, so the failure it recorded stops being
+    open.
+  - "Nothing to do" is not a failure. When the loop finds no open failure, or finds one the skill
+    already records, it says so and exits 0. A real error — the ledger cannot be read, the skill is
+    not in the manifest — still exits 1.
+- Rejected:
+  - Closing the failure from the merge without recording the job. The rule is a later success of
+    the same job closes the failure; a marker under another name changes nothing.
+  - Leaving the exit code at 1 and telling the operator to read the message. The Task Scheduler
+    shows only the result code, and a red task every day is noise that hides a real red task.
+- Evidence: the self-check runs 9 cases and reports `9/9 case(s) passed`. The new case seeds a
+  failure, runs the loop with no diff, and shows the ledger holding a successful run of the same
+  job, and the next dry run finding nothing to do and exiting 0. On this machine the live
+  `Aswath\improve` job was run by hand and returned the same 0.

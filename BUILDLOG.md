@@ -156,3 +156,18 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `python skills/utilities/aswath-schedule/scripts/selftest.py` -> `7/7 case(s) passed`,
   exit 0. `catalog.py check` -> clean.
 - Records: `docs/reviews/decision-log.md` (D17), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — the loop closes what it fixed (unit 9 of the runtime build)
+- Branch: `fix/improve-closing`
+- Shipped:
+  - `skills/workflow/aswath-improve/scripts/improve.py` — a successful merge records a successful run
+    of each job the proposal fixed, under that job's own name, so the failure it repaired stops
+    being open. "Nothing to do" exits 0; a real error still exits 1.
+  - `skills/workflow/aswath-improve/scripts/selftest.py` — a ninth case: a seeded failure, a run
+    with no diff, the ledger holding the success, and the next dry run finding nothing.
+  - `skills/workflow/aswath-improve/SKILL.md` — the two rules.
+- Machine-local: the ledger records the successful run of "the keep list and the active set stay in
+  step after a publish", which closes the estate's one open failure.
+- Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `9/9 case(s) passed`,
+  exit 0.
+- Records: `docs/reviews/decision-log.md` (D18), `docs/reviews/change-inventory.md`.
