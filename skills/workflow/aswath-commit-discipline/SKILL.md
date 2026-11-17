@@ -127,6 +127,13 @@ Run it by hand:
 python <skill>/scripts/check_push.py --repo <repo path>
 ```
 
+The checker has its own self-check, which builds scratch repositories and asserts what the
+checker warns about:
+
+```
+python <skill>/scripts/test_check_push.py
+```
+
 ## Harness coverage
 
 The rule reaches every AI harness on this PC in three layers. Nothing in any layer blocks.
