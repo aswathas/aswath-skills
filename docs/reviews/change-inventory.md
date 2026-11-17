@@ -272,3 +272,21 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `~/.agents/skills-active.list.json` | `aswath-schedule` added, 68 -> 69 | The keep list decides what is installed in the harnesses | `catalog check` is clean |
 | `~/.agents/skills/aswath-schedule/`, `~/.agents/skills-active/aswath-schedule/`, `~/.claude/skills/aswath-schedule/`, `~/.commandcode/skills/aswath-schedule/` | Junctions to the published skill | The store's copies are links to the published copy | `catalog check` reports no `WRONG_TARGET` |
 | `~/.agents/config/skill-map.json`, `~/.agents/config/pc.json` | Rebuilt: 357 skills | The map is what the two PCs compare | `catalog check` is clean; `catalog build` wrote both files |
+
+## aswath-skills-wk — `fix/improve-closing` (unit 9: the merge closes the failure, and nothing to do is not a failure)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-improve/scripts/improve.py` | Changed. A successful merge records a successful run of each job the proposal fixed, under that job's own name; "nothing to do" exits 0 | The loop recorded its success under `improve <skill>`, so the failure it repaired stayed open forever and the daily job reported a failure every day on a healthy estate | `selftest.py` -> `9/9 case(s) passed`; the live `Aswath\improve` job returns 0 |
+| `skills/workflow/aswath-improve/scripts/selftest.py` | Changed. A new case seeds a failure, runs the loop with no diff, and shows the ledger holding a successful run of the same job and the next dry run finding nothing to do; the scratch runs set `PYTHONDONTWRITEBYTECODE` so the imported ledger leaves no `__pycache__` in the scratch tree | The closing rule and the exit code are the two things a scheduled job lives on | `python skills/workflow/aswath-improve/scripts/selftest.py` -> `9/9 case(s) passed`, exit 0 |
+| `skills/workflow/aswath-improve/SKILL.md` | Changed. The flow says a check that found nothing exits 0, and a new section states that a merge closes what it fixed | A reader must know why the job is quiet on a good day | Read back |
+| `docs/reviews/decision-log.md` | Changed. D18: a merge closes the failure it fixed, and a check with nothing to do is not a failure | The rule requires the reasoning behind a change to be written down before it is pushed | Read back; the entry carries its options, its rejections and the evidence |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 9 added | The plan is the record of what landed and what is left | Read back; the unit table matches the commits |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
+| `BUILDLOG.md` | Changed. The unit 9 entry | The build log is the running narrative of what shipped | Read back after the change |
+
+### Machine-local (this PC, outside the skills repo)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `~/.agents/ledger/agent-estate.jsonl` | A successful run of "the keep list and the active set stay in step after a publish" for `aswath-catalog` | The job was done — the keep list is 69 and the map is rebuilt — but the ledger held only the failure, so the failure stayed open | `improve.py --dry-run --project agent-estate` -> "nothing to do", exit 0 |
