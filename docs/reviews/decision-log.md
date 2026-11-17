@@ -336,3 +336,57 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   with the earlier copies and the stale status messages removed.
 - Consequence: every delivery on a chat channel ends with one final state rather than a
   sequence, and the person never has to work out which file is the real one.
+
+## D2 — The catalogue and the manifest had drifted apart: publish both
+
+- Date: 2026-11-17
+- Prompt: "publissh all our skills in github ? actively do this"
+- Context: the skills repo on `main` carried 20 skill folders but the manifest listed 19. The
+  gap was `aswath-commit-discipline`: it landed through PR #4 as a squash merge, and the squash
+  kept the skill folder and the README row but dropped the manifest row. The manifest is what
+  `install.ps1` reads and what the catalogue counts, so the skill was installed by link but
+  invisible to the catalogue. Two further branches were also unpublished: `aswath-delivery`
+  (PR #9, open since 2026-11-14) and the closed duplicate PR #6, whose change had already
+  merged as PR #7 with an identical tree.
+- Options:
+  - Add every skill folder that exists. Wrong: the folders include the ones the maintainer
+    keeps for reference, and the manifest is a catalogue with a rule per entry, not a dump.
+  - Leave the manifest as it is and treat the folder list as truth. Leaves the installer and the
+    catalogue disagreeing, which is the state that caused the drift.
+  - Add the one missing row, land the open delivery PR, close the duplicate, and say plainly in
+    the catalogue what each entry promises.
+- Chosen: option 3. One row for `aswath-commit-discipline` in `workflow`, version bumped to
+  1.2.0, `updated` set to today; PR #9 merged (squash, the house style); PR #6 closed as the
+  duplicate of the already-merged PR #7; local `main` reset to `origin/main` because its extra
+  commit `ecb0fe6` had an identical tree to the merged `ef5ec17`.
+- Evidence: `git show origin/main:manifest.json` listed 19 rows against 20 skill folders before
+  the change and 21 after; every row's `path` resolves to a `SKILL.md` that exists; `gh pr view
+  9` reported `MERGEABLE`/`CLEAN` before the merge and the branch head `f20123e` is on
+  `origin/main` after it; `git diff ecb0fe6 ef5ec17` is empty.
+- Consequence: the catalogue, the installer and the folder tree now agree, and the repo's own
+  publishing rule ("a skill that is not in the manifest is not published") can be checked by
+  reading one file.
+
+## D3 — The impeccable hook failed because the launcher could not find itself
+
+- Date: 2026-11-17
+- Prompt: "why is this impeccbale hook error coming?"
+- Context: every Claude Code session printed `impeccable: no engine binary for windows-x64
+  found ... exit 127`. The skill ships its own engine at
+  `scripts/bin/windows-x64/impeccable.exe`, so the engine was never missing. The launcher
+  derives its own directory from `$0` with a forward-slash match (`case $0 in */*) dir=${0%/*}
+  ;; *) dir=. ;;`), and the hook passed `C:\Users\ADMIN\...\impeccable` — a path with no forward
+  slash. The launcher therefore fell back to `dir="."`, kept the hook's working directory, and
+  never found its own `VERSION` file or the engine beside it.
+- Options:
+  - Download the engine again. Treats the symptom; the engine was already there.
+  - Point the hook at `impeccable.cmd`. Works, but the Windows launcher is a second code path
+    for the same job.
+  - Give the launcher a path it can parse: forward slashes.
+- Chosen: option 3. The three hook commands in `~/.claude/settings.json` now call
+  `/c/Users/ADMIN/.claude/skills/impeccable/scripts/impeccable`.
+- Evidence: the old command run by hand printed the "no engine binary" message and exited 127;
+  the same command with forward slashes printed nothing and exited 0; running the command
+  straight out of the parsed `settings.json` after the change also exits 0 with empty stderr.
+- Consequence: the UI-check hook stops failing on every prompt, and no engine is downloaded for
+  a binary that was on disk all along.

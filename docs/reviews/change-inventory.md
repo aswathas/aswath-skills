@@ -85,3 +85,11 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `README.md` | The table row, the category list and the workflow chain description | The README is the catalogue a reader scans | Read back after the change |
 | `docs/categories.md` | The judgement note: thevai and delivery are the same conversation at its two ends, so both are workflow | The category rule is "the question the skill answers", and that question needed a stated call | Read back after the change |
 | `workflows/thevai-a-request.md` | Step 4 is now the delivery, and the done condition says the chat holds no superseded copy | The chain ends with the work leaving the machine, and leaving it clean is part of that | Read back after the change |
+## Publishing the catalogue (2026-11-17)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `manifest.json` | Added the missing `aswath-commit-discipline` row, bumped `version` 1.1.0 → 1.2.0 and set `updated` to 2026-11-17 | PR #4 landed the skill as a squash merge that kept the folder and the README row but dropped the manifest row, so the catalogue counted 19 skills while the repo carried 20 | Parsed as JSON; 21 rows; every row's `path` resolves to a `SKILL.md` that exists |
+| `docs/reviews/decision-log.md` | D2, the catalogue/manifest drift and how it was closed, and D3, the impeccable hook path | The contract requires every decision to be written down before the push | Read back after the change |
+| `docs/reviews/change-inventory.md` | This section | The contract requires one row per changed file | Read back after the change |
+| `C:/Users/ADMIN/.claude/settings.json` (outside this repo) | The three impeccable hook commands call `/c/Users/ADMIN/.claude/skills/impeccable/scripts/impeccable` instead of `C:\Users\ADMIN\...` | The launcher parses its own directory out of `$0` with a forward-slash match, so a backslash path left it searching the hook's working directory for the engine and it exited 127 on every prompt | The command was run straight out of the parsed JSON after the change: exit 0, empty stdout and stderr; the old form exited 127 with "no engine binary" |

@@ -1,9 +1,9 @@
 {
   "name": "aswath-skills",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "Aswath S",
   "license": "MIT",
-  "updated": "2026-11-14",
+  "updated": "2026-11-17",
   "invocation": {
     "manual": "/<skill-name>",
     "example": "/aswath-token-guard",
@@ -110,6 +110,16 @@
       "path": "skills/workflow/aswath-commit/SKILL.md",
       "description": "Use when a change set is ready to commit and the reasoning must be written down. Produces a decision log and a file-by-file change inventory, then commits. No mass dumps.",
       "resources": []
+    },
+    {
+      "name": "aswath-commit-discipline",
+      "category": "workflow",
+      "path": "skills/workflow/aswath-commit-discipline/SKILL.md",
+      "description": "Use when work is about to be committed or pushed to GitHub, when the user says \"push to GitHub\", \"mass push\", \"commit per meaningful work\", \"well documented commit\", or when a change set needs its decisions, edits, prompts and new skills written down before it leaves the machine. Enforces the standing rule that every decision spoken with an AI, every edit, every prompt and every skill added is documented in detail and then committed and pushed. The commit count is free; the detail is not.",
+      "resources": [
+        "reference",
+        "scripts"
+      ]
     },
     {
       "name": "aswath-delivery",
