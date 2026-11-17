@@ -1,6 +1,7 @@
 {
   "decision_log": "docs/reviews/decision-log.md",
   "change_inventory": "docs/reviews/change-inventory.md",
+  "delivery_plan": "docs/reviews/delivery-plan.md",
   "prompt_record_patterns": [
     "docs/reviews/decision-log.md",
     "docs/reviews/prompts.md",
@@ -11,6 +12,8 @@
   "doc_file_names": ["README.md", "CHANGELOG.md", "LICENSE", "LICENSE.md"],
   "skill_path_prefixes": ["skills/"],
   "min_commit_body_chars": 20,
+  "bulk_commit_file_threshold": 30,
+  "bulk_commit_line_threshold": 2000,
   "placeholder_subject_patterns": [
     "wip",
     "fixup",

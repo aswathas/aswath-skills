@@ -113,8 +113,8 @@ no tracking ref for the others and looks unpushed right after a successful push.
 | `PLACEHOLDER_SUBJECT` | Subject is `wip`, `fixup`, `squash`, `tmp`, `asdf`, `test commit`. |
 | `PROMPT_NOT_LOGGED` | The range changes skills or docs but carries no prompt/decision record. |
 | `BULK_COMMIT` | One commit touches more files or lines than the bulk thresholds in `doc-rules.json`. |
-| `COMMIT_NOT_PLANNED` | A commit subject matches no row in `delivery-plan.md`. |
-| `UNIT_NOT_COMMITTED` | A unit is marked `done` in the plan but has no commit in the range. |
+| `COMMIT_NOT_PLANNED` | A commit in the range matches no unit in `delivery-plan.md`. |
+| `UNIT_NOT_COMMITTED` | A unit is marked `done` in the plan but no commit on the branch carries it. |
 | `UNPUSHED_WORK` | Local commits sit on a branch with no upstream, or ahead of its upstream. |
 | `DIRTY_AT_PUSH` | The working tree has uncommitted changes while a push runs. |
 

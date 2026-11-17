@@ -463,3 +463,80 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   from the repo copy with `python -m py_compile` clean first.
 - Consequence: the rule reaches the agent at planning time, and the long contract is only
   spent when it is relevant.
+
+## D7 — The plan governs the work it was written for, and nothing older
+
+- Date: 2026-11-17
+- Prompt: "if am doing a project or any work the push should have lot / multiple commits
+  meaning ful commits every step needs to docuemnated or commited not bulk single push if
+  design an app with 4 feature each feature and its builds shodl be commited in a way that
+  we planned"
+- Context: the plan names the commits the work is made of, so the checker can compare the
+  range against it. But a plan is a file in the repository: once this change merges, the
+  plan is on `main` forever. If every later branch is checked against it, every later
+  commit on every later branch is "unplanned" — the checker cries wolf on work it has
+  nothing to do with, and a warning nobody reads is worth nothing.
+- Options:
+  - Always apply the plan on every push. Simple, but every branch after this one warns
+    about every commit it makes.
+  - Apply the plan only when the plan file changed in the range. Precise, but a unit
+    commit that forgot to update the plan escapes the check entirely — the non-compliant
+    case is the one that would go unchecked.
+  - Apply the plan when it changed in the range, or when the plan does not exist at the
+    point the branch forked from. The second half covers the branch that wrote the plan
+    and never touched it again.
+- Chosen: option 3. `plan_governs_range()` asks two questions: did the plan change in
+  this range, and does the plan exist at the fork point? A plan that arrived with an
+  earlier merge governs that merge only.
+- Evidence: in a scratch repository the plan was merged to `main` and a later branch made
+  an unrelated commit — the checker reported no `COMMIT_NOT_PLANNED` and no
+  `UNIT_NOT_COMMITTED` for it. In the same scratch repository, on the branch that wrote
+  the plan, all three new warnings fired.
+- Consequence: the check is silent on unrelated work and loud on the work that wrote the
+  plan.
+
+## D8 — A bulk commit is measured by size, and the size limits live in the rules file
+
+- Date: 2026-11-17
+- Prompt: "not bulk single push"
+- Context: "bulk" has to become something the machine can see. The obvious candidate is
+  the commit count, and that is the wrong measure: decision D2 already ruled it out,
+  because a fixed count rewards twenty empty commits over four real ones.
+- Options:
+  - A fixed number of commits per push. Wrong measure, already rejected.
+  - A size limit on a single commit: files touched and lines changed. A commit that
+    touches thirty files or changes two thousand lines is carrying more than one unit.
+  - A size limit on the whole range. Same failure as a commit-count limit, only slower.
+  - No size limit at all. The rule stays a sentence an agent may forget.
+- Chosen: option 2, with the thresholds in `reference/doc-rules.json` — 30 files and 2000
+  lines — so a repository can move them without editing the checker. The size of every
+  commit is already computed for the informational line; the warning reuses it.
+- Evidence: a scratch commit touching 32 files produced
+  `WARN BULK_COMMIT: commit 19af649 carries 32 file(s) and 33 line(s), over the bulk
+  thresholds (30 files / 2000 lines); split it into units`. This change's own commits
+  carry 10 files and 5 files, under the thresholds.
+- Consequence: the warning points at the split, not at the count, and the numbers that
+  decide it are visible in one file.
+
+## D9 — Housekeeping commits are exempt from the plan match
+
+- Date: 2026-11-17
+- Prompt: "if am doing a project or any work the push should have lot / multiple commits
+  meaning ful commits every step needs to docuemnated or commited not bulk single push"
+- Context: a branch carries more than its units. A commit that fixes a typo in the README,
+  bumps a dependency, or renames a CI workflow is not a unit of the work, and it will
+  match no row in the plan. Without an exemption the checker reports it as unplanned
+  work, and a warning that fires on the ordinary commits of every branch is a warning
+  that gets ignored.
+- Options:
+  - No exemption. Every commit must be a unit. Simple, and noisy on honest housekeeping.
+  - Exempt commits whose subject starts with `docs`, `chore` or `ci`. Housekeeping by
+    convention, and the three prefixes are the ones the repo's own history already uses.
+  - Exempt any commit whose subject does not look like a feature. Judging by wording
+    instead of by convention: too fuzzy to check.
+- Chosen: option 2. The prefixes are `docs`, `chore` and `ci`. Anything else that matches
+  no unit is reported.
+- Evidence: in the scratch repository the commit `chore: housekeeping` produced no
+  `COMMIT_NOT_PLANNED`, while `feat(y): unplanned work` in the same range produced one.
+- Consequence: the check reports the commits that carry work, and stays quiet on the ones
+  that do not.
