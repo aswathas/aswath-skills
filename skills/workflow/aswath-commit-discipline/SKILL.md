@@ -1,6 +1,6 @@
 ---
 name: aswath-commit-discipline
-description: Use when work is about to be committed or pushed to GitHub, when the user says "push to GitHub", "mass push", "commit per meaningful work", "well documented commit", or when a change set needs its decisions, edits, prompts and new skills written down before it leaves the machine. Enforces the standing rule that every decision spoken with an AI, every edit, every prompt and every skill added is documented in detail and then committed and pushed. The commit count is free; the detail is not.
+description: Use when work is about to be committed or pushed to GitHub, when the user says "push to GitHub", "mass push", "commit per meaningful work", "well documented commit", or when a change set needs its decisions, edits, prompts and new skills written down before it leaves the machine. Enforces the standing rule that every decision spoken with an AI, every edit, every prompt and every skill added is documented in detail and then committed and pushed, and that a brief with separable parts lands as one commit and one push per unit planned in docs/reviews/delivery-plan.md. The commit count is free; the detail is not.
 ---
 
 # ASWATH commit discipline
@@ -9,8 +9,9 @@ The rule, in one line: **every decision spoken with an AI, every edit, every pro
 skill added is documented in detail, then committed and pushed.**
 
 "Mass push" does not mean *many commits*. It means *undocumented* work reaching GitHub. A hundred
-commits, each documented, is compliant. One undocumented dump of forty files is not. Commit
-granularity is a soft preference; documentation completeness is the gate.
+commits, each documented, is compliant. One undocumented dump of forty files is not. Two gates:
+documentation completeness, and units. A brief with separable parts lands as one commit and one
+push per unit, planned in `docs/reviews/delivery-plan.md` before the first commit.
 
 Nothing here blocks. The skill, the agent hooks and the global git hook all warn. Repair is
 always the response to a warning, never a refusal to push.
@@ -19,12 +20,14 @@ always the response to a warning, never a refusal to push.
 
 - A change set is about to be committed, pushed, or opened as a pull request.
 - The user says "push to GitHub", "commit this", "open a PR", "ship it", "mass push".
+- The user asks to build, implement or design something with more than one part. The units are
+  planned before the first commit, not discovered afterwards.
 - A skill was added, changed or removed in this repo.
 - You are reviewing your own diff before handing it over.
 
 ## The contract
 
-Five obligations. All five, every time.
+Six obligations. All six, every time.
 
 1. **Every decision is documented.** A decision is a choice with real alternatives. Each one gets
    an entry in `docs/reviews/decision-log.md` — including a decision that came out of a
@@ -37,10 +40,14 @@ Five obligations. All five, every time.
    scripts, and needs a note on how it was verified.
 5. **Then it is pushed.** Documented but unpushed is unfinished. Push on explicit instruction,
    branch first, never amend a published commit, never force-push a shared branch.
+6. **Work lands in units.** A brief with separable parts (features, steps, pages, endpoints) gets
+   a `docs/reviews/delivery-plan.md` first: one row per unit, the commit subject it gets, its
+   state. Each unit is committed when it is done and pushed as it lands — never one bulk push at
+   the end. One commit carries one unit's files and one unit's decisions.
 
-Commit granularity is free. One commit per meaningful unit is preferred; many small commits are
-fine; one commit is fine when the unit is one. The measure is documentation detail, never commit
-count.
+Commit granularity is free when the work has one unit. When the work has units, one commit per
+unit is the rule, not a preference. Many small commits are fine; one bulk commit over several
+units is not. The measure is documentation detail plus unit fidelity, never commit count.
 
 ## Where the records live
 
@@ -50,6 +57,7 @@ count.
 | Changed files | `docs/reviews/change-inventory.md` |
 | Prompts and choices | `docs/reviews/prompts.md` (or the `aswath-chronicle` record) |
 | Build log | `BUILDLOG.md` beside the docs tree |
+| Delivery plan | `docs/reviews/delivery-plan.md` (one row per unit) |
 
 One docs tree: `docs/reviews/`. Do not invent another.
 
@@ -58,18 +66,21 @@ Templates for every record shape are in
 
 ## Procedure
 
-1. **Inventory.** `git status -s`, `git diff --stat`. Read every changed file, not only the diff.
-2. **Verify.** Run the suite that covers the change. Record the exact command and its result.
-3. **Decision log.** Append entries to `docs/reviews/decision-log.md`, oldest first. One entry per
+1. **Plan the units.** If the brief has separable parts, write `docs/reviews/delivery-plan.md`
+   first: one row per unit, the commit subject it gets, its state (`planned`, `doing`, `done`,
+   `dropped`). The plan is written before the first commit, not reconstructed afterwards.
+2. **Inventory.** `git status -s`, `git diff --stat`. Read every changed file, not only the diff.
+3. **Verify.** Run the suite that covers the change. Record the exact command and its result.
+4. **Decision log.** Append entries to `docs/reviews/decision-log.md`, oldest first. One entry per
    real choice, with the prompt that produced it.
-4. **Change inventory.** Write or extend `docs/reviews/change-inventory.md`, one row per changed
+5. **Change inventory.** Write or extend `docs/reviews/change-inventory.md`, one row per changed
    file. Every changed file appears exactly once — including the doc files themselves.
-5. **Split the change set.** One meaningful unit per commit where the units are separable. Use
-   `git reset --soft HEAD~<n>` and recommit per unit when a commit mixes units. Never amend a
-   commit that is already published.
-6. **Commit.** Conventional subject, a body that says what and why, and the repo's co-author
-   trailer.
-7. **Push.** Branch first, then push, then open the PR if one was asked for.
+6. **Commit per unit.** When a unit is done, commit it under its own subject from the plan, with
+   a body that says what and why, and the repo's co-author trailer. One commit carries one unit's
+   files and one unit's decisions. Use `git reset --soft HEAD~<n>` and recommit per unit when a
+   commit mixes units. Never amend a commit that is already published.
+7. **Push per unit.** Push the branch as each unit lands, not one push at the end. Open the PR
+   when one was asked for.
 
 ## Push-time checklist
 
@@ -80,6 +91,9 @@ Before `git push`, every box is ticked:
 - [ ] Every prompt that shaped the work is logged.
 - [ ] A new skill records its question, triggers, scripts and verification.
 - [ ] Each commit has a real subject and a body that carries the reasoning.
+- [ ] A brief with separable parts has a `delivery-plan.md`, and every unit in it is `done`.
+- [ ] Every commit in the range carries one unit's work and its subject matches the plan.
+- [ ] Each unit was pushed as it landed, not batched into one push at the end.
 - [ ] The branch is up to date with its remote and has no local commits left behind.
 - [ ] Nothing is pushed that the docs do not cover.
 
@@ -98,11 +112,14 @@ no tracking ref for the others and looks unpushed right after a successful push.
 | `UNDOCUMENTED_COMMIT` | A commit has no body, or a body under 20 characters. |
 | `PLACEHOLDER_SUBJECT` | Subject is `wip`, `fixup`, `squash`, `tmp`, `asdf`, `test commit`. |
 | `PROMPT_NOT_LOGGED` | The range changes skills or docs but carries no prompt/decision record. |
+| `BULK_COMMIT` | One commit touches more files or lines than the bulk thresholds in `doc-rules.json`. |
+| `COMMIT_NOT_PLANNED` | A commit subject matches no row in `delivery-plan.md`. |
+| `UNIT_NOT_COMMITTED` | A unit is marked `done` in the plan but has no commit in the range. |
 | `UNPUSHED_WORK` | Local commits sit on a branch with no upstream, or ahead of its upstream. |
 | `DIRTY_AT_PUSH` | The working tree has uncommitted changes while a push runs. |
 
 File and line counts per commit are printed as information only, to help judge granularity.
-Commit count is never a finding.
+Commit count is never a finding; a commit that swallows several units is.
 
 Run it by hand:
 
@@ -126,7 +143,10 @@ The rule reaches every AI harness on this PC in three layers. Nothing in any lay
 
 - **Prompt events** (`UserPromptSubmit`, `beforeSubmitPrompt`): when the prompt matches commit,
   push, GitHub, PR, branch, merge, publish, ship or documentation words, the contract from
-  `reference/contract.txt` is printed to stdout as context.
+  `reference/contract.txt` is printed to stdout as context. When the prompt matches build,
+  implement, develop, feature, work on, scaffold or wire-up words, the shorter delivery rule
+  from `reference/delivery.txt` is printed instead — the units have to be planned while the work
+  is being planned, not after the first commit.
 - **Tool events** (`PreToolUse`, `beforeShellExecution`): when the command matches `git commit` or
   `git push`, `scripts/check_push.py` runs and its output is printed to stdout and to stderr.
 - **Cursor** shell events answer with `{"permission": "allow", "userMessage": "..."}`, so a
@@ -184,6 +204,8 @@ Named, never path-imported:
 | "I will explain it in the chat" | Chat is not the record. Write it to `docs/reviews/`. |
 | "The diff already shows what changed" | The diff shows what. The record shows why. |
 | "The hook warned, so I cannot push" | Nothing blocks. Write the missing records, then push. |
-| "One commit for the whole branch" | One commit per meaningful unit where units are separable. |
+| "One commit for the whole branch" | One commit per unit, planned before the first commit. |
+| "I will split the commits later" | Split before the push. The plan is written before the first commit. |
+| "One push at the end is faster" | Each unit is pushed as it lands. |
 | "This skill is obvious, no record needed" | A new skill needs its question, triggers and verification. |
 | "It is already pushed, never mind" | Never amend a published commit; add the record in a follow-up. |

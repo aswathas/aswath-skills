@@ -37,6 +37,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 CHECKER = HERE / "check_push.py"
 CONTRACT = HERE.parent / "reference" / "contract.txt"
+DELIVERY = HERE.parent / "reference" / "delivery.txt"
 
 FALLBACK_CONTRACT = """Commit discipline: this work does not leave the machine undocumented.
 
@@ -49,7 +50,24 @@ Before it is committed and pushed, every one of these must be written down:
 
 Then push it: branch first, push on explicit instruction, never amend a published commit.
 
+Work lands in units, not in one bulk commit:
+- A brief with separable parts becomes docs/reviews/delivery-plan.md first: one row per unit,
+  the commit it gets, its state.
+- Each unit is committed when it is done and pushed as it lands - not one push at the end.
+- One commit carries one unit's files and one unit's decisions.
+
 The commit count is free. 100 documented commits are fine. The detail is not optional.
+One commit per unit is the rule whenever the work has units.
+
+Full contract and templates: /aswath-commit-discipline
+"""
+
+FALLBACK_DELIVERY = """Delivery discipline: work lands in units, not in one bulk commit.
+
+- A brief with separable parts becomes docs/reviews/delivery-plan.md first: one row per unit,
+  the commit it gets, its state.
+- Each unit is committed when it is done and pushed as it lands - not one push at the end.
+- One commit carries one unit's files and one unit's decisions.
 
 Full contract and templates: /aswath-commit-discipline
 """
@@ -69,6 +87,19 @@ PROMPT_PATTERNS = (
     r"\bdocument(ation|ed|ing)?\b",
     r"\bdecision\s+log\b",
     r"\bchange\s+inventory\b",
+)
+
+# Words that mean work is being planned or built. The rule has to reach the agent
+# while the units are being planned, not only when the push happens.
+BUILD_PATTERNS = (
+    r"\bbuild(ing)?\b",
+    r"\bimplement(ing|ation)?\b",
+    r"\bdevelop(ing|ment)?\b",
+    r"\bfeature\b",
+    r"\bwork\s+on\b",
+    r"\bscaffold(ing)?\b",
+    r"\bwire\s+up\b",
+    r"\badd\s+(a\s+|an\s+|the\s+)?(feature|screen|page|endpoint|command|flag|route|module)\b",
 )
 
 GIT_WRITE = re.compile(r"(?i)\bgit\b[^\n]*\b(commit|push)\b")
@@ -132,6 +163,16 @@ def contract_text() -> str:
     return FALLBACK_CONTRACT.strip()
 
 
+def delivery_text() -> str:
+    try:
+        text = DELIVERY.read_text(encoding="utf-8").strip()
+        if text:
+            return text
+    except (OSError, UnicodeDecodeError):
+        pass
+    return FALLBACK_DELIVERY.strip()
+
+
 def is_prompt_event(event: str, payload: dict, command: str) -> bool:
     if event in ("beforeSubmitPrompt", "UserPromptSubmit", "user_prompt_submit", "PromptSubmit"):
         return True
@@ -142,6 +183,10 @@ def is_prompt_event(event: str, payload: dict, command: str) -> bool:
 
 def prompt_hits(prompt: str) -> bool:
     return any(re.search(pattern, prompt, re.IGNORECASE) for pattern in PROMPT_PATTERNS)
+
+
+def build_hits(prompt: str) -> bool:
+    return any(re.search(pattern, prompt, re.IGNORECASE) for pattern in BUILD_PATTERNS)
 
 
 def repo_of(payload: dict) -> str:
@@ -205,6 +250,10 @@ def main() -> int:
             prompt = first_text(payload, PROMPT_KEYS)
             if prompt and prompt_hits(prompt):
                 emit(contract_text(), False)
+            elif prompt and build_hits(prompt):
+                # Build-time prompt: the units must be planned before the first commit,
+                # so the short delivery rule goes out now, not at push time.
+                emit(delivery_text(), False)
             return 0
 
         if command and GIT_WRITE.search(command):

@@ -79,3 +79,26 @@ The `aswath-chronicle` skill writes this record. If it is not running, write it 
 
 The running narrative of what shipped, when, and where. Keep it beside `docs/reviews/`, never
 instead of it.
+
+## Delivery plan — `docs/reviews/delivery-plan.md`
+
+One row per unit. Written before the first commit of the work. The `Commit` column is the exact
+subject that unit's commit gets, so the checker can match it.
+
+```markdown
+# Delivery plan
+
+Units in build order. Each unit is one feature or step of the work, and each lands as its own
+commit and its own push. The `Commit` column is the subject that unit gets.
+
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 1 | <what this unit delivers> | <type(scope): <imperative subject> | planned |
+| 2 | <what this unit delivers> | <type(scope): <imperative subject> | planned |
+
+State is one of `planned`, `doing`, `done`, `dropped`.
+```
+
+A unit is one thing a reviewer could describe in one sentence. "The whole app" is not a unit;
+"the login screen", "the API endpoint", "the migration" are. When a unit turns out to be two,
+split the row before committing it.

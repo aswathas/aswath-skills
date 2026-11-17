@@ -390,3 +390,76 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   straight out of the parsed `settings.json` after the change also exits 0 with empty stderr.
 - Consequence: the UI-check hook stops failing on every prompt, and no engine is downloaded for
   a binary that was on disk all along.
+
+## D4 — Work lands in units: one commit and one push per unit
+
+- Date: 2026-11-17
+- Prompt: "if am doing a project or any work the push should have lot / multiple commits
+  meaning ful commits every step needs to docuemnated or commited not bulk single push if
+  design an app with 4 feature each feature and its builds shodl be commited in a way that
+  we planned"
+- Context: the contract said "commit granularity is free, one commit per meaningful unit is
+  preferred". A preference does not change behaviour: the same forty-file branch still
+  arrives as one commit and one push, because nothing in the contract or the checker objects.
+  The user asked for a rule, not a preference — "if design an app with 4 feature each
+  feature and its builds should be committed in a way that we planned".
+- Options:
+  - Keep granularity as a soft preference and rely on the agent's judgement. Cheap, but the
+    failure mode the user described stays open: a bulk single push is still possible.
+  - Make per-unit commits and per-unit pushes mandatory whenever the brief has separable
+    parts, and plan the units in writing before the first commit.
+  - Make the commit count a fixed number. Wrong measure: it would reward 20 empty commits
+    over 4 real ones, and the existing decision D2 already ruled the count out as the metric.
+- Chosen: option 2. The contract now has six obligations; the sixth says a brief with
+  separable parts gets a written unit plan, each unit is committed when it is done, and each
+  unit is pushed as it lands.
+- Evidence: the change itself is built under the new rule —
+  `docs/reviews/delivery-plan.md` lists three units, each unit is its own commit with its own
+  subject from the plan, and each commit carries its own records.
+- Consequence: "bulk single push" stops being a style preference and becomes a documented
+  violation of the contract, which the checker can see.
+
+## D5 — The unit plan is written before the first commit
+
+- Date: 2026-11-17
+- Prompt: "each feature and its builds shodl be commited in a way that we planned"
+- Context: "in a way that we planned" means the units are decided up front, not split out of
+  the finished diff afterwards. A plan reconstructed from a finished branch is a description,
+  not a plan: it cannot show that the work was sequenced, and it cannot be checked.
+- Options:
+  - Write the plan before the first commit, in `docs/reviews/delivery-plan.md`, with the
+    exact commit subject per unit. Checkable: a subject in the range can be matched against
+    the plan.
+  - Keep the plan in the chat. Not a record, and it dies with the session.
+  - Keep the plan only in the commit history. The subject is there, but the mapping from
+    unit to subject is not, and a dropped unit leaves no trace.
+- Chosen: option 1, one file, one row per unit, with the `Commit` column holding the exact
+  subject. The file is written before the first commit of the work.
+- Evidence: `docs/reviews/delivery-plan.md` in this change names three units and the exact
+  subject of each unit's commit; the checker reads the same column.
+- Consequence: the plan is a reviewable artefact. A unit that was dropped says so; a unit
+  that was never committed is visible as a gap.
+
+## D6 — Build-time prompts get the short delivery rule, not the full contract
+
+- Date: 2026-11-17
+- Prompt: "if am doing a project or any work the push should have lot / multiple commits
+  meaning ful commits every step needs to docuemnated or commited not bulk single push"
+- Context: the unit rule only matters if it reaches the agent while the work is being
+  planned. The hook already prints the full contract on shipping prompts (commit, push,
+  PR, branch). At the moment a build starts, those words are absent, so the contract was
+  silent exactly when the units should have been decided.
+- Options:
+  - Print the full contract on build-time prompts. Correct content, but the full contract
+    is push-time text; it pushes the agent toward writing records at the wrong moment.
+  - Print a short delivery rule from a separate file on build-time prompts, and keep the
+    full contract for shipping prompts. Two files, each with one job.
+  - Leave the hook alone and rely on the skill being loaded. The skill is loaded on demand;
+    a build that never asks about commits never loads it.
+- Chosen: option 2. `reference/delivery.txt` holds the short rule, `reference/contract.txt`
+  keeps the full one, and `hook.py` picks between them by prompt shape.
+- Evidence: a replayed `UserPromptSubmit` with the prompt "build me a login screen" printed
+  the delivery rule; "now push it" printed the full contract. Both replays ran the hook
+  from the repo copy with `python -m py_compile` clean first.
+- Consequence: the rule reaches the agent at planning time, and the long contract is only
+  spent when it is relevant.
