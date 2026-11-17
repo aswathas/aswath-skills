@@ -248,3 +248,27 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/delivery-plan.md` | Changed. Units 6 and 7 marked `done` (both had merged), and unit 8 added | The plan is the record of what landed and what is left | Read back; the unit table matches the commits |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
 | `BUILDLOG.md` | Changed. The unit 8 entry | The build log is the running narrative of what shipped | Read back after the change |
+
+## aswath-skills-wk — `feat/schedule` (unit 5: the scheduled jobs and the harness-scheduler report)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/utilities/aswath-schedule/SKILL.md` | New. The jobs, the three schedulers, the commands, the two estate jobs, and when to run it | The estate could learn and could check itself, but nothing ran either | Read back; the description starts with "Use when" and names the missed-start flag |
+| `skills/utilities/aswath-schedule/scripts/schedule.py` | New. `add` creates a task from UTF-16 task XML with the missed-start flag; `remove` deletes it; `list` prints the Windows tasks, the Claude Code task list and the MiniMax cron table with the finished one-shots marked dead | A job that must run daily is run by hand otherwise, and a slot missed while the PC slept never runs at all | `selftest.py` -> `7/7 case(s) passed`; on this machine both estate tasks are created and visible in `schtasks /query` |
+| `skills/utilities/aswath-schedule/scripts/selftest.py` | New. Seven cases: the task name, the missed-start flag, the escaped command, the trigger boundary, the Claude Code task list, the MiniMax dead one-shots, and a live task that appears and is gone after `remove` | A skill that creates machine-level jobs must prove the task really appears and really goes | `python skills/utilities/aswath-schedule/scripts/selftest.py` -> `7/7 case(s) passed`, exit 0 |
+| `manifest.json` | Version 1.6.0 -> 1.7.0, and the `aswath-schedule` row added under `utilities` | The manifest is the machine index; a skill that is not in it is not installed and not routed to | Parsed as JSON; the row's path resolves to the skill directory that holds `SKILL.md` |
+| `README.md` | The utilities table gains an `aswath-schedule` row, and the layout block names it | The README is the page a person reads before the manifest | Read back; the row appears in both places |
+| `docs/reviews/decision-log.md` | Changed. D17: the estate's clock is Windows Task Scheduler, and the three schedulers are reported in one place | The rule requires the reasoning behind a change to be written down before it is pushed | Read back; the entry carries its options, its rejections and the evidence |
+| `docs/reviews/prompts.md` | Changed. The runtime build section now names unit 5 | The rule requires every prompt that shaped the work to be recorded | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 5 marked `done` | The plan is the record of what landed and what is left | Read back; the unit table matches the commits |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
+| `BUILDLOG.md` | Changed. The unit 5 entry | The build log is the running narrative of what shipped | Read back after the change |
+
+### Machine-local (this PC, outside the skills repo)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `Aswath\catalog-verify`, `Aswath\improve` (Windows Task Scheduler) | New. The two estate jobs: the catalogue check at 09:00, the learning loop at 09:30 | The spec gives this skill two jobs to schedule | `schtasks /query /fo CSV /v` shows both, with their next run times; the verify task was run by hand and returned the real difference it found |
+| `~/.agents/skills-active.list.json` | `aswath-schedule` added, 68 -> 69 | The keep list decides what is installed in the harnesses | `catalog check` is clean |
+| `~/.agents/skills/aswath-schedule/`, `~/.agents/skills-active/aswath-schedule/`, `~/.claude/skills/aswath-schedule/`, `~/.commandcode/skills/aswath-schedule/` | Junctions to the published skill | The store's copies are links to the published copy | `catalog check` reports no `WRONG_TARGET` |
+| `~/.agents/config/skill-map.json`, `~/.agents/config/pc.json` | Rebuilt: 357 skills | The map is what the two PCs compare | `catalog check` is clean; `catalog build` wrote both files |

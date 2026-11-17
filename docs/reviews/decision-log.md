@@ -792,3 +792,43 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Evidence: the self-check runs the same 8 cases against the renamed commands and reports
   `8/8 case(s) passed`; the dry-run case now also asserts that no pull request was opened, which
   is the spec's criterion 7.
+
+## D17 — The estate's clock is Windows Task Scheduler, and the three schedulers are reported in one place
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — unit 5 of the runtime build, the last code unit.
+- Context: the estate can now learn and can check itself, but nothing runs either. A job that has
+  to run daily is run by hand, so it runs on the day somebody remembers. The other failure is the
+  one the spec names: a slot that came while the PC was asleep never runs at all.
+- Decision:
+  - Windows Task Scheduler. The tasks are named `Aswath\<name>`, so they are one folder in
+    `schtasks /query` and never mixed with the rest of the machine's jobs.
+  - Every task is created with the "run as soon as possible after a missed start" flag, so a missed
+    slot runs late instead of never. The plain `schtasks /create` form cannot set that flag, so the
+    task is written as UTF-16 task XML and created with `schtasks /create /xml`.
+  - The task runs as the logged-on user, `InteractiveToken` and `LeastPrivilege`. A job that has to
+    run with the PC locked or with nobody logged in needs an elevated shell and a different
+    principal.
+  - The harness schedulers are read, not used. `list` prints the Windows tasks, the Claude Code task
+    list and the MiniMax cron table together, and marks the finished one-shots dead. The MiniMax
+    rows join through `cron_runs.scheduler_trigger_id`, which names the scheduler job it came from
+    as `<scheduler_id>:0:1`; the definition id is a different id, which is why the first report
+    came out with blank names.
+  - The two estate jobs are `Aswath\improve` at 09:30 (the learning loop) and
+    `Aswath\catalog-verify` at 09:00 (this machine's map against the remote's). Both re-read their
+    state and re-derive, so a late run converges instead of double-applying.
+  - The commands are the spec's names: `improve --run` and `catalog verify`.
+- Rejected:
+  - Claude Code's own scheduler. A job there only fires while that harness is running and idle on
+    that PC; it cannot drive work on the second PC or with the PC unlocked.
+  - The MiniMax cron table. A cron there is a prompt aimed at a session, not a script with an exit
+    code, and it lives in one harness's private database. Its nine rows are all finished one-shot
+    pairing prompts — all dead.
+  - A long-running Python daemon. A permanent background process to restart after every reboot, on
+    two PCs, for one daily job. Task Scheduler already is that daemon.
+- Evidence: the self-check runs 7 cases — the task name, the missed-start flag, the escaped command,
+  the trigger boundary, the Claude Code task list, the MiniMax dead one-shots, and a live task that
+  appears in `schtasks /query` and is gone after `remove` — and reports `7/7 case(s) passed`. On
+  this machine both tasks are created and visible with their next run times, and the verify task
+  was run by hand: it returned exit 1 and named the one real difference, the new skill that was not
+  yet in the store's map, which is the check working.
