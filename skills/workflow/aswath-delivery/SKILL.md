@@ -11,15 +11,37 @@ The failure mode this exists to prevent: a chat that has accumulated four copies
 
 A chat is a shelf, not a ledger. What matters is not what was sent; it is what is there when the person looks.
 
+The ledger is where the truth about what replaced what lives. The chat cannot answer that question
+on its own: it holds what was sent, in the order it was sent, with no marker of which copy is
+current.
+
 ## The order
 
 Delete first, then send. Sending first leaves a window where both the old and the new file exist, and the person may already have opened the old one.
 
 1. **Read the chat.** List the messages, yours and theirs, with the ids. Know what is actually there before you remove anything.
-2. **Mark what is superseded.** Your old files. Your old status messages that describe a state that no longer exists. Your old links if the address changed. A file you sent twice.
+2. **Ask the ledger what is superseded.**
+
+   ```bash
+   python ~/.agents/skills/aswath-record/scripts/ledger.py superseded --project <project>
+   ```
+
+   It names the artifact ids a later artifact replaced, and the ones that are current, with the
+   chat message id of each delivered artifact. Delete exactly the ids it marks superseded, and
+   no other message. If the ledger has no entry for this work, fall back to reading the chat:
+   your old files, your old status messages that describe a state that no longer exists, your
+   old links if the address changed, a file you sent twice.
 3. **Delete those, and only those.** Then send the current build.
 4. **Delete the staging copies.** The files you put in the channel's media folder to make them sendable go away afterwards.
 5. **Say what you did.** One line to the owner of the work: what was removed, what was sent.
+6. **Record what you sent.** For each artifact:
+
+   ```bash
+   python ~/.agents/skills/aswath-record/scripts/ledger.py deliver \
+     --project <project> --id <artifact id> --channel whatsapp --message-id <message id>
+   ```
+
+   The next delivery reads that instead of guessing from the chat.
 
 ## What stays
 

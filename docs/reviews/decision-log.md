@@ -679,3 +679,53 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   router's state moved to `~/.agents/state/`, with the old MiniMax path left as a junction so the
   plugin needed no change. The catalogue skill itself is published here, and its store copy is a
   junction to this repo.
+
+## D14 — The ledger is append-only JSONL, and the doctor judges a file and a line separately
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — unit 3 of the runtime build, `aswath-record`.
+- Context: the estate had no record of what ran. The MiniMax runtime database held 3683 background
+  tasks (3140 succeeded, 506 failed, 33 canceled, 4 lost) and nothing read them. The chat held what
+  was delivered, in the order it was delivered, with no marker of which copy was current. Two
+  `.env` files held credentials outside any convention, and nothing checked whether a secret had
+  reached a commit.
+- Options:
+  - SQLite for the ledger. Binary, merges badly, unreadable with `cat` when something goes wrong.
+  - A GitHub issue per artifact. The record of the artefact would live away from the work.
+  - The chat as the ledger. That is the gap.
+  - Append-only JSONL in the private store, one file per project, plus a doctor that reads the
+    store's tracked files.
+- Chosen: the fourth. `~/.agents/ledger/<project>.jsonl`, one JSON object per line, tracked in
+  the private store. Append-only: a mistake is corrected by appending a record, never by editing a
+  line, so git holds the history of what was believed when. A record whose append fails is written
+  to `~/.agents/state/ledger-failed.ndjson` and flushed on the next successful append, so a failed
+  write is never silently lost.
+- The doctor judges two different things. A **file** that holds credentials by name — `.env`,
+  `*.env`, `*.pem`, `*.p12`, `*.pfx`, `*.key` — and is tracked by git is a failure, whatever its
+  contents. A **line** in any tracked file that assigns a credential-named variable a filled
+  literal is a failure, reported with the value redacted. The first rule catches a short secret in
+  a `.env`; the second catches a secret pasted into a script or a README.
+- The first version of the line rule was noise: 31 findings on this machine, every one a false
+  positive — `ENV_ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"` (a name, not a value),
+  `total_tokens = event.usage.output_tokens` (code), `PUBLORA_API_KEY=sk_paste_your_key_here` (a
+  placeholder), and files whose *names* contained "credential" or "secret" while holding schemas
+  and secret-scanning scripts. The rule now requires a value that is long, mixed case, free of
+  dots and code punctuation, and free of placeholder words; and the file rule looks at the file's
+  name, not at words in the path. Templates — `.env.example`, `env.sample` — are not secrets.
+  The same scan now reports nothing on this machine.
+- The import reads the MiniMax runtime database read-only, appends one run line per task with a
+  deterministic id (`minimax:<task_id>`), and skips ids already in the ledger. The command fails
+  if the database's modification time changed.
+- The delivery skill now asks the ledger what is superseded instead of guessing from the chat,
+  and records what it sent. The chat keeps its own rule — delete only what you are replacing —
+  but the list of ids comes from the ledger.
+- Evidence: the first import wrote 3683 run lines (779 KB) into `~/.agents/ledger/minimax.jsonl`
+  and reported 506 failures; the second import added 0 lines, so no duplicate ids. `doctor
+  secrets` exits 0 with the two old `.env` files reported as outside the convention. The
+  self-check runs 5 cases against a scratch directory — the round trip, the delivery completion
+  rate, the superseded list, the redaction, and the tracked-versus-ignored secret file — and
+  reports `5/5 case(s) passed`.
+- Consequence: the secrets convention is `~/.agents/secrets/<project>.env`, gitignored, one file
+  per project. The old per-tool `.env` files are not moved; the doctor reports them. The ledger
+  is tracked in the private store, so both PCs carry it, and a simultaneous append on both PCs is
+  resolved by keeping every line from both sides, sorted by `ts`, dropping duplicate ids.

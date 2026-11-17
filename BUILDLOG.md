@@ -24,6 +24,26 @@ What shipped, when, and where. Each entry names the branch, the change and how i
   a first `fix` created) are gone.
 - Records: `docs/reviews/decision-log.md` (D13), `docs/reviews/change-inventory.md`.
 
+## 2026-11-17 — the runtime build, unit 3: `aswath-record`
+- Branch: `feat/record`
+- Shipped:
+  - `skills/workflow/aswath-record/` — the run and artifact ledger. `ledger.py` appends records,
+    lists what is superseded and what is current, records a delivery, harvests the runs MiniMax
+    Code already recorded, reports the metrics and runs the secrets doctor. `selftest.py` runs
+    five cases against a scratch directory.
+  - `skills/workflow/aswath-delivery/SKILL.md` — it now asks the ledger which artifact ids are
+    superseded and deletes exactly those, and records what it sent, instead of guessing from the
+    chat.
+  - `manifest.json` (1.5.0) and `README.md` — the new skill is in the catalogue.
+  - Store side: `~/.agents/ledger/minimax.jsonl` holds the harvested history, `~/.agents/secrets/`
+    is the new home for project secrets (gitignored), and the keep list grew to 67.
+- Verified: `selftest.py` -> `5/5 case(s) passed`. The import wrote 3683 run lines and reported
+  506 failures; a second import added 0 lines. `doctor secrets` exits 0 on this machine and
+  prints no value — the two old `.env` files are reported as outside the convention. The first
+  version of the doctor's line rule produced 31 false positives on this machine and was narrowed
+  until it produced none.
+- Records: `docs/reviews/decision-log.md` (D14), `docs/reviews/change-inventory.md`.
+
 ## 2026-11-17 — commit discipline, unit delivery (unit 1 of 3)
 - Branch: `feat/commit-discipline-unit-delivery`
 - Shipped:
