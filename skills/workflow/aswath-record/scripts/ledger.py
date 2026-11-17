@@ -179,6 +179,7 @@ def cmd_add(args) -> int:
         ("channel", args.channel),
         ("message_id", args.message_id),
         ("artifact", args.artifact),
+        ("skill", args.skill),
     ):
         if value:
             record[key] = value
@@ -467,6 +468,7 @@ def main(argv=None) -> int:
     p_add.add_argument("--channel")
     p_add.add_argument("--message-id")
     p_add.add_argument("--artifact")
+    p_add.add_argument("--skill", help="the skill this run belongs to")
     p_add.set_defaults(func=cmd_add)
 
     p_sup = sub.add_parser("superseded", help="list superseded and current artifacts")

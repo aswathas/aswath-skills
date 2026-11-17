@@ -729,3 +729,41 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   per project. The old per-tool `.env` files are not moved; the doctor reports them. The ledger
   is tracked in the private store, so both PCs carry it, and a simultaneous append on both PCs is
   resolved by keeping every line from both sides, sorted by `ts`, dropping duplicate ids.
+
+## D15 — The machine merges only what the gate cleared, and undoes a bad merge with a new commit
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — unit 4 of the runtime build, `aswath-improve`.
+- Context: the estate now records what ran (`aswath-record`), but nothing acted on it. A skill that
+  failed three times said nothing in the repo, so the next session repeated the failure. The other
+  failure is worse: a machine editing its own skills lands a broken change in the published repo and
+  nobody notices for a week.
+- Decision:
+  - The loop is a pull request, not a direct edit. Branch, commit, push, open the PR, run the gate,
+    merge only when the gate is green. A red gate leaves the PR open with the reason attached.
+  - The gate has three checks and no fourth. The catalogue agrees with the tree: `manifest.json`
+    parses, every row's path exists, every skill directory has exactly one row, and the README has
+    one table row per skill. The diff stays inside: every changed file is under `skills/` or
+    `docs/`, and `manifest.json`, `install.ps1`, `install.sh` and any deletion inside `skills/` are
+    forbidden. Every touched skill's own self-check exits 0.
+  - A failure is open until a later successful run of the same job closes it. A failure that names no
+    skill has no skill to change and is left alone. The proposal writes a `## Known failures` section
+    into the skill that owns the failures.
+  - After the merge the check runs again on the merged tree — by default the catalogue check. If it
+    fails, the merge is undone by a `git revert` commit, the failing output goes into an issue, and
+    the loop stops non-zero. The merged commit stays in the history; a published commit is never
+    amended.
+  - The loop's own commits are units too. It adds a row to the delivery plan before it commits, so
+    the repo's commit discipline still governs what the machine pushes.
+  - `gh` takes the body from a file, so no shell ever sees the text of a body or a gate report.
+- Rejected:
+  - Direct commits to `main`. Faster, and the first broken edit would be unrecoverable without an
+    amend.
+  - Letting the loop edit the manifest and the installers. The manifest is the machine index; a
+    machine that can rewrite the index can install anything.
+  - A gate that only runs the self-checks. It would pass a diff that deletes a skill.
+- Evidence: the self-check runs 8 cases against a scratch repo with a stub `gh` — the gate green, the
+  gate refusing the manifest, the gate refusing a deletion, the gate running a touched skill's
+  self-check, the proposal leaving out a closed failure, the loop merging, the loop refusing to
+  merge, and the revert with its issue — and reports `8/8 case(s) passed`. The gate is green on this
+  repo's `main` before any auto-merge is enabled.

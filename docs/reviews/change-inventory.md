@@ -210,3 +210,29 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `~/.agents/skills-active.list.json` | `aswath-record` added, 66 -> 67 | The keep list decides what is installed in the harnesses | `catalog check` is clean |
 | `~/.agents/skills/aswath-record/`, `~/.agents/skills-active/aswath-record/` | Junctions to the published skill | The store's copy is a link to the published copy | `catalog check` reports no `WRONG_TARGET` |
 | `~/.agents/config/skill-map.json`, `~/.agents/config/pc.json` | Rebuilt: 355 skills | The map is what the two PCs compare | `catalog check` is clean; `catalog build` wrote both files |
+
+## aswath-skills-wk — `feat/improve` (unit 4: the learning loop, the gate, the merge policy, the revert)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-improve/SKILL.md` | New. The flow, the three gate checks, the merge policy, the revert, the commands, and when to run it | The estate recorded what ran but nothing acted on it, so a skill could fail three times with nothing in the repo saying so | Read back; the description starts with "Use when" and names the failing skill and the pull request |
+| `skills/workflow/aswath-improve/scripts/gate.py` | New. `check --repo --base --head`: the catalogue agrees with the tree, the diff stays inside `skills/` and `docs/`, and every touched skill's self-check exits 0 | The gate is what stands between a machine-made edit and the published repo | `selftest.py` -> `8/8 case(s) passed`; green on this repo's `main` with the manifest and README rows in place |
+| `skills/workflow/aswath-improve/scripts/improve.py` | New. `propose` writes the diff for an open failure; `run` branches, commits, pushes, opens the PR, gates it, merges, checks the merged tree and reverts with a new commit when that check fails | The loop is the machinery; the diff is written by the person or by the ledger | `selftest.py` -> `8/8 case(s) passed`, against a scratch repo with a stub `gh` and a local remote |
+| `skills/workflow/aswath-improve/scripts/selftest.py` | New. Eight cases: the gate green, the gate refusing the manifest, the gate refusing a deletion, the gate running a touched skill's self-check, the proposal leaving out a closed failure, the loop merging, the loop refusing to merge, the revert with its issue | A loop that edits the estate's own skills needs its failure paths proven before it is allowed near the real repo | `python skills/workflow/aswath-improve/scripts/selftest.py` -> `8/8 case(s) passed`, exit 0 |
+| `skills/workflow/aswath-record/scripts/ledger.py` | Changed. `add` takes `--skill`, so a run can be filed against the skill that owns it | The loop reads the ledger by skill; without the field it cannot tell which skill to change | `selftest.py` for aswath-record -> `5/5 case(s) passed`; the field lands in the record as `skill` |
+| `manifest.json` | Version 1.5.0 -> 1.6.0, and the `aswath-improve` row added under `workflow` | The manifest is the machine index; a skill that is not in it is not installed and not routed to | Parsed as JSON; the row's path resolves to the skill directory that holds `SKILL.md`; the gate's first check passes |
+| `README.md` | The workflow table gains an `aswath-improve` row, and the layout block names it | The README is the page a person reads before the manifest | Read back; the row appears in both places, and the gate's first check counts one row per skill |
+| `docs/reviews/decision-log.md` | Changed. D15: the machine merges only what the gate cleared, and undoes a bad merge with a new commit | The rule requires the reasoning behind a change to be written down before it is pushed | Read back; the entry carries its options, its rejections and the evidence |
+| `docs/reviews/prompts.md` | Changed. The runtime build section now names unit 4 | The rule requires every prompt that shaped the work to be recorded | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 4 marked `done` | The plan is the record of what landed and what is left | Read back; the unit table matches the commits |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
+| `BUILDLOG.md` | Changed. The unit 4 entry | The build log is the running narrative of what shipped | Read back after the change |
+
+### Machine-local (this PC, outside the skills repo)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `~/.agents/ledger/agent-estate.jsonl` | New. The open failures the loop reads: the keep list and the active set drifting apart after a publish, recorded once per publish that drifted | The loop needs a real open failure to work on, and this one is real and recurring | `stats --project agent-estate` counts the failures; `propose` writes the diff from them |
+| `~/.agents/skills-active.list.json` | `aswath-improve` added, 67 -> 68 | The keep list decides what is installed in the harnesses | `catalog check` is clean |
+| `~/.agents/skills/aswath-improve/`, `~/.agents/skills-active/aswath-improve/` | Junctions to the published skill | The store's copy is a link to the published copy | `catalog check` reports no `WRONG_TARGET` |
+| `~/.agents/config/skill-map.json`, `~/.agents/config/pc.json` | Rebuilt: 356 skills | The map is what the two PCs compare | `catalog check` is clean; `catalog build` wrote both files |

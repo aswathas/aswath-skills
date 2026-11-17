@@ -85,6 +85,7 @@ Two ways in, and they are the same units.
 | `aswath-throw` | Raw request → harness work item → leader-authored test → agent pool → two independent verifiers → report. | `/aswath-throw` |
 | `aswath-delivery` | The other end of `aswath-thevai`: finished work back to a person on a chat channel, with only the final version in the chat. Deletes the superseded messages and files, sends the current build once. | `/aswath-delivery` |
 | `aswath-record` | The run and artifact ledger in the private store: what ran, what it produced, what was delivered, and the delivery rate. Also the secrets convention and the doctor that checks no secret file is tracked by git. | `/aswath-record` |
+| `aswath-improve` | The learning loop. Reads the ledger's open failures, writes the diff, opens the pull request, and merges only what the gate cleared — reverting the merge with a new commit when the check after it fails. | `/aswath-improve` |
 | `aswath-thevai` | A real person is the source of the brief. Warm, one-question-at-a-time conversation over WhatsApp → an approved brief → build, QA, deliver. Ships with the `thevai-agent`. | `/aswath-thevai` |
 | `aswath-thinking` | Deconstruct ungrounded assumptions via first principles, inversion, and adversarial verification before executing code. | `/aswath-thinking` |
 
@@ -116,7 +117,7 @@ Two ways in, and they are the same units.
 skills/
   context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator, aswath-minimax-compaction-handoff
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
-  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-throw, aswath-thevai, aswath-thinking
+  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking
   orchestration/    aswath-capability, aswath-manual-demo
   writing/          aswath-talk
   utilities/        aswath-csvjson, aswath-catalog

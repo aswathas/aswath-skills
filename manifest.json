@@ -1,6 +1,6 @@
 {
   "name": "aswath-skills",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "author": "Aswath S",
   "license": "MIT",
   "updated": "2026-11-17",
@@ -142,6 +142,15 @@
       "category": "workflow",
       "path": "skills/workflow/aswath-record/SKILL.md",
       "description": "Use when something ran and what it produced has to be written down - a build, a delivery, a failure - or when a secret may have reached a commit. Keeps the run and artifact ledger in the private store, reports the metrics, and checks that no secret file is tracked by git.",
+      "resources": [
+        "scripts"
+      ]
+    },
+    {
+      "name": "aswath-improve",
+      "category": "workflow",
+      "path": "skills/workflow/aswath-improve/SKILL.md",
+      "description": "Use when a skill keeps failing and should change itself - the run ledger holds a failure with no later success, and the change has to reach the published repo without a human in the middle. Writes the diff, opens the pull request, runs the gate, merges when the gate is green, and reverts the merge when the check after it fails.",
       "resources": [
         "scripts"
       ]
