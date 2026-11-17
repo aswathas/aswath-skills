@@ -102,3 +102,25 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `python skills/workflow/aswath-commit-discipline/scripts/test_check_push.py`
   -> `5/5 case(s) passed`, exit 0.
 - Records: `docs/reviews/decision-log.md` (D10-D11), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — the learning loop (unit 4 of the runtime build)
+- Branch: `feat/improve`
+- Shipped:
+  - `skills/workflow/aswath-improve/scripts/gate.py` — the gate suite. The catalogue agrees with
+    the tree; the diff stays under `skills/` or `docs/`; every touched skill's own self-check
+    exits 0. `manifest.json`, `install.ps1`, `install.sh` and any deletion inside `skills/` are
+    refused by name.
+  - `skills/workflow/aswath-improve/scripts/improve.py` — the loop. `propose` turns the ledger's
+    open failures into a diff on the skill that owns them. `run` branches, commits, pushes, opens
+    the pull request, runs the gate, merges on green, checks the merged tree, and reverts the merge
+    with a new commit when that check fails.
+  - `skills/workflow/aswath-improve/scripts/selftest.py` — eight cases against a scratch repo with
+    a stub `gh` and a local remote.
+  - `skills/workflow/aswath-improve/SKILL.md` — the flow, the gate, the merge policy, the revert.
+  - `skills/workflow/aswath-record/scripts/ledger.py` — `add` takes `--skill`, so a run can be
+    filed against the skill that owns it.
+  - `manifest.json` — version 1.6.0, and the `aswath-improve` row. `README.md` — the workflow row
+    and the layout block.
+- Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `8/8 case(s) passed`,
+  exit 0. `gate.py check --repo . --base main --head main` -> green on this repo.
+- Records: `docs/reviews/decision-log.md` (D15), `docs/reviews/change-inventory.md`.

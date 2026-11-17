@@ -57,6 +57,6 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   `docs/superpowers/specs/2026-11-17-runtime-design.md` is approved as written, and units U1 to
   U4 build it — `aswath-catalog`, `aswath-record`, `aswath-improve`, `aswath-schedule` — one
   commit and one push per unit.
-- Work it caused: unit 2, `aswath-catalog` (`feat/catalog`), and unit 3, `aswath-record`
-  (`feat/record`), with the store-side work that describes where the estate's own files live and
-  what it ran.
+- Work it caused: unit 2, `aswath-catalog` (`feat/catalog`), unit 3, `aswath-record`
+  (`feat/record`) and unit 4, `aswath-improve` (`feat/improve`), with the store-side work that
+  describes where the estate's own files live and what it ran.
