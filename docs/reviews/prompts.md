@@ -49,3 +49,13 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   4. "Auto-merge when checks pass" — the loop merges its own pull request when the gate is green,
      and reverts the merge if the post-merge check fails.
 - Work it caused: the spec, and the decision log entry that records why `swamp` is not adopted.
+
+## 2026-11-17 — the runtime build
+
+- Prompt: "approved  solve all the gaps"
+- Decision it produced: the approval gate in `aswath-first-principles` is lifted. The spec at
+  `docs/superpowers/specs/2026-11-17-runtime-design.md` is approved as written, and units U1 to
+  U4 build it — `aswath-catalog`, `aswath-record`, `aswath-improve`, `aswath-schedule` — one
+  commit and one push per unit.
+- Work it caused: unit 2, `aswath-catalog` (`feat/catalog`), with the store-side work that
+  describes where the estate's own files live.

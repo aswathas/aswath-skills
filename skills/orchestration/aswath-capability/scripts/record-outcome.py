@@ -20,6 +20,7 @@ Score model
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -32,9 +33,17 @@ OUTCOMES = ("accept", "reject", "partial")
 # root, other harnesses read theirs). The mutable state - the registry index
 # and the outcome ledger - must have exactly one copy, or the two installs
 # drift and the router ranks differently depending on who is asking.
-# Shared location: ~/.minimax/local-runtime/skill-learning/
+# Shared location: ~/.agents/state/ (the store; tracked in git)
 def shared_state_dir():
-    return Path.home() / ".minimax" / "local-runtime" / "skill-learning"
+    """Where the mutable router state lives.
+
+    Overridable so the router can run from a checkout, a container or a
+    CI job instead of one machine's home directory.
+    """
+    env = os.environ.get("SKILL_ROUTER_STATE_DIR")
+    if env:
+        return Path(env)
+    return Path.home() / ".agents" / "state"
 
 
 def shared_registry_path():

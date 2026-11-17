@@ -2,6 +2,28 @@
 
 What shipped, when, and where. Each entry names the branch, the change and how it was verified.
 
+## 2026-11-17 — the runtime build, unit 2: `aswath-catalog`
+- Branch: `feat/catalog`
+- Shipped:
+  - `skills/utilities/aswath-catalog/` — the catalogue skill. `catalog.py` writes the skill map
+    (`~/.agents/config/skill-map.json`), checks this machine against it, re-points one skill at
+    its canonical copy, compares the map with the other PC's, and holds the write lease.
+    `selftest.py` runs nine cases against a scratch estate.
+  - `skills/orchestration/aswath-capability/` — the live skill ported into the repo, so the
+    published copy is the current one, and its seven scripts now read the shared state from
+    `~/.agents/state/` instead of the MiniMax runtime directory.
+  - `manifest.json` (1.4.0) and `README.md` — the new skill is in the catalogue.
+  - Store side: the state moved to `~/.agents/state/` with the old path left as a junction, the
+    `.gitignore` states what travels (derived per-skill scores) and what stays (raw events, the
+    router's working files, the lease, the secrets), `sync.sh` gained `verify`, and the new
+    skill is in the keep list.
+- Verified: `catalog check` exits 0 — 354 skills mapped, 66 active entries, every one a
+  junction, the keep list and the active set the same set. `selftest.py` -> `9/9 case(s)
+  passed`. The ten real violations the estate had before the change (four real directories in
+  `skills-active`, each duplicated into `~/.claude/skills`, plus the self-referential junctions
+  a first `fix` created) are gone.
+- Records: `docs/reviews/decision-log.md` (D13), `docs/reviews/change-inventory.md`.
+
 ## 2026-11-17 — commit discipline, unit delivery (unit 1 of 3)
 - Branch: `feat/commit-discipline-unit-delivery`
 - Shipped:

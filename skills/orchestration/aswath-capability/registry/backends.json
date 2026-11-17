@@ -4,8 +4,7 @@
     "cmdc": {
       "label": "Command Code",
       "cmd": [
-        "node",
-        "C:/Users/aswat/AppData/Roaming/npm/node_modules/command-code/dist/index.mjs",
+        "cmdc",
         "-p"
       ],
       "description": "Coding agent that continuously learns your taste of writing code. Ships its own 'taste learn' memory, which is a second learning substrate alongside the aswath ledger.",
@@ -26,12 +25,11 @@
       ],
       "extra_args": [
         "--max-turns",
-        "40",
-        "--tools-all"
+        "40"
       ],
       "supports_schema": false,
       "json_hint": "IMPORTANT - output format overrides any skill's own format: your FINAL output must be a single JSON object and nothing else. No prose before it, no markdown fence, no commentary after it. If a skill you loaded specifies a different output format, follow this instruction instead.",
-      "notes": "NDJSON stream; the final line has type=result and a finalText field. cmdc ships its own skills (it loads hallmark, which has its own output format and its own audit method) and may write scratch files such as .hallmark/ into the working directory - clean them up afterwards. cmdc also has 'cmd taste learn', a second learning substrate alongside the aswath ledger. NOTE 1: cmdc refuses file writes in print mode unless --yolo (--dangerously-skip-permissions) is passed; --permission-mode alone is not enough. NOTE 2: cmdc does NOT reliably follow a constrained fix brief - measured, it ran its own audit and applied different fixes than the confirmed findings. Keep it for exploratory work, not for constrained fixes. NOTE 2: headless runs WITHHOLD some tools (web search/fetch among them). --tools-all re-enables them; keep --permission-mode dont-ask so approval-gated tools stay denied. NOTE 3: invoked as node <entry> instead of the .cmd shim. The shim goes through cmd.exe, which truncates the command line at 8191 chars SILENTLY - a 9KB prompt was cut mid-sentence and the agent worked from a broken brief. Spawning node directly raises the limit to 32767.",
+      "notes": "NDJSON stream; the final line has type=result and a finalText field. cmdc ships its own skills (it loads hallmark, which has its own output format and its own audit method) and may write scratch files such as .hallmark/ into the working directory - clean them up afterwards. cmdc also has 'cmd taste learn', a second learning substrate alongside the aswath ledger. NOTE 1: cmdc refuses file writes in print mode unless --yolo (--dangerously-skip-permissions) is passed; --permission-mode alone is not enough. NOTE 2: cmdc does NOT reliably follow a constrained fix brief - measured, it ran its own audit and applied different fixes than the confirmed findings. Keep it for exploratory work, not for constrained fixes.",
       "prompt_style": "next",
       "prompt_flag": "-p",
       "model_arg": "--model"
@@ -67,40 +65,6 @@
       "prompt_style": "attached",
       "prompt_flag": "--print",
       "model_arg": "--model"
-    },
-    "agy-wsl": {
-      "label": "agy (WSL)",
-      "cmd": [
-        "wsl",
-        "-e",
-        "/home/aswath/.local/bin/agy",
-        "--print"
-      ],
-      "description": "Antigravity agy running inside WSL. Same agent, Linux side. Used as a second opinion on Linux-flavoured problems and as a parallel worker.",
-      "output_args": [
-        "--output-format",
-        "json"
-      ],
-      "extract": "json_response",
-      "cwd": "inherit",
-      "readonly_args": [
-        "--mode",
-        "plan",
-        "--dangerously-skip-permissions"
-      ],
-      "edits_args": [
-        "--mode",
-        "accept-edits",
-        "--dangerously-skip-permissions"
-      ],
-      "extra_args": [],
-      "supports_schema": true,
-      "schema_arg": "--json-schema",
-      "json_hint": "Respond with a single JSON object and nothing else. No markdown fence, no commentary.",
-      "notes": "Runs the Linux-side agy binary. Use for Linux/WSL work or as an independent second opinion on the same task.",
-      "prompt_style": "attached",
-      "prompt_flag": "--print",
-      "model_arg": "--model"
     }
   },
   "role_backends": {
@@ -118,7 +82,6 @@
     "_comment": "Which model each ROLE runs on. Criticism needs taste and depth; verification is a narrow text judgement and does not. Splitting them is what makes the delegated loop affordable.",
     "fast": "gemini-3.8-flash-low",
     "strong": "gemini-4-argon-high",
-    "cmdc_strong": "deepseek/deepseek-v4.1-flash",
-    "argon_medium": "gemini-4-argon-medium"
+    "cmdc_strong": "deepseek/deepseek-v4.1-flash"
   }
 }

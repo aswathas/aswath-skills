@@ -218,10 +218,26 @@ Report these at the end of every build. A cheaper next time is the whole point o
 
 | Path | What it is |
 |---|---|
-| `registry/skills.json` | Generated index of every local and marketplace skill, with tags and cost. |
-| `registry/capabilities.json` | The capability taxonomy. Edit this to sharpen routing. |
-| `registry/ledger.json` | Quality scores from outcomes. Feeds ranking. |
+| `registry/capabilities.json` | The capability taxonomy. Edit this to sharpen routing. This is the SOURCE; `build-registry.py` publishes it to the state dir. |
+| `registry/backends.json` | The external agent runtimes (agy, cmdc) and which role uses which. |
+| `registry/ledger.json` | Quality scores from outcomes. Feeds ranking. Published to the state dir on rebuild. |
 | `registry/staged.json` | Marketplace candidates staged for your approval. |
+
+The generated index and the mutable state live in ONE place, overridable with
+`SKILL_ROUTER_STATE_DIR` (default `~/.agents/state/`):
+
+| Path | What it is |
+|------|------------|
+| `<state>/skills.json` | Generated index of every local and marketplace skill, with tags and cost. |
+| `<state>/capabilities.json` | Copy of the taxonomy. The auditor reads it from here. |
+| `<state>/ledger.json` | The outcome ledger. The learning hook appends to it. |
+| `<state>/observations.ndjson` | Raw learning events. |
+| `<state>/scores/<skill>.json` | Per-skill quality scores, one file per key, so two machines never conflict on one file. |
+
+And the skill's own runtime files:
+
+| Path | What it is |
+|------|------------|
 | `skillsets/*.json` | Skillsets — pipelines of skills with gates. |
 | `scripts/build-registry.py` | Rebuild the index from disk + marketplace catalogs. |
 | `scripts/query-registry.py` | The resolution engine: `need`, `cap`, `gap`, `install`, `list`, `stats`. |
