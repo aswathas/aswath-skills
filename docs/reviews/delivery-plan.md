@@ -30,7 +30,7 @@ unit also pushes to the private store, where its data half lives.
 | 8 | the loop's commands wear the spec's names | fix(improve): name the loop's commands the way the spec does | done |
 | 9 | the loop closes the failures it fixed, and a check with nothing to do is not a failure | fix(improve): close the failure the merge fixed | done |
 
-Unit 1 landed on approval. Units 3 to 5 stay `planned` until then.
+Unit 1 landed on approval. Every unit of the runtime build is now done.
 
 ## The loop's own units
 
