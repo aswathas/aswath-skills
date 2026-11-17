@@ -429,8 +429,9 @@ Build order, one delivery unit each, each unit one commit and one push (per
 `aswath-commit-discipline`), each unit ending with its checks green:
 
 - **U0 — the paperwork.** This spec, its decision-log entry, its prompt record and its change
-  inventory, on both repos. Committed and pushed once the spec is approved. Nothing else starts
-  before that.
+  inventory, in this repo. The store's own records travel with the units that change the store,
+  because unit 0 changes nothing there. Committed and pushed once the spec is approved. Nothing
+  else starts before that.
 - **U1 — `aswath-catalog`.** The map, the drift detector, the shared-state relocation, the
   junction fixes, the lease, `sync.sh verify`. *First of the code, because every other unit
   writes into the store and the store must be described correctly before anything writes to it.*
