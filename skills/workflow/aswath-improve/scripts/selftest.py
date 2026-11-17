@@ -247,9 +247,10 @@ def t_gate_selfcheck(root: Path) -> None:
     assert "its self-check failed" in out.stdout, out.stdout
 
 
-@case("propose writes a diff for the open failure and leaves out the closed one")
+@case("the dry run writes a diff for the open failure and leaves out the closed one")
 def t_propose(root: Path) -> None:
     repo = build_repo(root / "e")
+    write_gh(root / "e")
     env = env_for(root / "e", repo)
     ledger = root / "e" / "ledger"
     ledger.mkdir(parents=True, exist_ok=True)
@@ -266,7 +267,7 @@ def t_propose(root: Path) -> None:
     (ledger / "scratch.jsonl").write_text(
         "\n".join(json.dumps(line) for line in lines) + "\n", encoding="utf-8")
     out_file = root / "e" / "proposal.diff"
-    out = run([sys.executable, str(IMPROVE), "propose", "--project", "scratch",
+    out = run([sys.executable, str(IMPROVE), "--dry-run", "--project", "scratch",
                "--repo", str(repo), "--out", str(out_file)], env)
     assert out.returncode == 0, (out.stdout, out.stderr)
     diff = out_file.read_text(encoding="utf-8")
@@ -274,6 +275,10 @@ def t_propose(root: Path) -> None:
     assert "the other thing" not in diff, diff
     assert "a failure with no skill" not in diff, diff
     assert "skills/workflow/demo/SKILL.md" in diff, diff
+    # the dry run opens no pull request
+    log_path = root / "e" / "gh.log"
+    log = log_path.read_text(encoding="utf-8") if log_path.is_file() else ""
+    assert "pr create" not in log, log
 
 
 @case("run merges a change that only touches a skill")
@@ -286,7 +291,7 @@ def t_run_merge(root: Path) -> None:
                      "# demo\n\nUse when testing the loop. And the gate.\n")
     diff_file = root / "f" / "change.diff"
     diff_file.write_text(diff, encoding="utf-8")
-    out = run([sys.executable, str(IMPROVE), "run", "--repo", str(repo),
+    out = run([sys.executable, str(IMPROVE), "--run", "--repo", str(repo),
                "--diff", str(diff_file), "--skill", "demo", "--project", "scratch",
                "--subject", "fix(demo): record the open failure"], env)
     assert out.returncode == 0, (out.stdout, out.stderr)
@@ -306,7 +311,7 @@ def t_run_refuses(root: Path) -> None:
     new = old.replace('"version": "0.0.1"', '"version": "0.0.2"')
     diff_file = root / "g" / "change.diff"
     diff_file.write_text(make_diff(repo, "manifest.json", old, new), encoding="utf-8")
-    out = run([sys.executable, str(IMPROVE), "run", "--repo", str(repo),
+    out = run([sys.executable, str(IMPROVE), "--run", "--repo", str(repo),
                "--diff", str(diff_file), "--skill", "demo", "--project", "scratch",
                "--subject", "fix(demo): move the manifest"], env)
     assert out.returncode == 1, (out.stdout, out.stderr)
@@ -329,7 +334,7 @@ def t_run_revert(root: Path) -> None:
                      "# demo\n\nUse when testing the loop. And the gate.\n")
     diff_file = root / "h" / "change.diff"
     diff_file.write_text(diff, encoding="utf-8")
-    out = run([sys.executable, str(IMPROVE), "run", "--repo", str(repo),
+    out = run([sys.executable, str(IMPROVE), "--run", "--repo", str(repo),
                "--diff", str(diff_file), "--skill", "demo", "--project", "scratch",
                "--subject", "fix(demo): record the open failure"], env)
     assert out.returncode == 1, (out.stdout, out.stderr)

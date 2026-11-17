@@ -767,3 +767,28 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   self-check, the proposal leaving out a closed failure, the loop merging, the loop refusing to
   merge, and the revert with its issue — and reports `8/8 case(s) passed`. The gate is green on this
   repo's `main` before any auto-merge is enabled.
+
+## D16 — The loop's commands wear the spec's names
+
+- Date: 2026-11-17
+- Prompt: "approved  solve all the gaps" — unit 8 of the runtime build, the last code unit's
+  prerequisite.
+- Context: the spec names the loop's commands `aswath-improve --dry-run` and `aswath-improve
+  --run`. The first implementation shipped `improve.py propose` and `improve.py run` as
+  subcommands. Same work, different words — but the spec is the contract the user approved, and
+  the scheduled job in unit 5 is written as `improve --run`, so the two had to agree.
+- Decision:
+  - The loop takes flat flags: `--dry-run` writes the diff and opens no pull request; `--run`
+    takes a diff to a pull request and merges it when the gate is green. They are mutually
+    exclusive and one is required.
+  - `--run` without `--diff` writes the proposal first and runs that, so the scheduled job is one
+    command and the human path is the same command.
+  - The proposal is now a function both paths call, not a command of its own.
+- Rejected:
+  - Keeping the subcommands and adding `--dry-run` as an alias. Two ways to say one thing is the
+    next thing to document, and the spec named one.
+  - A wrapper script that translates the spec's names into the subcommands. A second entry point
+    that can drift from the first.
+- Evidence: the self-check runs the same 8 cases against the renamed commands and reports
+  `8/8 case(s) passed`; the dry-run case now also asserts that no pull request was opened, which
+  is the spec's criterion 7.

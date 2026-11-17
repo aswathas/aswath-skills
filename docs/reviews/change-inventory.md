@@ -236,3 +236,15 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `~/.agents/skills-active.list.json` | `aswath-improve` added, 67 -> 68 | The keep list decides what is installed in the harnesses | `catalog check` is clean |
 | `~/.agents/skills/aswath-improve/`, `~/.agents/skills-active/aswath-improve/` | Junctions to the published skill | The store's copy is a link to the published copy | `catalog check` reports no `WRONG_TARGET` |
 | `~/.agents/config/skill-map.json`, `~/.agents/config/pc.json` | Rebuilt: 356 skills | The map is what the two PCs compare | `catalog check` is clean; `catalog build` wrote both files |
+
+## aswath-skills-wk — `fix/improve-commands` (unit 8: the loop's commands wear the spec's names)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-improve/scripts/improve.py` | Changed. `propose` and `run` become the flat flags `--dry-run` and `--run`; the proposal is now a function both paths call; `--run` without `--diff` writes the proposal first | The spec names `aswath-improve --dry-run` and `aswath-improve --run`, and the scheduled job in unit 5 is written as `improve --run` | `selftest.py` -> `8/8 case(s) passed`; the dry-run case asserts the diff file is written and no pull request was opened |
+| `skills/workflow/aswath-improve/scripts/selftest.py` | Changed. The cases call the flags; the dry-run case also asserts that no `pr create` reached the stub `gh` | The spec's criterion 7 asks for a diff file and an unchanged pull-request count | `selftest.py` -> `8/8 case(s) passed`, exit 0 |
+| `skills/workflow/aswath-improve/SKILL.md` | Changed. The flow, the commands and the last line name the flags | A person reads the skill, not the source | Read back; no `propose` left in the file |
+| `docs/reviews/decision-log.md` | Changed. D16: the loop's commands wear the spec's names | The rule requires the reasoning behind a change to be written down before it is pushed | Read back; the entry carries its options, its rejections and the evidence |
+| `docs/reviews/delivery-plan.md` | Changed. Units 6 and 7 marked `done` (both had merged), and unit 8 added | The plan is the record of what landed and what is left | Read back; the unit table matches the commits |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | `check_push.py --repo ~/Projects/aswath-skills-wk` reports no `UNCOVERED_FILE` for this range |
+| `BUILDLOG.md` | Changed. The unit 8 entry | The build log is the running narrative of what shipped | Read back after the change |

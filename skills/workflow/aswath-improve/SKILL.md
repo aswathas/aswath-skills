@@ -28,10 +28,11 @@ ledger failures -> a diff on one skill -> a pull request -> the gate -> merge, o
 1. **Find the open failures.** A failure is open when the ledger holds a failed run of a skill
    and no later successful run of the same job. A later success closes it; a failure that names
    no skill has no skill to change and is left alone.
-2. **Write the diff.** `propose` records the open failures in the skill that owns them, as a
+2. **Write the diff.** `--dry-run` records the open failures in the skill that owns them, as a
    `## Known failures` section. It touches no git state: the output is a diff file.
-3. **Take it to a pull request.** `run` branches from the base, applies the diff, adds the unit
-   to the delivery plan, commits, pushes and opens the PR.
+3. **Take it to a pull request.** `--run` branches from the base, applies the diff, adds the unit
+   to the delivery plan, commits, pushes and opens the PR. With no `--diff` it writes the
+   proposal first and runs that.
 4. **The gate decides.** Green means merge. Red means the PR gets the reason and stays open.
 5. **After the merge, the check runs again** on the merged tree. Red means the merge is reverted
    with a new commit and the failing output goes into an issue.
@@ -56,7 +57,7 @@ a deletion, because the gate says no first. It never rewrites a published commit
 is undone by a new revert commit, not by an amend.
 
 A human is still the author of the change. The loop writes the diff from what the ledger
-recorded; a person who wants a different change writes the diff by hand and gives it to `run`.
+recorded; a person who wants a different change writes the diff by hand and gives it to `--run`.
 
 ## The revert
 
@@ -76,12 +77,13 @@ tells the next session what happened.
 I=skills/workflow/aswath-improve/scripts/improve.py
 G=skills/workflow/aswath-improve/scripts/gate.py
 
-python $I propose --project agent-estate            # write the diff, change nothing
-python $I run --diff <file> --skill <skill>          # branch, PR, gate, merge, check, revert
+python $I --dry-run --project agent-estate            # write the diff, change nothing
+python $I --run --diff <file> --skill <skill>        # branch, PR, gate, merge, check, revert
+python $I --run --project agent-estate                # the whole cycle: propose, then run
 python $G check --repo . --base main --head <branch> # the gate on its own
 ```
 
-`run` takes `--repo`, `--remote`, `--base`, `--branch`, `--subject` and `--post-check`. The
+`--run` takes `--repo`, `--remote`, `--base`, `--branch`, `--subject` and `--post-check`. The
 last one replaces the post-merge check with another command; the default is the catalogue check
 on the merged tree.
 
@@ -98,7 +100,7 @@ python ~/.agents/skills/aswath-record/scripts/ledger.py add \
 - after a skill ships and the ledger shows it is not working
 - when the estate's own check finds drift the loop could fix
 
-Not for a change a person wants to make by hand. Write that diff yourself and hand it to `run`.
+Not for a change a person wants to make by hand. Write that diff yourself and hand it to `--run`.
 
 ## Self-check
 

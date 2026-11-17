@@ -124,3 +124,17 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `8/8 case(s) passed`,
   exit 0. `gate.py check --repo . --base main --head main` -> green on this repo.
 - Records: `docs/reviews/decision-log.md` (D15), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — the loop's commands wear the spec's names (unit 8 of the runtime build)
+- Branch: `fix/improve-commands`
+- Shipped:
+  - `skills/workflow/aswath-improve/scripts/improve.py` — the subcommands `propose` and `run`
+    become the flat flags `--dry-run` and `--run`. The proposal is a function both paths call,
+    and `--run` with no `--diff` writes the proposal first and runs that.
+  - `skills/workflow/aswath-improve/scripts/selftest.py` — the cases call the flags, and the
+    dry-run case now asserts that no pull request was opened.
+  - `skills/workflow/aswath-improve/SKILL.md` — the flow, the commands and the closing line name
+    the flags.
+- Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `8/8 case(s) passed`,
+  exit 0.
+- Records: `docs/reviews/decision-log.md` (D16), `docs/reviews/change-inventory.md`.
