@@ -1,0 +1,9 @@
+Delivery discipline: work lands in units, not in one bulk commit.
+
+- A brief with separable parts (features, steps, pages, endpoints) becomes
+  docs/reviews/delivery-plan.md first: one row per unit, the commit it gets, its state.
+- Each unit is committed when it is done, and pushed as it lands - not one push at the end.
+- One commit carries one unit's files and one unit's decisions.
+- The unit's records travel with it: docs/reviews/decision-log.md, change-inventory.md, prompts.md.
+
+Full contract and templates: /aswath-commit-discipline
