@@ -125,6 +125,7 @@ def replace_section(text: str, block: str) -> str:
                 i += 1
             while out and out[-1] == "":
                 out.pop()
+            out.append("")
             out.extend(block.splitlines())
             out.append("")
             placed = True
@@ -134,6 +135,7 @@ def replace_section(text: str, block: str) -> str:
     if not placed:
         while out and out[-1] == "":
             out.pop()
+        out.append("")
         out.extend(block.splitlines())
         out.append("")
     return "\n".join(out) + "\n"
