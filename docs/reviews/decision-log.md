@@ -540,3 +540,53 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   `COMMIT_NOT_PLANNED`, while `feat(y): unplanned work` in the same range produced one.
 - Consequence: the check reports the commits that carry work, and stays quiet on the ones
   that do not.
+
+## D10 — The checker is verified by a stdlib script, not by a test framework
+
+- Date: 2026-11-17
+- Prompt: "if am doing a project or any work the push should have lot / multiple commits
+  meaning ful commits every step needs to docuemnated or commited not bulk single push"
+- Context: the three new warnings were verified by hand, in scratch repositories written
+  into a temp directory and thrown away. That proves they work once. Nothing in the repo
+  would run them again, so the next change to the checker could break them silently.
+- Options:
+  - pytest. The usual choice, and it needs a dependency the repo does not have, plus a
+    config file for one file of tests.
+  - `unittest` from the standard library. No dependency, but the scratch repository and
+    its git history have to be built inside test-case boilerplate.
+  - A plain script that builds scratch repositories, runs the real checker against them
+    and asserts on the output. Standard library only, one file, readable top to bottom.
+  - Leave the manual runs as the verification. Not repeatable, and the manual run is not
+    in the repo for the next person to run.
+- Chosen: option 3. `scripts/test_check_push.py` builds a scratch repository per case in a
+  temp directory, runs the real `check_push.py` against it, and asserts on the warnings.
+  Exit 0 when every case holds.
+- Evidence: `python skills/workflow/aswath-commit-discipline/scripts/test_check_push.py`
+  printed `5/5 case(s) passed` and exited 0. The cases cover a compliant branch, a 31-file
+  commit, a commit matching no unit, a `chore:` commit, a unit marked done with no commit,
+  and a branch that inherited a plan from `main`.
+- Consequence: the checker's behaviour is reproducible by anyone with Python, and the
+  scratch repositories never touch the working tree.
+
+## D11 — The catalogue states the unit rule, and the manifest version moves to 1.3.0
+
+- Date: 2026-11-17
+- Prompt: "i want to updte aswath documentaion skill"
+- Context: the catalogue is what a reader scans before loading a skill. The manifest
+  description and the README row still described the old contract — documentation
+  completeness, and a free commit count. They were not wrong, but they no longer said
+  what the skill does, and the README is the page most people read.
+- Options:
+  - Leave the catalogue alone. The descriptions stay true, but they no longer mention the
+    plan, the units or the push-per-unit rule.
+  - Update the manifest description and the README row to state the unit rule, and leave
+    the version alone. The catalogue changes without a version to point at it.
+  - Update both and bump the manifest version from 1.2.0 to 1.3.0.
+- Chosen: option 3. The manifest description now mirrors the skill's frontmatter
+  description, the README row states the unit rule, and the version is 1.3.0 with
+  `updated` at today's date.
+- Evidence: `manifest.json` parses as JSON and carries `"version": "1.3.0"`; the row for
+  `aswath-commit-discipline` names `docs/reviews/delivery-plan.md`; the README row names
+  the same path.
+- Consequence: the catalogue and the skill describe the same contract, and the version
+  records that the contract changed.

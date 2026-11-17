@@ -44,3 +44,19 @@ What shipped, when, and where. Each entry names the branch, the change and how i
   `chore:` commit. A second scratch repository with the plan merged to `main` reported
   neither new warning for a later unrelated branch.
 - Records: `docs/reviews/decision-log.md` (D7-D9), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — commit discipline, unit delivery (unit 3 of 3)
+- Branch: `feat/commit-discipline-unit-delivery`
+- Shipped:
+  - `skills/workflow/aswath-commit-discipline/scripts/test_check_push.py` — the
+    checker's self-check. Six assertions over five scratch repositories: a compliant
+    branch stays quiet, a 31-file commit raises `BULK_COMMIT`, a commit matching no unit
+    raises `COMMIT_NOT_PLANNED`, a `chore:` commit does not, a unit marked done with no
+    commit raises `UNIT_NOT_COMMITTED`, and a plan inherited from `main` stays quiet.
+  - `skills/workflow/aswath-commit-discipline/SKILL.md` — the command that runs the
+    self-check.
+  - `manifest.json` — version 1.3.0, and the description states the unit rule.
+  - `README.md` — the catalogue row states the unit rule and names the plan file.
+- Verified: `python skills/workflow/aswath-commit-discipline/scripts/test_check_push.py`
+  -> `5/5 case(s) passed`, exit 0.
+- Records: `docs/reviews/decision-log.md` (D10-D11), `docs/reviews/change-inventory.md`.

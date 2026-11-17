@@ -120,3 +120,16 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/change-inventory.md` | This section | The contract requires one row per changed file | Read back after the change |
 | `docs/reviews/delivery-plan.md` | Unit 2 marked `done` | The plan is the record of what landed and what is left | Read back after the change |
 | `BUILDLOG.md` | Unit 2 entry: what shipped, and the scratch runs that proved it | The build log is the running narrative of what shipped | Read back after the change |
+
+## aswath-skills-wk — `feat/commit-discipline-unit-delivery` (unit 3: verification and packaging)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-commit-discipline/scripts/test_check_push.py` | New file: the checker's self-check. Builds a scratch repository per case in a temp directory, runs the real checker against it and asserts on the warnings | The manual scratch runs proved the checks once; nothing in the repo would run them again, so the next change to the checker could break them silently | `python skills/workflow/aswath-commit-discipline/scripts/test_check_push.py` -> `5/5 case(s) passed`, exit 0. Six assertions: compliant branch quiet, 31-file commit -> `BULK_COMMIT`, commit matching no unit -> `COMMIT_NOT_PLANNED`, `chore:` commit quiet, unit marked done with no commit -> `UNIT_NOT_COMMITTED`, inherited plan quiet |
+| `skills/workflow/aswath-commit-discipline/SKILL.md` | The command that runs the self-check, under the checker section | The self-check is useless if nobody knows it exists | Read back after the change; the command matches the file path |
+| `manifest.json` | Version 1.2.0 -> 1.3.0, and the description of `aswath-commit-discipline` now states the unit rule and names `docs/reviews/delivery-plan.md` | The catalogue is what a reader scans before loading the skill; it described the old contract | Parsed as JSON; the row's description matches the skill's frontmatter description |
+| `README.md` | The catalogue row states the unit rule and names the plan file | The README is the page most people read | Read back after the change; the row names `docs/reviews/delivery-plan.md` |
+| `docs/reviews/decision-log.md` | D10 (the checker is verified by a stdlib script, not by a test framework) and D11 (the catalogue states the unit rule and the manifest version moves to 1.3.0) | The contract requires every decision to be written down before the push | Read back after the change |
+| `docs/reviews/change-inventory.md` | This section | The contract requires one row per changed file | Read back after the change |
+| `docs/reviews/delivery-plan.md` | Unit 3 marked `done` | The plan is the record of what landed and what is left | Read back after the change |
+| `BUILDLOG.md` | Unit 3 entry: what shipped, and the self-check that proved it | The build log is the running narrative of what shipped | Read back after the change |
