@@ -187,7 +187,9 @@ def cmd_propose(args) -> int:
 
     out = Path(args.out) if args.out else state_root() / "improve" / f"{skill}.diff"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(diff, encoding="utf-8")
+    # Written as bytes on purpose: a text write would translate the newlines to
+    # this machine's separator and the patch would no longer match the file.
+    out.write_bytes(diff.encode("utf-8"))
     print(f"improve: {skill} has {len(counts[skill])} open failure(s) -> {out}")
     for job, recs in jobs:
         print(f"  - {job}: {len(recs)}")
@@ -250,7 +252,7 @@ def add_plan_row(repo: Path, unit: str, subject: str) -> None:
         lines.insert((last if last is not None else index) + 1,
                      f"| {number + 1} | {unit} | {subject} | done |")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
 
 
 def post_check_command(repo: Path, override: str) -> str:

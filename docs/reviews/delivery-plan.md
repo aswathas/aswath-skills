@@ -26,5 +26,6 @@ unit also pushes to the private store, where its data half lives.
 | 4 | `aswath-improve`: the learning loop, the gate, the merge policy, the revert | feat(improve): let the estate learn from its own runs | done |
 | 5 | `aswath-schedule`: the scheduled jobs and the harness-scheduler report | feat(schedule): run the loop and the check on a clock | planned |
 | 6 | the loop's own fix: a blank line before the section it writes | fix(improve): keep a blank line before the new heading | planned |
+| 7 | the loop's own fixes: the patch and the plan row are written in bytes | fix(improve): write the patch and the plan row in bytes | planned |
 
 Unit 1 landed on approval. Units 3 to 5 stay `planned` until then.
