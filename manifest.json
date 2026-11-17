@@ -1,6 +1,6 @@
 {
   "name": "aswath-skills",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": "Aswath S",
   "license": "MIT",
   "updated": "2026-11-17",
@@ -136,6 +136,15 @@
       "path": "skills/workflow/aswath-delivery/SKILL.md",
       "description": "Use when finished work goes back to a person on a chat channel - WhatsApp above all - and the chat must hold only the final version. Purges the superseded messages and files, sends the current build once, and leaves one clean final state.",
       "resources": []
+    },
+    {
+      "name": "aswath-record",
+      "category": "workflow",
+      "path": "skills/workflow/aswath-record/SKILL.md",
+      "description": "Use when something ran and what it produced has to be written down - a build, a delivery, a failure - or when a secret may have reached a commit. Keeps the run and artifact ledger in the private store, reports the metrics, and checks that no secret file is tracked by git.",
+      "resources": [
+        "scripts"
+      ]
     },
     {
       "name": "aswath-first-principles",
