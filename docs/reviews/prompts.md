@@ -58,5 +58,6 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   U4 build it — `aswath-catalog`, `aswath-record`, `aswath-improve`, `aswath-schedule` — one
   commit and one push per unit.
 - Work it caused: unit 2, `aswath-catalog` (`feat/catalog`), unit 3, `aswath-record`
-  (`feat/record`) and unit 4, `aswath-improve` (`feat/improve`), with the store-side work that
-  describes where the estate's own files live and what it ran.
+  (`feat/record`), unit 4, `aswath-improve` (`feat/improve`) and unit 5, `aswath-schedule`
+  (`feat/schedule`), with the store-side work that describes where the estate's own files live and
+  what it ran.

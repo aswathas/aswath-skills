@@ -138,3 +138,21 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `8/8 case(s) passed`,
   exit 0.
 - Records: `docs/reviews/decision-log.md` (D16), `docs/reviews/change-inventory.md`.
+
+## 2026-11-17 — the estate's clock (unit 5 of the runtime build)
+- Branch: `feat/schedule`
+- Shipped:
+  - `skills/utilities/aswath-schedule/scripts/schedule.py` — `add` creates a Windows Task Scheduler
+    task named `Aswath\<name>` from UTF-16 task XML with the "run as soon as possible after a missed
+    start" flag; `remove` deletes it; `list` prints the Windows tasks, the Claude Code task list
+    and the MiniMax cron table in one place, marking the finished one-shots dead.
+  - `skills/utilities/aswath-schedule/scripts/selftest.py` — seven cases, including a live task that
+    appears in `schtasks /query` and is gone after `remove`.
+  - `skills/utilities/aswath-schedule/SKILL.md` — the jobs, the commands, the two estate jobs.
+  - `manifest.json` — version 1.7.0, and the `aswath-schedule` row. `README.md` — the utilities row
+    and the layout block.
+- Machine-local: the two estate tasks — `Aswath\catalog-verify` at 09:00 and `Aswath\improve` at
+  09:30 — are created and visible; the keep list is 69; the map is rebuilt at 357 skills.
+- Verified: `python skills/utilities/aswath-schedule/scripts/selftest.py` -> `7/7 case(s) passed`,
+  exit 0. `catalog.py check` -> clean.
+- Records: `docs/reviews/decision-log.md` (D17), `docs/reviews/change-inventory.md`.

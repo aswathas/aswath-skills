@@ -1,6 +1,6 @@
 {
   "name": "aswath-skills",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "author": "Aswath S",
   "license": "MIT",
   "updated": "2026-11-17",
@@ -102,6 +102,15 @@
       "category": "utilities",
       "path": "skills/utilities/aswath-catalog/SKILL.md",
       "description": "Use when a skill is in the wrong place, when two copies of a skill exist, when the published catalogue and the machine disagree, when a skill was edited in one place and did not change in another, or when the two PCs need to agree on what is installed. Also the entry point for \"where is this skill actually\", \"which copy is the real one\", and \"check the skill layout\".",
+      "resources": [
+        "scripts"
+      ]
+    },
+    {
+      "name": "aswath-schedule",
+      "category": "utilities",
+      "path": "skills/utilities/aswath-schedule/SKILL.md",
+      "description": "Use when work should run without a human - the learning loop, the catalogue check, a job that must run late rather than never, or when the machine's scheduled jobs need seeing. Creates and removes Windows Task Scheduler jobs named Aswath\\<name>, reports the Claude Code task list and the MiniMax cron table in one place, and marks the dead one-shots.",
       "resources": [
         "scripts"
       ]
