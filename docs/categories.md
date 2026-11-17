@@ -17,6 +17,7 @@ Six folders. One rule: **a skill lives in the folder of the question it answers.
 - **commit vs. chronicle.** Both write records. `commit` writes the record *at commit time*; `chronicle` keeps the record running across a build. Both are `workflow/` because both answer "what do I record, and when".
 - **throw vs. capability.** `throw` accepts a raw request and runs the harness end to end. `capability` assembles what the harness should consist of. Both are orchestration; neither is a workflow step of the other, though `delegate-a-request` chains them.
 - **thevai vs. first-principles.** Both answer "what exactly are we building?" before any code. `first-principles` asks the user in the session; `thevai` asks a person outside it, over WhatsApp, one question at a time, and ends with that person approving the brief. The source of the requirement decides which one runs. Both are `workflow/`.
+- **thevai vs. delivery.** Both are the same conversation with the same person on the same channel, at its two ends: `thevai` collects the requirement and ends with that person approving the brief; `delivery` hands the finished work back and leaves only the final version in the chat. The source of the requirement decides the first; the state of the chat decides the second. Both are `workflow/`.
 - **publish-github is publishing, not workflow.** It creates and pushes, but the question it answers is "how does this get out", which is the same question LinkedIn and Instagram answer.
 
 ## What does not go here
