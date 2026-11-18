@@ -224,7 +224,7 @@ Report these at the end of every build. A cheaper next time is the whole point o
 | `registry/staged.json` | Marketplace candidates staged for your approval. |
 
 The generated index and the mutable state live in ONE place, overridable with
-`SKILL_ROUTER_STATE_DIR` (default `~/.agents/state/`):
+`SKILL_ROUTER_STATE_DIR` (default `~/.minimax/local-runtime/skill-learning/`):
 
 | Path | What it is |
 |------|------------|
@@ -248,7 +248,6 @@ And the skill's own runtime files:
 | `reference/authoring.md` | How to write a new skill that is worth keeping. |
 | `reference/promotion.md` | The approval and promotion contract. |
 | `reference/quality-bar.md` | What "good" means per domain. |
-| `registry/backends.json` | The external agent runtimes (agy, cmdc), their prompt styles, and which role uses which. |
 | `scripts/delegate.py` | The delegation seam: run one prompt on a backend, get a normalized envelope back. |
 | `workflows/roast-and-fix.py` | The delegated roast loop: parallel critics → adversarial verify → fix → scope guard → re-verify. |
 | `agents/*.md` | Subagent briefs: researcher, planner, critic. Installed via `scripts/install-agents.py`. |

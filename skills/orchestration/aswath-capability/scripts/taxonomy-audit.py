@@ -85,7 +85,7 @@ def shared_state_dir():
     env = os.environ.get("SKILL_ROUTER_STATE_DIR")
     if env:
         return Path(env)
-    return Path.home() / ".agents" / "state"
+    return Path.home() / ".minimax" / "local-runtime" / "skill-learning"
 
 
 def shared_registry_path():
