@@ -3,3 +3,4 @@ Thumbs.db
 node_modules/
 __pycache__/
 *.pyc
+.impeccable/hook.cache.json

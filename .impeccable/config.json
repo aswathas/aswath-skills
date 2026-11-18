@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "createdAt": "2026-11-18T12:57:11.465Z",
+        "reason": "Test fixture: skills/utilities/aswath-gform-fill/tests/mock-form.html reproduces the Google Forms DOM for the self-check; it is a machine-read fixture with no designed interface. Decided by the agent on the evidence that the file has no rendering role."
+      }
+    ]
+  }
+}
