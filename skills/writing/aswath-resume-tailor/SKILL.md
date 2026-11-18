@@ -9,7 +9,7 @@ description: Use when a job description, posting or role needs a tailored resume
    can read. No JD means no tailoring — ask for it.
 2. **The candidate profile.** A resume JSON (schema in
    `references/schema.md`). Default path:
-   `~/.agents/state/resume/profile.json`. If it does not exist, assemble one
+   `~/.agents/resume/profile.json`. If it does not exist, assemble one
    from the candidate's own repositories and ask the user for the facts a
    repository cannot prove: graduation year, CGPA, contact details.
 3. **The role slug.** A short name for the variant, used in the file name.
@@ -26,7 +26,7 @@ description: Use when a job description, posting or role needs a tailored resume
    JSON or a repository the user owns. If a JD keyword is missing from the
    evidence, leave it out and report it as a gap.
 4. **Write the variant JSON.** Same schema as the profile, new content:
-   `~/.agents/state/resume/variants/<role-slug>.json`. The base profile stays
+   `~/.agents/resume/variants/<role-slug>.json`. The base profile stays
    untouched — a variant is a file, not an edit.
 5. **Build.**
    ```
@@ -53,7 +53,7 @@ description: Use when a job description, posting or role needs a tailored resume
 
 ```
 # build and render one variant
-python scripts/build_resume.py ~/.agents/state/resume/variants/superdream.json \
+python scripts/build_resume.py ~/.agents/resume/variants/superdream.json \
        ~/Documents/resumes Aswath_SuperDream_SDE_Resume
 soffice --headless --convert-to pdf --outdir ~/Documents/resumes \
        ~/Documents/resumes/Aswath_SuperDream_SDE_Resume.docx
