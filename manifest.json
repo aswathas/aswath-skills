@@ -143,7 +143,7 @@
       "name": "aswath-delivery",
       "category": "workflow",
       "path": "skills/workflow/aswath-delivery/SKILL.md",
-      "description": "Use when finished work goes back to a person on a chat channel - WhatsApp above all - and the chat must hold only the final version. Purges the superseded messages and files, sends the current build once, and leaves one clean final state.",
+      "description": "Use when finished work goes back to a person on a chat channel — WhatsApp above all — and the chat must hold only the final version. Purges the superseded messages and files, sends the current build once, and leaves one clean final state. Triggers: \\\"send him the final files\\\", \\\"delete the old messages\\\", \\\"clean up the chat\\\", \\\"only the final version\\\", \\\"deliver the report\\\", \\\"remove the unwanted messages from whatsapp\\\", \\\"delivery\\\".",
       "resources": []
     },
     {
