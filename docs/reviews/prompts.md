@@ -108,3 +108,14 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   subcommand and the `--email` resolution in `scripts/gform.mjs`, `commands/gform-fill.md`,
   the rewritten `SKILL.md`, the eight new self-test assertions, the catalogue rows and
   version 1.11.0.
+
+## 2026-11-18 - commit and push everything that is pending
+
+- Prompt: "COMITT AND PUSH EVERTHTHING", after "push this dithub"
+- Decision it produced: D23 (the commit rule asks for documentation, not for a plan), D24 (the
+  capability router's shared state moves under the minimax runtime dir), D25 (the Thevai skill
+  speaks plain English by default).
+- Work it caused: the three pending units split into three commits (the commit-discipline
+  contract, the capability state dir, the Thevai skill text), the delivery-plan rows 14-16, the
+  manifest and README descriptions brought back in line, the capability file table de-duplicated,
+  and the whole branch pushed and merged.
