@@ -909,3 +909,34 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Evidence: `python skills/writing/aswath-resume-tailor/scripts/selftest.py` -> `6/6 case(s)
 passed`. `claude plugin validate .` -> `Validation passed`. The manifest, the plugin and the
 marketplace carry version 1.9.0.
+
+### D21 - one browser, one sign-in, and the fill is a script
+
+- Date: 2026-11-18
+- Context: a Google Form had to be filled end to end. The form was multi-page, 429 defined
+  questions, branched on the specialization chosen, and needed a signed-in Google account with
+  a second factor. The first attempts launched a throwaway Chrome per run, so the session died
+  and the human had to sign in again every time. The user said it plainly: do not close it, do
+  not reopen it, and make a reusable system.
+- Decision:
+  - One persistent Chrome profile per machine (`--user-data-dir`) plus a DevTools port. Scripts
+    attach to the running browser and never launch, close or replace it. The Google session
+    survives, so the sign-in happens once.
+  - The script fills by question heading text, not by the `entry.<id>` name attribute, because
+    Google no longer names text inputs. Rating grids are read from the cell labels
+    (`"<value>, response for <row>"`), and each row gets its own cell.
+  - A branch answer re-renders the page, so each page is filled up to four times with a re-read
+    in between, then Next is clicked until Submit appears. Submit is clicked exactly once, after
+    a dry run that stops before it.
+  - The skill ships the code, not the data. Credentials arrive as CLI flags or a local OTP file;
+    no account, password, seed or personal answer is in this repository.
+- Rejected:
+  - Driving Chrome with Selenium or Playwright. They need their own driver install and their own
+    profile management; the DevTools protocol is already on the machine and needs no dependency.
+  - Submitting the form's response endpoint directly. A signed-in session plus the real DOM
+    survives the branching that a raw HTTP post would not.
+  - Automating the 2FA code from a stored seed. The human types the code in the visible window
+    once, and the script detects the sign-in completing; the seed stays out of the skill.
+- Evidence: the survey was submitted once and the page read "Thank you for your response".
+  `node scripts/gform.mjs inspect --url <form>` walks the pages and writes
+  `gform-inspect.json`; `fill --no-submit` fills and stops before Submit.

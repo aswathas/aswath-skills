@@ -331,3 +331,24 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/delivery-plan.md` | Changed. Unit 11 | The plan is the record of what landed | Read back |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
 | `BUILDLOG.md` | Changed. The unit 11 entry | The build log is the running narrative | Read back after the change |
+
+## aswath-skills-wk - `feat/gform-fill` (unit 12: the reusable Google Form filler)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/utilities/aswath-gform-fill/SKILL.md` | New skill. The procedure (one persistent browser, inspect before filling, dry run before submit), the commands, and the mistakes that cost the most time on the real survey | The method was the deliverable; the survey was only the first run of it | Read in full; frontmatter `name`/`description` checked |
+| `skills/utilities/aswath-gform-fill/scripts/gform.mjs` | New. One Node script, no dependencies: `inspect` dumps every page and question; `fill` signs in (email/password, an OTP file, or by hand in the open window), fills by heading text, handles rating grids and branch re-render, walks Back to page 1 then Next to Submit, clicks Submit once, and verifies "Thank you for your response" | The whole method in one file, so a new machine needs no setup beyond Node and Chrome | `inspect` against the live survey form; `fill --no-submit` filled every page and stopped before Submit |
+| `skills/utilities/aswath-gform-fill/references/answers.md` | New. The answers JSON schema: `text`, `radio`, `grid.default`, `textDefault` | A caller needs to know the answer file shape without reading the script | Read back; the file it documents is the one the script parses |
+| `skills/utilities/aswath-gform-fill/assets/answers.template.json` | New. A valid empty answers file to copy | A first run should not need the schema document to start | Parsed as JSON and used as the shape of the test answers file |
+| `manifest.json` | Changed. Added the `aswath-gform-fill` entry (category `utilities`, resources `scripts` + `references`); version 1.9.0 -> 1.10.0 | The catalogue names the files a reader needs | `python -c "import json;json.load(open('manifest.json'))"` |
+| `skills/utilities/aswath-gform-fill/scripts/selftest.mjs` | New. Runs the whole engine against `tests/mock-form.html` in a throwaway headless Chrome and asserts ten facts: both pages walked, nothing missing, the response recorded, the radio, both grid rows, the text answer and the free-text default | The script is the part that can rot; the check is a form, not a mock of the form's data | `node skills/utilities/aswath-gform-fill/scripts/selftest.mjs` -> `10 passed, 0 failed` |
+| `skills/utilities/aswath-gform-fill/tests/mock-form.html` | New. A two-page form that reproduces the Google Forms DOM shape (listitem blocks, heading, `jsname="YPqjbf"` inputs, `role="radio"` options, grid cells labelled `"<value>, response for <row>"`, Next / Back / Submit buttons, a thank-you panel) | The engine can be proved without a real form, and without risking a second real response | Driven by the self-check |
+| `README.md` | Changed. The utilities-table row and the `utilities/` layout line | A human must find the skill without reading the manifest | Row checked against the manifest entry |
+| `docs/categories.md` | Changed. The utilities row now names `gform-fill`, and a judgement note says why it is utilities and not workflow | The category rule is stated by the question, and this one needed saying | Read back |
+| `.claude-plugin/plugin.json` | Changed. Added the skill directory; version 1.9.0 -> 1.10.0 | The plugin must carry every skill so a stranger can install the library | `claude plugin validate .` |
+| `.claude-plugin/marketplace.json` | Changed. Version 1.9.0 -> 1.10.0 | The marketplace publishes the plugin version | `claude plugin validate .` |
+| `docs/reviews/decision-log.md` | Changed. D21 | The rule requires the reasoning written down before the push | Read back |
+| `docs/reviews/prompts.md` | Changed. The 2026-11-18 entry | The rule requires every prompt and the decision it produced | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 12 | The plan is the record of what landed | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+| `BUILDLOG.md` | Changed. The unit 12 entry | The build log is the running narrative | Read back after the change |

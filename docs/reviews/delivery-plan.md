@@ -47,3 +47,8 @@ Rows the learning loop added. Each row is a commit the loop pushed.
 | # | Unit | Commit | State |
 |---|------|--------|-------|
 | 11 | the skill as a public, generic tool: template profile, self-check, plugin and marketplace manifests | feat(resume-tailor): publish the skill as a plugin anyone can install | done |
+
+## The form units
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 12 | `aswath-gform-fill`: a reusable Google Form filler - persistent browser, heading-matched fill, dry run before submit | feat(gform-fill): fill and submit a Google Form from one script | done |

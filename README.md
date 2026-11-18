@@ -134,6 +134,7 @@ Two ways in, and they are the same units.
 | `aswath-csvjson` | CSV → JSON done properly: header-keyed rows, type sniffing, quoting, embedded newlines, leading-zero IDs kept as strings. | `/aswath-csvjson` |
 | `aswath-catalog` | The estate's own layout, made checkable. One map says where every skill lives and which copy is canonical; one check says whether the machine still matches it. Also the lease that keeps two PCs from writing the same shared state. | `/aswath-catalog` |
 | `aswath-schedule` | Work that runs without a human. Windows Task Scheduler jobs named `Aswath\<name>`, created so a missed slot runs late instead of never — and one report for the Windows, Claude Code and MiniMax schedulers together. | `/aswath-schedule` |
+| `aswath-gform-fill` | A Google Form filled and submitted, end to end. One persistent browser so the Google sign-in happens once; answers matched to the real question headings; rating grids and branch questions handled; dry run before the one irreversible click. | `/aswath-gform-fill` |
 
 ---
 
@@ -146,7 +147,7 @@ skills/
   workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking
   orchestration/    aswath-capability, aswath-manual-demo
   writing/          aswath-talk, aswath-resume-tailor
-  utilities/        aswath-csvjson, aswath-catalog, aswath-schedule
+  utilities/        aswath-csvjson, aswath-catalog, aswath-schedule, aswath-gform-fill
 ```
 
 `skills/orchestration/aswath-capability` carries its own `registry/`, `skillsets/`, `workflows/`, `agents/` and `scripts/` — it is the only skill with runtime support files, and they travel with it.
