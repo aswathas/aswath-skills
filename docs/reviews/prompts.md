@@ -97,3 +97,14 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   text, a dry run before the single Submit click, and credentials kept out of the repository.
 - Work it caused: `skills/utilities/aswath-gform-fill/` with the script, the skill text and the
   answers schema; the catalogue rows, the plugin manifest and the build log entry.
+
+## 2026-11-18 - any email, not one email
+
+- Prompt: "i want to create this as reusable tool to plugin any emails for filling these forms"
+- Decision it produced: D22 - one machine-local account store, one Chrome profile and one
+  DevTools port per email, the 2FA computed in-process from the saved secret, and a
+  `/gform-fill` plugin command that drives list -> add -> inspect -> dry run -> submit.
+- Work it caused: `skills/utilities/aswath-gform-fill/scripts/lib.mjs`, the `account`
+  subcommand and the `--email` resolution in `scripts/gform.mjs`, `commands/gform-fill.md`,
+  the rewritten `SKILL.md`, the eight new self-test assertions, the catalogue rows and
+  version 1.11.0.

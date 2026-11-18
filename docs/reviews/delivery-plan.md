@@ -52,3 +52,4 @@ Rows the learning loop added. Each row is a commit the loop pushed.
 | # | Unit | Commit | State |
 |---|------|--------|-------|
 | 12 | `aswath-gform-fill`: a reusable Google Form filler - persistent browser, heading-matched fill, dry run before submit | feat(gform-fill): fill and submit a Google Form from one script | done |
+| 13 | `aswath-gform-fill`: any account, not one account - a saved account store, a profile and a port per email, self-computed 2FA, and a `/gform-fill` command | feat(gform-fill): fill a Google Form with any saved Google account | done |

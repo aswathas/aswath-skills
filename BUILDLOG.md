@@ -211,3 +211,21 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: the ECE end-of-course survey was submitted once through this method and the page read
   "Thank you for your response"; `inspect` and `fill --no-submit` were run against the live form.
 - Records: `docs/reviews/decision-log.md` (D21), `docs/reviews/change-inventory.md`.
+
+## 2026-11-18 - any email, not one email (unit 13)
+- Branch: `feat/gform-multi-account`
+- Shipped:
+  - `skills/utilities/aswath-gform-fill/scripts/lib.mjs` - the account store and the TOTP code.
+    `~/.gform-accounts.json` (or `$GFORM_ACCOUNTS`) holds the email, the port, the profile path,
+    the password and the TOTP secret. It stays on the machine and is never committed.
+  - `scripts/gform.mjs` - `account list|add|remove`, and `--email` now picks the profile, the
+    DevTools port and the saved credentials. Each email gets its own profile and its own port, so
+    several accounts stay signed in side by side. The 2FA code is computed in-process; the human
+    typing it into the visible window is still the fallback.
+  - `commands/gform-fill.md` - the `/gform-fill` plugin command: list the accounts, add one if
+    missing, inspect, dry run, submit only when nothing is missing.
+  - `SKILL.md` rewritten around the account workflow; `manifest.json`, `README.md` and
+    `.claude-plugin/*.json` at version 1.10.0 -> 1.11.0.
+- Verified: `node scripts/selftest.mjs` -> `18 passed, 0 failed`, including three RFC 6238 vectors
+  and the account store round trip. `account add` -> `list` -> `remove` run against a temp store.
+- Records: `docs/reviews/decision-log.md` (D22), `docs/reviews/change-inventory.md`.

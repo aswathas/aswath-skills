@@ -1,8 +1,8 @@
 {
   "name": "aswath-skills",
   "displayName": "Aswath Skills",
-  "version": "1.10.0",
-  "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume.",
+  "version": "1.11.0",
+  "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume, and aswath-gform-fill, which fills and submits a Google Form for any saved Google account.",
   "author": {
     "name": "Aswath S",
     "url": "https://github.com/aswathas"
@@ -46,5 +46,8 @@
     "./skills/writing/aswath-talk",
     "./skills/writing/aswath-resume-tailor"
   ],
-  "icon": ".claude-plugin/icon.png"
+  "icon": ".claude-plugin/icon.png",
+  "commands": [
+    "./commands/gform-fill.md"
+  ]
 }
