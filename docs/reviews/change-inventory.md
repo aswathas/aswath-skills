@@ -352,3 +352,22 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/delivery-plan.md` | Changed. Unit 12 | The plan is the record of what landed | Read back |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
 | `BUILDLOG.md` | Changed. The unit 12 entry | The build log is the running narrative | Read back after the change |
+
+## aswath-skills-wk - `feat/gform-multi-account` (unit 13: any Google account, not one account)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/utilities/aswath-gform-fill/scripts/lib.mjs` | New. The account store (`loadAccounts`, `saveAccounts`, `findAccount`, `upsertAccount`, `slug`, `storePath`) and TOTP (`base32Decode`, `totp`) | The account has to be the unit of isolation, and the shared pieces were about to be duplicated between the CLI and the sign-in path | Three RFC 6238 vectors plus a store round trip in `scripts/selftest.mjs` |
+| `skills/utilities/aswath-gform-fill/scripts/gform.mjs` | Changed. The `account list|add|remove` subcommand; `--email` resolves the profile, the port, the password and the TOTP secret; the sign-in path fills the saved password and computes the 2FA code itself | One hard-coded account does not answer "any email" | `account add` -> `list` -> `remove` against a temp store; `fill` against the mock form still exits 0 |
+| `skills/utilities/aswath-gform-fill/SKILL.md` | Changed. The procedure picks the account first, the commands block lists the account subcommands, the options document `--email`, `--profile`, `--port`, `--password`, `--totp`, `--otp-file`, and the mistakes gain "one profile for every account" and "committing the account store" | The skill is what a stranger reads first | Read back; the commands match the script's usage block |
+| `commands/gform-fill.md` | New. The `/gform-fill` slash command: list the accounts, add one if missing, inspect, dry run, submit only when nothing is missing | The user asked for a plugin that works for any email; the command is the plugin surface | `claude plugin validate .` -> validation passed |
+| `.claude-plugin/plugin.json` | Changed. Added `"commands": ["./commands/gform-fill.md"]`; version 1.10.0 -> 1.11.0 | The command has to ship with the plugin | `claude plugin validate .` |
+| `skills/utilities/aswath-gform-fill/scripts/selftest.mjs` | Changed. Eight more assertions: three RFC 6238 vectors, the slug, the store round trip, the store path, and the CLI listing | TOTP and the store are the parts that rot silently | `node scripts/selftest.mjs` -> `18 passed, 0 failed` |
+| `manifest.json` | Changed. Added `scripts/lib.mjs` to the resources; version 1.10.0 -> 1.11.0 | The catalogue names the files a reader needs | `python -c "import json;json.load(open('manifest.json'))"` |
+| `.claude-plugin/marketplace.json` | Changed. Version 1.10.0 -> 1.11.0 | The marketplace publishes the plugin version | `claude plugin validate .` |
+| `README.md` | Changed. The utilities row now says any number of accounts and names `/gform-fill` | A human must find the command without reading the manifest | Row checked against the manifest entry |
+| `docs/reviews/decision-log.md` | Changed. D22 | The rule requires the reasoning written down before the push | Read back |
+| `docs/reviews/prompts.md` | Changed. The 2026-11-18 entry | The rule requires every prompt and the decision it produced | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 13 | The plan is the record of what landed | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+| `BUILDLOG.md` | Changed. The unit 13 entry | The build log is the running narrative | Read back after the change |

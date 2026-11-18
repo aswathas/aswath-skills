@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 // Fill and submit a Google Form through a real Chrome, driven over CDP.
 //
-//   node gform.mjs inspect --url <formUrl> [--profile DIR] [--port N]
-//   node gform.mjs fill    --url <formUrl> --answers FILE [--email E --password P]
-//                          [--otp-file FILE] [--no-submit] [--profile DIR] [--port N]
+//   node gform.mjs account list
+//   node gform.mjs account add --email E [--password P] [--totp SECRET]
+//   node gform.mjs account remove --email E
+//   node gform.mjs inspect --url <formUrl> [--email E]
+//   node gform.mjs fill    --url <formUrl> --answers FILE [--email E]
+//                          [--otp-file FILE] [--no-submit]
 //
-// One persistent Chrome profile per machine means one sign-in for every later form.
+// Each email gets its own Chrome profile and its own DevTools port, so several
+// Google accounts can be signed in side by side and each one signs in only once.
 // The browser is never closed by this script.
 
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { findAccount, loadAccounts, saveAccounts, slug, totp, upsertAccount } from './lib.mjs';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -25,18 +30,59 @@ const flag = (name, dflt = null) => {
   return v && !v.startsWith('--') ? v : true;
 };
 const URLFORM = flag('url');
-const PORT = Number(flag('port', 9337));
-const PROFILE = String(flag('profile', join(homedir(), '.gform-profile')));
 const ANSWERS_FILE = flag('answers');
 const EMAIL = flag('email');
 const PASSWORD = flag('password');
+const TOTP_SECRET = flag('totp');
 const OTP_FILE = flag('otp-file');
 const NO_SUBMIT = flag('no-submit', false) === true;
 const OUT = String(flag('out', 'gform-result.json'));
+const PROFILE_ROOT = String(flag('profile-root', join(homedir(), '.gform-profiles')));
+
+// --- account store ---------------------------------------------------------------------
+if (cmd === 'account') {
+  const action = argv[1] || 'list';
+  const store = loadAccounts();
+  if (action === 'list') {
+    if (!store.accounts.length) console.log('no accounts yet - add one with: account add --email you@example.com');
+    for (const a of store.accounts) {
+      console.log(`${a.email}  port=${a.port || '-'}  profile=${a.profile || '-'}  password=${a.password ? 'yes' : 'no'}  totp=${a.totp ? 'yes' : 'no'}`);
+    }
+    process.exit(0);
+  }
+  if (!EMAIL) { console.error('account add/remove needs --email'); process.exit(1); }
+  if (action === 'remove') {
+    store.accounts = store.accounts.filter((a) => a.slug !== slug(EMAIL));
+    saveAccounts(store);
+    console.log('removed', EMAIL);
+    process.exit(0);
+  }
+  if (action !== 'add') { console.error('unknown account action: ' + action); process.exit(1); }
+  const fields = {};
+  if (PASSWORD) fields.password = String(PASSWORD);
+  if (TOTP_SECRET) fields.totp = String(TOTP_SECRET);
+  const acc = upsertAccount(store, EMAIL, fields);
+  if (!acc.port) acc.port = 9400 + (store.accounts.indexOf(acc) % 400);
+  if (!acc.profile) acc.profile = join(PROFILE_ROOT, acc.slug);
+  saveAccounts(store);
+  console.log('saved', acc.email, '| port', acc.port, '| profile', acc.profile);
+  process.exit(0);
+}
+
+// --- the account this run acts as -------------------------------------------------------
+const store = loadAccounts();
+const account = EMAIL ? findAccount(store, EMAIL) : null;
+const PORT = Number(flag('port', account?.port || 9337));
+const PROFILE = String(flag('profile', account?.profile || join(PROFILE_ROOT, account ? account.slug : 'default')));
+const PASS = PASSWORD || account?.password || null;
+const TOTP = TOTP_SECRET || account?.totp || null;
 
 if (!URLFORM) {
-  console.error('usage: gform.mjs inspect|fill --url <formUrl> [--answers FILE] [--email E --password P] [--otp-file FILE] [--no-submit]');
+  console.error('usage: gform.mjs account|inspect|fill --url <formUrl> [--answers FILE] [--email E] [--no-submit]');
   process.exit(1);
+}
+if (EMAIL && !account && !PASSWORD) {
+  console.log(`no saved account for ${EMAIL} - signing in by hand in the open window`);
 }
 
 // --- browser -------------------------------------------------------------------------
@@ -171,7 +217,7 @@ async function signIn() {
       await sleep(2500);
       continue;
     }
-    if (pwField && PASSWORD) {
+    if (pwField && PASS) {
       await evaluate(`(v) => {
         const el = document.querySelector('input[type="password"]');
         Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v);
@@ -184,8 +230,9 @@ async function signIn() {
       continue;
     }
     if (otpField) {
-      // Either the human types the code in the open window, or --otp-file is written for us.
-      let code = '';
+      // Either the human types the code in the open window, --otp-file is written for us,
+      // or the account carries a TOTP secret and we compute the code ourselves.
+      let code = TOTP ? totp(TOTP) : '';
       for (let k = 0; k < 120 && !code; k++) {
         await sleep(2500);
         if (OTP_FILE && existsSync(String(OTP_FILE))) {

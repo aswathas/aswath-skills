@@ -940,3 +940,37 @@ marketplace carry version 1.9.0.
 - Evidence: the survey was submitted once and the page read "Thank you for your response".
   `node scripts/gform.mjs inspect --url <form>` walks the pages and writes
   `gform-inspect.json`; `fill --no-submit` fills and stops before Submit.
+
+### D22 - one account store, one profile and one port per email, and the 2FA computed in-process
+
+- Context: the first run of the filler worked for exactly one Google account. The user asked for
+  the tool to work with any email: "i want to create this as reusable tool to plugin any emails
+  for filling these forms". Two Google accounts in one Chrome profile fight over the session
+  and sign each other out, so the account has to be the unit of isolation, not just a flag.
+- Decision:
+  - The account store lives outside the repository, at `~/.gform-accounts.json` (or
+    `$GFORM_ACCOUNTS`). It holds the email, the port, the profile path, the password and the
+    TOTP secret, and nothing about any form. No credential or identity is ever committed.
+  - Each email gets its own Chrome profile (`~/.gform-profiles/<slug>`) and its own DevTools
+    port (9400 upward), so several accounts stay signed in side by side and each one signs in
+    only once. The script still attaches and never closes the browser.
+  - The 2FA code is computed in-process from the saved base32 secret (RFC 6238, SHA-1, 30s
+    step). The human is still the fallback: no secret means the code is typed into the visible
+    window, or read from `--otp-file`.
+  - `account list|add|remove` is the whole account surface. `--email` picks the account and
+    pulls the profile, the port and the credentials with it.
+  - A `/gform-fill` plugin command drives the whole flow: list accounts, add one if missing,
+    inspect, dry run, submit only when nothing is missing.
+- Rejected:
+  - A browser-extension account switcher. It needs a published extension and a Web Store
+    round trip; a profile plus a port is the same isolation with no install step.
+  - Prompting for the password on every run. The password is asked once, stored on the
+    machine, and used only when Google asks for a sign-in.
+  - Storing the TOTP secret in the repository or in the manifest. It is a second factor for
+    a live account; it stays in the machine-local store.
+- Evidence: `node scripts/gform.mjs account add --email a@example.com --password pw --totp
+  GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ` assigns port 9400 and a profile under
+  `~/.gform-profiles/`, `account list` shows it, `account remove` drops it.
+  `node scripts/selftest.mjs` -> `18 passed, 0 failed`, including the three RFC 6238 vectors
+  (`94287082` at t=59, `287082` in six digits, `07081804` at t=1111111109), the account slug,
+  the store round trip and the CLI listing.

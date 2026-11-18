@@ -53,6 +53,34 @@ const connect = async (port) => {
   };
 };
 
+// --- account store and TOTP (no browser needed) -----------------------------------------
+{
+  const storeFile = join(tmpdir(), `gform-accounts-${process.pid}.json`);
+  process.env.GFORM_ACCOUNTS = storeFile;
+  const lib = await import('./lib.mjs');
+
+  check('TOTP matches RFC 6238 (t=59, 8 digits)', lib.totp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 59000, 30, 8) === '94287082');
+  check('TOTP matches RFC 6238 (t=59, 6 digits)', lib.totp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 59000, 30, 6) === '287082');
+  check('TOTP matches RFC 6238 (t=1111111109)', lib.totp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 1111111109000, 30, 8) === '07081804');
+
+  const store = lib.loadAccounts();
+  const acc = lib.upsertAccount(store, 'Test.User+Tag@Example.com', { password: 'x', port: 9401, profile: 'p' });
+  check('a new account gets a slug', acc.slug === 'test-user-tag-example-com', acc.slug);
+  check('a new account is findable', lib.findAccount(store, 'test.user+tag@example.com') === acc);
+  lib.saveAccounts(store);
+  check('the account survives a reload', lib.findAccount(lib.loadAccounts(), 'TEST.USER+TAG@EXAMPLE.COM') !== null);
+  check('the store lives outside the repo', lib.storePath() === storeFile, lib.storePath());
+
+  const cli = spawn(process.execPath, [join(here, 'gform.mjs'), 'account', 'list'], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let cliOut = '';
+  cli.stdout.on('data', (d) => { cliOut += d; });
+  cli.stderr.on('data', (d) => { cliOut += d; });
+  await new Promise((res) => cli.on('close', res));
+  check('the CLI lists the saved account', /Test\.User\+Tag@Example\.com/.test(cliOut), cliOut.slice(-400));
+  rmSync(storeFile, { force: true });
+  delete process.env.GFORM_ACCOUNTS;
+}
+
 const profile = mkdtempSync(join(tmpdir(), 'gform-selftest-'));
 const chrome = spawn(chromePath(), [
   `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`,
