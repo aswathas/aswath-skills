@@ -1,9 +1,9 @@
 {
   "name": "aswath-skills",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "author": "Aswath S",
   "license": "MIT",
-  "updated": "2026-11-17",
+  "updated": "2026-11-18",
   "invocation": {
     "manual": "/<skill-name>",
     "example": "/aswath-token-guard",
@@ -209,6 +209,17 @@
       "path": "skills/writing/aswath-talk/SKILL.md",
       "description": "[simple] How Aswath wants replies written — plain words, short sentences, no jargon walls, minimal ceremony, plus the \"smallest thing that actually works\" pushback. Use when the user says \"aswath-talk\", \"talk like me\", \"plain english\", \"simpler\", \"too long\", \"i dont understand\", or when a reply needs to be short and readable instead of dense. Combines caveman-style compression with ponytail-style minimalism and everyday wording.",
       "resources": []
+    },
+    {
+      "name": "aswath-resume-tailor",
+      "category": "writing",
+      "path": "skills/writing/aswath-resume-tailor/SKILL.md",
+      "description": "Use when a job description, posting or role needs a tailored resume or CV, or when the user asks to tailor, rewrite, regenerate or update their resume for an internship or a full-time role. Maps the JD onto evidence the candidate already has, writes a role-specific JSON variant, builds it into a one-page ATS-safe DOCX and PDF, and reports the gaps it refused to invent.",
+      "resources": [
+        "skills/writing/aswath-resume-tailor/scripts/build_resume.py",
+        "skills/writing/aswath-resume-tailor/references/schema.md",
+        "skills/writing/aswath-resume-tailor/references/jd-to-evidence.md"
+      ]
     }
   ]
 }

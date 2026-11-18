@@ -290,3 +290,26 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | File | What changed | Why | How tested |
 |---|---|---|---|
 | `~/.agents/ledger/agent-estate.jsonl` | A successful run of "the keep list and the active set stay in step after a publish" for `aswath-catalog` | The job was done — the keep list is 69 and the map is rebuilt — but the ledger held only the failure, so the failure stayed open | `improve.py --dry-run --project agent-estate` -> "nothing to do", exit 0 |
+## aswath-skills-wk - `feat/resume-tailor` (unit 10: a job description becomes a tailored resume)
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/writing/aswath-resume-tailor/SKILL.md` | New. The inputs, the procedure (JD -> evidence -> JSON variant -> build -> render -> verify -> deliver), the commands and the mistakes | The skill has to work for any posting, not for one JD | Built the SuperDream variant through it: `pages 1`, 4,995 characters, no placeholder |
+| `skills/writing/aswath-resume-tailor/scripts/build_resume.py` | New. The generic builder, copied from the Myntra PM1 builder with its hardcoded paths removed: argv is source JSON, output dir, basename | One builder for every role; the content is the only thing that changes | `python scripts/build_resume.py ~/.agents/state/resume/variants/superdream-sde.json <outdir> <name>` -> docx + txt; LibreOffice -> PDF, `pages 1` |
+| `skills/writing/aswath-resume-tailor/references/schema.md` | New. The resume JSON: fields, meaning, required shape, base versus variant | The JSON is the source of truth, so its shape has to be written down | Read back |
+| `skills/writing/aswath-resume-tailor/references/jd-to-evidence.md` | New. The JD mapping, the honesty rules, the ATS rules and the one-page budget | The rules that keep the resume honest and one page | Read back |
+| `manifest.json` | Changed. The `aswath-resume-tailor` row with its three resources; version 1.7.0 -> 1.8.0 | The manifest is the catalogue the harnesses read | `python -c "import json;json.load(open('manifest.json'))"` -> 27 skills |
+| `README.md` | Changed. The row in the writing table and the layout line | The README table is the catalogue a human reads | Read back |
+| `docs/categories.md` | Changed. `resume-tailor` in the writing row and a judgement note | The rule is that a skill lives in the folder of the question it answers | Read back |
+| `docs/reviews/decision-log.md` | Changed. D19 | The rule requires the reasoning behind a change to be written down before it is pushed | Read back |
+| `docs/reviews/prompts.md` | Changed. The 2026-11-18 entry | The rule requires every prompt and the decision it produced to be written down | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 10 | The plan is the record of what landed | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+| `BUILDLOG.md` | Changed. The unit 10 entry | The build log is the running narrative of what shipped | Read back after the change |
+### Machine-local (this PC, outside the skills repo)
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `~/.agents/state/resume/profile.json` | New. The candidate's base profile, copied from the site repo's `src/data/resume.json` | The base profile is the fallback when no JD has arrived; the private store keeps the data out of the public skills repo | File reads as JSON; the private repo `aswathas/agent-store` is the owner |
+| `~/.agents/state/resume/variants/superdream-sde.json` | New. The SuperDream SDE-intern variant | The first role variant, built from the JD | Built to a one-page PDF |
+| `~/.routing/routes.static.json` | Changed. A pinned rule for `aswath-resume-tailor` on the words resume, resumes, curriculum, vitae | "Use our router": the router matches a prompt to a skill through pinned rules and the catalogue | `echo '{"prompt":"tailor my resume for this job description"}' \| python router.py` -> "Pinned rule. Load the aswath-resume-tailor skill and follow it." |
+| `~/.routing/catalog.json` | Rebuilt: 587 records (396 skills) | The router reads the catalogue at match time; a new skill is invisible until the catalogue is rebuilt | `python build_catalog.py` -> `records 587`, exit 0 |
+| `~/.claude/skills/aswath-resume-tailor/` | Junction to the published skill | The harness links skills, it does not copy them | `install.ps1 -Target claude` -> `link aswath-resume-tailor -> claude` |

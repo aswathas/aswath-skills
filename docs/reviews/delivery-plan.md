@@ -39,3 +39,7 @@ Rows the learning loop added. Each row is a commit the loop pushed.
 | # | Unit | Commit | State |
 |---|------|--------|-------|
 | 1 | aswath-catalog learns from the ledger | fix(aswath-catalog): record 2 open failures | done |
+## The resume units
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 10 | `aswath-resume-tailor`: a JD becomes a tailored, one-page, ATS-safe resume | feat(resume-tailor): turn a job description into a tailored resume | done |
