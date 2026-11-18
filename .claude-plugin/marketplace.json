@@ -1,0 +1,29 @@
+{
+  "name": "aswath-skills",
+  "owner": {
+    "name": "aswathas",
+    "url": "https://github.com/aswathas"
+  },
+  "plugins": [
+    {
+      "name": "aswath-skills",
+      "source": "./",
+      "version": "1.9.0",
+      "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume.",
+      "author": {
+        "name": "Aswath S",
+        "url": "https://github.com/aswathas"
+      },
+      "homepage": "https://github.com/aswathas/aswath-skills",
+      "license": "MIT",
+      "keywords": [
+        "skills",
+        "workflow",
+        "resume",
+        "tokens",
+        "publishing"
+      ]
+    }
+  ],
+  "description": "Atomic skills grouped by the question they answer - context, publishing, workflow, orchestration, writing and utilities. Install one skill or the whole library."
+}

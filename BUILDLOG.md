@@ -183,3 +183,17 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: the builder turned the SuperDream variant into a one-page PDF (4,995 characters, no
   placeholder), and the router fires the pinned rule on "tailor my resume for this job description".
 - Records: `docs/reviews/decision-log.md` (D19), `docs/reviews/change-inventory.md`.
+
+## 2026-11-18 - the skill goes public and generic (unit 11)
+- Branch: `feat/resume-tailor-public`
+- Shipped:
+  - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.claude-plugin/icon.png` - the
+    repo is now a Claude Code plugin and a marketplace, so anyone installs with one line:
+    `/plugin install aswath-skills --marketplace aswathas/aswath-skills`.
+  - `skills/writing/aswath-resume-tailor/assets/profile.template.json` - an empty profile to copy.
+  - `skills/writing/aswath-resume-tailor/scripts/selftest.py` - six cases over the builder.
+  - `SKILL.md` and `references/schema.md` - the profile is found by search order, so the author's
+    private store is an option, not a requirement.
+- Verified: `claude plugin validate .` -> `Validation passed`;
+  `python skills/writing/aswath-resume-tailor/scripts/selftest.py` -> `6/6 case(s) passed`.
+- Records: `docs/reviews/decision-log.md` (D20), `docs/reviews/change-inventory.md`.

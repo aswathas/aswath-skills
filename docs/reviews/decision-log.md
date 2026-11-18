@@ -885,3 +885,27 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   variant from `~/.agents/state/resume/variants/superdream-sde.json` -> `pages 1`, 4,995 characters
   of extracted text, no placeholder. The router fires the pinned rule on "tailor my resume for this
   job description": `Pinned rule. Load the aswath-resume-tailor skill and follow it.`
+### D20 - the skill is public, the data is the user's, and a stranger can run it
+- Context: the skill was published, but it was written for one machine and one person. The
+  profile path was `~/.agents/resume/`, a store only this estate has, and there was no way for a
+  stranger to produce their first resume from it.
+- Decision:
+  - The profile is found by search order: `$RESUME_PROFILE`, `profile.json` in the working
+    directory, `~/.resume/profile.json`, then `~/.agents/resume/profile.json`. The author's store
+    is one option, not the requirement.
+  - The skill ships `assets/profile.template.json`, an empty but valid profile, so a new user is
+    one `cp` and one fill-in away from a working resume.
+  - The repo doubles as a Claude Code plugin: `.claude-plugin/plugin.json` lists every skill
+    directory, `.claude-plugin/marketplace.json` publishes it. Other people install with one
+    line, and never clone a repo.
+  - The candidate's data never ships with the skill. The public repo carries the code, the
+    private store carries the CV.
+- Rejected:
+  - Publishing the candidate's CV in the public repo so "the example is real". A phone number and
+    an email address do not belong in a public repository, and a template proves the pipeline
+    just as well.
+  - A separate plugin per skill. One plugin listing every skill directory is the same result with
+    one manifest to keep honest.
+- Evidence: `python skills/writing/aswath-resume-tailor/scripts/selftest.py` -> `6/6 case(s)
+passed`. `claude plugin validate .` -> `Validation passed`. The manifest, the plugin and the
+marketplace carry version 1.9.0.

@@ -1,0 +1,54 @@
+{
+  "name": "YOUR NAME",
+  "headline": "Your role and specialisation - what you want to be hired for",
+  "contact": [
+    "City, Country  |  +00 00000 00000  |  you@example.com",
+    "linkedin.com/in/your-handle  |  github.com/your-handle"
+  ],
+  "profile": "Two or three lines: what you build, with numbers. Replace this paragraph with your own - one project, one number, one proof.",
+  "education": [
+    {
+      "degree": "B.Tech - Your Degree and Specialisation",
+      "school": "Your University, City",
+      "when": "2022 - 2026",
+      "detail": "CGPA 8.1/10"
+    }
+  ],
+  "experience": [
+    {
+      "role": "Your Role",
+      "org": "Your Organisation",
+      "when": "Jan 2025 - Present",
+      "points": [
+        "What you built or did, and how it was measured.",
+        "A second point, if the role deserves one."
+      ]
+    }
+  ],
+  "leadership": [],
+  "projects": [
+    {
+      "title": "Your Project - what it is",
+      "right": "Stack | scale",
+      "points": [
+        "What it does, and the number that proves it.",
+        "What is hard about it, and how you solved it."
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "label": "Languages",
+      "text": "The languages you actually write."
+    },
+    {
+      "label": "Backend & data",
+      "text": "The frameworks you have shipped with."
+    }
+  ],
+  "certifications": "One line, pipes between items.",
+  "skillTags": [
+    "short",
+    "keywords"
+  ]
+}

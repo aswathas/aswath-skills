@@ -43,3 +43,7 @@ Rows the learning loop added. Each row is a commit the loop pushed.
 | # | Unit | Commit | State |
 |---|------|--------|-------|
 | 10 | `aswath-resume-tailor`: a JD becomes a tailored, one-page, ATS-safe resume | feat(resume-tailor): turn a job description into a tailored resume | done |
+## The public library units
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 11 | the skill as a public, generic tool: template profile, self-check, plugin and marketplace manifests | feat(resume-tailor): publish the skill as a plugin anyone can install | done |

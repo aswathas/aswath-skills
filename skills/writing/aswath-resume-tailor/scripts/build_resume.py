@@ -17,10 +17,16 @@ import json
 import sys
 from pathlib import Path
 
-from docx import Document
-from docx.enum.text import WD_TAB_ALIGNMENT
-from docx.oxml.ns import qn
-from docx.shared import Cm, Pt, RGBColor
+try:
+    from docx import Document
+    from docx.enum.text import WD_TAB_ALIGNMENT
+    from docx.oxml.ns import qn
+    from docx.shared import Cm, Pt, RGBColor
+except ImportError:  # pragma: no cover - the one dependency this builder has
+    raise SystemExit(
+        "This builder needs python-docx. Install it with:\n"
+        "  python -m pip install python-docx"
+    )
 
 HERE = Path(__file__).parent
 # argv: <source.json> <output-dir> <basename>. No defaults - the caller decides the content.
