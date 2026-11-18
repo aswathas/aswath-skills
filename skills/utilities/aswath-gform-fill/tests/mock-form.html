@@ -1,0 +1,83 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Mock Form</title>
+<style>body{font-family:Arial;padding:20px}.hide{display:none}</style></head>
+<body>
+<div id="p1">
+  <div class="freebirdFormviewerViewCenteredContent">
+  <div role="listitem" id="entry-1">
+    <div role="heading" aria-level="1">Name</div>
+    <input jsname="YPqjbf" type="text">
+  </div>
+  <div role="listitem" id="entry-2">
+    <div role="heading" aria-level="1">Section</div>
+    <div role="radio" aria-label="A" aria-checked="false" tabindex="0" class="radio"></div>
+    <div role="radio" aria-label="E" aria-checked="false" tabindex="0" class="radio"></div>
+    <input type="hidden" name="entry.1_sentinel">
+  </div>
+  <div role="listitem" id="entry-3">
+    <div role="heading" aria-level="1">Suggest anything</div>
+    <textarea jsname="YPqjbf"></textarea>
+  </div>
+  <div role="button" jsname="OCpkoe">Next</div>
+  </div>
+</div>
+
+<div id="p2" class="hide">
+  <div class="freebirdFormviewerViewCenteredContent">
+  <div role="listitem" id="entry-4">
+    <div role="heading" aria-level="1">Rate each outcome</div>
+    <div role="radio" aria-label="1, response for Outcome A" aria-checked="false"></div>
+    <div role="radio" aria-label="2, response for Outcome A" aria-checked="false"></div>
+    <div role="radio" aria-label="3, response for Outcome A" aria-checked="false"></div>
+    <div role="radio" aria-label="4, response for Outcome A" aria-checked="false"></div>
+    <div role="radio" aria-label="5, response for Outcome A" aria-checked="false"></div>
+    <div role="radio" aria-label="1, response for Outcome B" aria-checked="false"></div>
+    <div role="radio" aria-label="2, response for Outcome B" aria-checked="false"></div>
+    <div role="radio" aria-label="3, response for Outcome B" aria-checked="false"></div>
+    <div role="radio" aria-label="4, response for Outcome B" aria-checked="false"></div>
+    <div role="radio" aria-label="5, response for Outcome B" aria-checked="false"></div>
+  </div>
+  <div role="listitem" id="entry-5">
+    <div role="heading" aria-level="1">Any final comment</div>
+    <textarea jsname="YPqjbf"></textarea>
+  </div>
+  <div role="button" jsname="GeGHKb">Back</div>
+  <div role="button" jsname="submitBtn">Submit</div>
+  </div>
+</div>
+
+<div id="thanks" class="hide">
+  <div>Thank you for your response</div>
+</div>
+
+<script>
+document.querySelectorAll('.radio').forEach(function(r){
+  r.addEventListener('click', function(){
+    var b=r.parentElement; Array.from(b.querySelectorAll('[role="radio"]')).forEach(function(x){x.setAttribute('aria-checked','false');});
+    r.setAttribute('aria-checked','true');
+  });
+});
+document.querySelectorAll('[role="radio"][aria-label*="response for"]').forEach(function(r){
+  r.addEventListener('click', function(){
+    var lab=r.getAttribute('aria-label'), row=lab.split('response for ')[1].trim();
+    var b=r.closest('[role="listitem"]');
+    Array.from(b.querySelectorAll('[role="radio"]')).forEach(function(x){
+      if((x.getAttribute('aria-label')||'').split('response for ')[1].trim()===row) x.setAttribute('aria-checked','false');
+    });
+    r.setAttribute('aria-checked','true');
+  });
+});
+document.querySelector('[jsname="OCpkoe"]').addEventListener('click', function(){
+  document.getElementById('p1').classList.add('hide');
+  document.getElementById('p2').classList.remove('hide');
+});
+document.querySelector('[jsname="GeGHKb"]').addEventListener('click', function(){
+  document.getElementById('p2').classList.add('hide');
+  document.getElementById('p1').classList.remove('hide');
+});
+document.querySelector('[jsname="submitBtn"]').addEventListener('click', function(){
+  document.getElementById('p2').classList.add('hide');
+  document.getElementById('thanks').classList.remove('hide');
+});
+</script>
+</body></html>

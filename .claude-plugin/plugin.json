@@ -1,7 +1,7 @@
 {
   "name": "aswath-skills",
   "displayName": "Aswath Skills",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume.",
   "author": {
     "name": "Aswath S",
@@ -31,6 +31,7 @@
     "./skills/utilities/aswath-csvjson",
     "./skills/utilities/aswath-catalog",
     "./skills/utilities/aswath-schedule",
+    "./skills/utilities/aswath-gform-fill",
     "./skills/workflow/aswath-chronicle",
     "./skills/workflow/aswath-commit",
     "./skills/workflow/aswath-commit-discipline",

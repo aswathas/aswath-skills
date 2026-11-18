@@ -1,6 +1,6 @@
 {
   "name": "aswath-skills",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "author": "Aswath S",
   "license": "MIT",
   "updated": "2026-11-18",
@@ -221,6 +221,19 @@
         "skills/writing/aswath-resume-tailor/assets/profile.template.json",
         "skills/writing/aswath-resume-tailor/references/schema.md",
         "skills/writing/aswath-resume-tailor/references/jd-to-evidence.md"
+      ]
+    },
+    {
+      "name": "aswath-gform-fill",
+      "category": "utilities",
+      "path": "skills/utilities/aswath-gform-fill/SKILL.md",
+      "description": "Use when a Google Form has to be filled and submitted - a survey, feedback form, course end-of-course form - especially a long multi-page form with rating grids and branch questions, and especially when it needs a signed-in Google account, a 2FA code, or a human to log in once in a visible browser.",
+      "resources": [
+        "skills/utilities/aswath-gform-fill/scripts/gform.mjs",
+        "skills/utilities/aswath-gform-fill/scripts/selftest.mjs",
+        "skills/utilities/aswath-gform-fill/references/answers.md",
+        "skills/utilities/aswath-gform-fill/assets/answers.template.json",
+        "skills/utilities/aswath-gform-fill/tests/mock-form.html"
       ]
     }
   ]

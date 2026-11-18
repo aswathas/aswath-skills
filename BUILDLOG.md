@@ -197,3 +197,17 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `claude plugin validate .` -> `Validation passed`;
   `python skills/writing/aswath-resume-tailor/scripts/selftest.py` -> `6/6 case(s) passed`.
 - Records: `docs/reviews/decision-log.md` (D20), `docs/reviews/change-inventory.md`.
+
+## 2026-11-18 - a Google Form, filled and submitted, by one script (unit 12)
+- Branch: `feat/gform-fill`
+- Shipped:
+  - `skills/utilities/aswath-gform-fill/` - the skill, the driver script (`scripts/gform.mjs`) and the
+    answers schema (`references/answers.md`). One persistent Chrome profile, one sign-in, an
+    `inspect` that dumps every page and question, a `fill` that matches answers to the real
+    question headings, handles rating grids and branch re-render, and a dry run that stops before
+    the one irreversible Submit click.
+  - `manifest.json`, `README.md`, `docs/categories.md`, `.claude-plugin/*.json` - the catalogue rows
+    and the plugin listing, version 1.9.0 -> 1.10.0.
+- Verified: the ECE end-of-course survey was submitted once through this method and the page read
+  "Thank you for your response"; `inspect` and `fill --no-submit` were run against the live form.
+- Records: `docs/reviews/decision-log.md` (D21), `docs/reviews/change-inventory.md`.

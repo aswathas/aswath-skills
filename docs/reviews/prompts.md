@@ -86,3 +86,14 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   `.claude-plugin/icon.png`, `skills/writing/aswath-resume-tailor/assets/profile.template.json`,
   `skills/writing/aswath-resume-tailor/scripts/selftest.py`, the genericised `SKILL.md` and
   `references/schema.md`, the README install line, and version 1.9.0.
+
+## 2026-11-18 - the reusable Google Form filler
+
+- Prompt: "learn how did you fille this build resuable system whcih can do this when id , password ,
+  (2fa if needed) or login by manual opeingin gthen finish gform fasest way"
+- Prompt: "JUST WAIT ILL LOGIN DONTR CLOSE OPEN EVEHIME I CAN LOGIN EVEYTHIME YOU OPEN PROECESS
+  FIRST DO GOOD PLAN"
+- Decision it produced: D21 - one persistent browser and one sign-in, the fill driven by heading
+  text, a dry run before the single Submit click, and credentials kept out of the repository.
+- Work it caused: `skills/utilities/aswath-gform-fill/` with the script, the skill text and the
+  answers schema; the catalogue rows, the plugin manifest and the build log entry.
