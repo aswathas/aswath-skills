@@ -57,8 +57,12 @@ One file per candidate profile or per role variant. The builder
 
 ## Rules
 
-- The base profile (`~/.agents/resume/profile.json`) is the fallback
-  profile. Variants live in `~/.agents/resume/variants/<slug>.json`.
+- The base profile is the fallback profile. It is found at `$RESUME_PROFILE`,
+  `profile.json` in the working directory, `~/.resume/profile.json` or
+  `~/.agents/resume/profile.json`. Variants live in a `variants/` folder next
+  to it: `<profile-dir>/variants/<slug>.json`.
+- `assets/profile.template.json` is an empty profile to copy when there is
+  none.
 - The base profile never changes because of a posting.
 - Every number in a variant exists in the base profile or in a repository the
   candidate owns.

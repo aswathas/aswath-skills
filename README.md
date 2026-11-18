@@ -28,6 +28,30 @@ chmod +x install.sh && ./install.sh
 
 Links, not copies. Edit the repo, every harness sees the change. Re-run with `-Force` / `--force` to repair a broken link.
 
+**As a Claude Code plugin** — for anyone who does not want to clone the repo:
+
+```
+/plugin install aswath-skills --marketplace aswathas/aswath-skills
+```
+
+The marketplace serves every skill in this repo as one plugin. `claude plugin validate .` in this
+repo is the check that keeps the manifests honest.
+
+## Use it for a job application
+
+`aswath-resume-tailor` turns a job description into a tailored, one-page, ATS-safe resume:
+
+```
+python -m pip install python-docx
+cp skills/writing/aswath-resume-tailor/assets/profile.template.json ~/resume/profile.json
+# fill in the template once
+/aswath-resume-tailor "here is the job description ..."
+```
+
+It maps the JD onto evidence you already have, writes a role-specific JSON variant, builds the
+DOCX and PDF, and reports the gaps it refused to invent. Nothing about the skill is specific to one
+person: the profile belongs to whoever runs it.
+
 ## Use
 
 Two ways in, and they are the same units.

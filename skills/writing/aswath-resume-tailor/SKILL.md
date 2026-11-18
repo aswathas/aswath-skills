@@ -5,13 +5,18 @@ description: Use when a job description, posting or role needs a tailored resume
 
 ## Inputs
 
-1. **The job description.** Text pasted into the session, or a link the user
-   can read. No JD means no tailoring — ask for it.
-2. **The candidate profile.** A resume JSON (schema in
-   `references/schema.md`). Default path:
-   `~/.agents/resume/profile.json`. If it does not exist, assemble one
-   from the candidate's own repositories and ask the user for the facts a
-   repository cannot prove: graduation year, CGPA, contact details.
+1. **The job description.** Text pasted into the session, or a link the user can
+   read. No JD means no tailoring — ask for it.
+2. **The candidate profile.** A resume JSON (schema in `references/schema.md`).
+   Look for it in this order:
+   - `$RESUME_PROFILE`
+   - `profile.json` in the working directory
+   - `~/.resume/profile.json`
+   - `~/.agents/resume/profile.json` (the author's own private store)
+
+   If none exists, copy `assets/profile.template.json`, fill it in, and ask the
+   user for the facts a repository cannot prove: graduation year, CGPA, contact
+   details.
 3. **The role slug.** A short name for the variant, used in the file name.
 
 ## Procedure
@@ -25,14 +30,15 @@ description: Use when a job description, posting or role needs a tailored resume
 3. **Never invent.** Every number, tool, role and date comes from the profile
    JSON or a repository the user owns. If a JD keyword is missing from the
    evidence, leave it out and report it as a gap.
-4. **Write the variant JSON.** Same schema as the profile, new content:
-   `~/.agents/resume/variants/<role-slug>.json`. The base profile stays
-   untouched — a variant is a file, not an edit.
+4. **Write the variant JSON.** Same schema as the profile, new content, next to
+   the profile: `<profile-dir>/variants/<role-slug>.json`. The base profile
+   stays untouched — a variant is a file, not an edit.
 5. **Build.**
    ```
    python scripts/build_resume.py <variant.json> <outdir> <basename>
    ```
-   Writes `<basename>.docx` and `<basename>.txt`.
+   Writes `<basename>.docx` and `<basename>.txt`. One dependency:
+   `python -m pip install python-docx`.
 6. **Render the PDF.**
    ```
    soffice --headless --convert-to pdf --outdir <outdir> <basename>.docx
@@ -45,21 +51,36 @@ description: Use when a job description, posting or role needs a tailored resume
    - Every JD keyword the candidate truly has appears once, in the strongest
      place — usually a project title or the skills block.
    - The PDF text layer is readable end to end.
-8. **Deliver.** Copy the `.pdf` and `.docx` to `~/Documents`, named
+8. **Deliver.** Copy the `.pdf` and `.docx` to the user's documents folder, named
    `<Name>_<Company>_<Role>_Resume.pdf`, and tell the user what was dropped,
    what was reworded and what still needs a human fact.
+
+## For a first-time user
+
+```
+python -m pip install python-docx
+cp skills/writing/aswath-resume-tailor/assets/profile.template.json ~/resume/profile.json
+# fill in the template, then:
+/aswath-resume-tailor  "here is the job description ..."
+```
+
+The template is a working, empty profile. Fill it once; every posting after
+that is a new variant file.
 
 ## Commands that work
 
 ```
 # build and render one variant
-python scripts/build_resume.py ~/.agents/resume/variants/superdream.json \
+python scripts/build_resume.py ~/resume/variants/superdream.json \
        ~/Documents/resumes Aswath_SuperDream_SDE_Resume
 soffice --headless --convert-to pdf --outdir ~/Documents/resumes \
        ~/Documents/resumes/Aswath_SuperDream_SDE_Resume.docx
 
 # check the page count
 python -c "import pypdf;print(len(pypdf.PdfReader('<pdf>').pages))"
+
+# check the builder still builds
+python skills/writing/aswath-resume-tailor/scripts/selftest.py
 ```
 
 ## Mistakes to avoid
@@ -76,9 +97,12 @@ python -c "import pypdf;print(len(pypdf.PdfReader('<pdf>').pages))"
 - **Two pages.** An internship resume is one page. Cut projects, not type size.
 - **Editing the JSON by hand in the PDF.** The JSON is the source of truth; the
   document is generated from it.
+- **Publishing the candidate's data with the skill.** The skill is public; the
+  profile belongs to whoever runs it.
 
 ## References
 
 - `references/schema.md` — the resume JSON: fields, meaning, required shape.
 - `references/jd-to-evidence.md` — mapping a JD to bullets, honesty rules,
   ATS rules and the one-page budget.
+- `assets/profile.template.json` — an empty profile to fill in.

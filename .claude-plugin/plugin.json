@@ -1,0 +1,49 @@
+{
+  "name": "aswath-skills",
+  "displayName": "Aswath Skills",
+  "version": "1.9.0",
+  "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume.",
+  "author": {
+    "name": "Aswath S",
+    "url": "https://github.com/aswathas"
+  },
+  "homepage": "https://github.com/aswathas/aswath-skills",
+  "repository": "https://github.com/aswathas/aswath-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "workflow",
+    "resume",
+    "tokens",
+    "publishing"
+  ],
+  "skills": [
+    "./skills/context/aswath-compact",
+    "./skills/context/aswath-token-evaluator",
+    "./skills/context/aswath-token-guard",
+    "./skills/context/aswath-token-ledger",
+    "./skills/context/aswath-minimax-compaction-handoff",
+    "./skills/orchestration/aswath-capability",
+    "./skills/orchestration/aswath-manual-demo",
+    "./skills/publishing/aswath-publish-github",
+    "./skills/publishing/aswath-publish-instagram",
+    "./skills/publishing/aswath-publish-linkedin",
+    "./skills/utilities/aswath-csvjson",
+    "./skills/utilities/aswath-catalog",
+    "./skills/utilities/aswath-schedule",
+    "./skills/workflow/aswath-chronicle",
+    "./skills/workflow/aswath-commit",
+    "./skills/workflow/aswath-commit-discipline",
+    "./skills/workflow/aswath-delivery",
+    "./skills/workflow/aswath-record",
+    "./skills/workflow/aswath-improve",
+    "./skills/workflow/aswath-first-principles",
+    "./skills/workflow/aswath-forge",
+    "./skills/workflow/aswath-thevai",
+    "./skills/workflow/aswath-thinking",
+    "./skills/workflow/aswath-throw",
+    "./skills/writing/aswath-talk",
+    "./skills/writing/aswath-resume-tailor"
+  ],
+  "icon": ".claude-plugin/icon.png"
+}

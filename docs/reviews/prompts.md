@@ -76,3 +76,13 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: `skills/writing/aswath-resume-tailor/` (skill, builder, two references), the
   manifest row, the README row, the category note, the pinned router rule, and the private profile
   and SuperDream variant.
+## 2026-11-18 - the skill goes public and generic
+- Prompt: "put this in pulick also make sure a version of this goes to generic users so taht other
+  people can use this skill" and "update this in my skill library / in githhub"
+- Decision it produced: D20 in `decision-log.md` - the profile is found by search order, the
+  skill ships a template profile, the repo doubles as a Claude Code plugin and a marketplace, and
+  the candidate's data stays in the private store.
+- Work it caused: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`,
+  `.claude-plugin/icon.png`, `skills/writing/aswath-resume-tailor/assets/profile.template.json`,
+  `skills/writing/aswath-resume-tailor/scripts/selftest.py`, the genericised `SKILL.md` and
+  `references/schema.md`, the README install line, and version 1.9.0.

@@ -313,3 +313,21 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `~/.routing/routes.static.json` | Changed. A pinned rule for `aswath-resume-tailor` on the words resume, resumes, curriculum, vitae | "Use our router": the router matches a prompt to a skill through pinned rules and the catalogue | `echo '{"prompt":"tailor my resume for this job description"}' \| python router.py` -> "Pinned rule. Load the aswath-resume-tailor skill and follow it." |
 | `~/.routing/catalog.json` | Rebuilt: 587 records (396 skills) | The router reads the catalogue at match time; a new skill is invisible until the catalogue is rebuilt | `python build_catalog.py` -> `records 587`, exit 0 |
 | `~/.claude/skills/aswath-resume-tailor/` | Junction to the published skill | The harness links skills, it does not copy them | `install.ps1 -Target claude` -> `link aswath-resume-tailor -> claude` |
+## aswath-skills-wk - `feat/resume-tailor-public` (unit 11: the skill is public and generic)
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/writing/aswath-resume-tailor/SKILL.md` | Changed. The profile is found by search order (`$RESUME_PROFILE`, `profile.json`, `~/.resume/`, `~/.agents/`), a first-time-user block, the one dependency named, and a rule that the candidate's data never ships with the skill | A stranger has no `~/.agents` store and must still be able to run the skill | `scripts/selftest.py` -> `6/6 case(s) passed` |
+| `skills/writing/aswath-resume-tailor/assets/profile.template.json` | New. An empty but valid profile with the fields filled with clear placeholders | The first run should not need a schema document to be usable | Built by the self-check |
+| `skills/writing/aswath-resume-tailor/scripts/selftest.py` | New. Builds the template and checks the docx, the txt, every section, the bullets and the skill labels | The builder is the part that can rot; the check is six cases | `python skills/writing/aswath-resume-tailor/scripts/selftest.py` -> `6/6 case(s) passed` |
+| `skills/writing/aswath-resume-tailor/scripts/build_resume.py` | Changed. A missing `python-docx` now fails with the install line instead of a traceback | The one dependency, said plainly | The self-check still passes with the dependency present |
+| `skills/writing/aswath-resume-tailor/references/schema.md` | Changed. The profile search order and the template | The schema document is where a new user looks first | Read back |
+| `.claude-plugin/plugin.json` | New. The plugin manifest, listing every skill directory | Other people install with one line and never clone | `claude plugin validate .` -> `Validation passed` |
+| `.claude-plugin/marketplace.json` | New. The marketplace manifest for `aswathas/aswath-skills` | The publish path | `claude plugin validate .` -> `Validation passed` |
+| `.claude-plugin/icon.png` | New. A 512x512 icon | The validator asked for one; the marketplace listing shows it | `claude plugin validate .` -> no icon warning |
+| `manifest.json` | Changed. The `aswath-resume-tailor` resources now list the template and the self-check; version 1.8.0 -> 1.9.0 | The catalogue names the files a reader needs | `python -c "import json;json.load(open('manifest.json'))"` |
+| `README.md` | Changed. The marketplace install line and a job-application quickstart | The README is the first thing a stranger reads | `claude plugin validate .` no longer advises an install line |
+| `docs/reviews/decision-log.md` | Changed. D20 | The rule requires the reasoning written down before the push | Read back |
+| `docs/reviews/prompts.md` | Changed. The 2026-11-18 entry | The rule requires every prompt and the decision it produced | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Unit 11 | The plan is the record of what landed | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+| `BUILDLOG.md` | Changed. The unit 11 entry | The build log is the running narrative | Read back after the change |
