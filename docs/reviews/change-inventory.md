@@ -400,3 +400,10 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/delivery-plan.md` | Changed. Units 14, 15 and 16 | The plan file stays in the repo and the improve loop still writes into it | Read back |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
 | `BUILDLOG.md` | Changed. The unit 14-16 entry | The build log is the running narrative | Read back after the change |
+
+## aswath-skills-wk - `main` (the design-hook triage)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `.impeccable/config.json` | New. The `overused-font` rule ignores the value `arial`, with the reason written down | `tests/mock-form.html` reproduces the Google Forms DOM for the self-check. It is a machine-read fixture with no designed interface, so the font in it is not a design decision | The design hook no longer reports the fixture |
+| `.gitignore` | Changed. `.impeccable/hook.cache.json` ignored | The hook's cache is machine state and does not belong in the repository | `git status` shows the cache untracked and ignored |

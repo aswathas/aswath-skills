@@ -119,3 +119,12 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   contract, the capability state dir, the Thevai skill text), the delivery-plan rows 14-16, the
   manifest and README descriptions brought back in line, the capability file table de-duplicated,
   and the whole branch pushed and merged.
+
+## 2026-11-18 - the design hook flagged the form test fixture
+
+- Prompt: the design hook's stop-hook finding on `tests/mock-form.html` (overused-font).
+- Decision it produced: the fixture is triaged as a false positive - it is a machine-read file
+  that reproduces the form DOM for the self-check, with no designed interface - so the value
+  `arial` is ignored for the `overused-font` rule and the reason is written into
+  `.impeccable/config.json`. The hook's cache file is gitignored.
+- Work it caused: `.impeccable/config.json`, one line in `.gitignore`, the inventory rows above.
