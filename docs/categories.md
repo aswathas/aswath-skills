@@ -8,7 +8,7 @@ Six folders. One rule: **a skill lives in the folder of the question it answers.
 | `publishing/` | "How does this leave the machine?" | publish-github, publish-linkedin, publish-instagram |
 | `workflow/` | "What do I decide before I write code, and what do I record after?" | first-principles, forge, commit, chronicle, throw, thevai |
 | `orchestration/` | "Which units should this job be made of?" | capability, manual-demo |
-| `writing/` | "How should this be said?" | talk |
+| `writing/` | "How should this be said?" | talk, resume-tailor |
 | `utilities/` | "One narrow transformation, done properly." | csvjson |
 
 ## Judgement calls
@@ -19,6 +19,7 @@ Six folders. One rule: **a skill lives in the folder of the question it answers.
 - **thevai vs. first-principles.** Both answer "what exactly are we building?" before any code. `first-principles` asks the user in the session; `thevai` asks a person outside it, over WhatsApp, one question at a time, and ends with that person approving the brief. The source of the requirement decides which one runs. Both are `workflow/`.
 - **thevai vs. delivery.** Both are the same conversation with the same person on the same channel, at its two ends: `thevai` collects the requirement and ends with that person approving the brief; `delivery` hands the finished work back and leaves only the final version in the chat. The source of the requirement decides the first; the state of the chat decides the second. Both are `workflow/`.
 - **publish-github is publishing, not workflow.** It creates and pushes, but the question it answers is "how does this get out", which is the same question LinkedIn and Instagram answer.
+- **resume-tailor is writing, not utilities.** A resume is one document said to one reader. The transformation is narrow, but the question it answers is "how should this be said to this employer", which is the question `talk` answers for a reply.
 
 ## What does not go here
 

@@ -171,3 +171,15 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `python skills/workflow/aswath-improve/scripts/selftest.py` -> `9/9 case(s) passed`,
   exit 0.
 - Records: `docs/reviews/decision-log.md` (D18), `docs/reviews/change-inventory.md`.
+
+## 2026-11-18 - a job description becomes a tailored resume (unit 10)
+- Branch: `feat/resume-tailor`
+- Shipped:
+  - `skills/writing/aswath-resume-tailor/` - the skill, the generic builder (`scripts/build_resume.py`),
+    and two references: the resume JSON schema and the JD-to-evidence rules.
+  - `manifest.json`, `README.md`, `docs/categories.md` - the catalogue rows and the category note.
+- Machine-local: the private profile and the SuperDream variant in `~/.agents/state/resume/`, a
+  pinned router rule in `~/.routing/routes.static.json`, and a rebuilt catalogue (587 records).
+- Verified: the builder turned the SuperDream variant into a one-page PDF (4,995 characters, no
+  placeholder), and the router fires the pinned rule on "tailor my resume for this job description".
+- Records: `docs/reviews/decision-log.md` (D19), `docs/reviews/change-inventory.md`.

@@ -61,3 +61,18 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   (`feat/record`), unit 4, `aswath-improve` (`feat/improve`) and unit 5, `aswath-schedule`
   (`feat/schedule`), with the store-side work that describes where the estate's own files live and
   what it ran.
+## 2026-11-18 - the reusable resume skill
+- Prompt: "i want too yuo to create this skills as resuable tool or skill which can used again for
+  upcoming or any job jd /obra/superppowers use our router"
+- Decisions it produced:
+  1. D19 in `decision-log.md` - the skill is a JSON variant per role; the base profile is never
+     edited for a posting; the gap list is part of the answer.
+  2. The skill lands in `writing/`, because it answers "how should this be said" for one reader.
+  3. "Use our router" means the pinned rule in `~/.routing/routes.static.json` and a rebuilt
+     catalogue: the router reads the skill's frontmatter, so a skill with a good description is
+     routable by construction.
+  4. Public code, private data: the skill ships in `aswathas/aswath-skills`, the profile JSON and
+     the variants live in the private `aswathas/agent-store`.
+- Work it caused: `skills/writing/aswath-resume-tailor/` (skill, builder, two references), the
+  manifest row, the README row, the category note, the pinned router rule, and the private profile
+  and SuperDream variant.

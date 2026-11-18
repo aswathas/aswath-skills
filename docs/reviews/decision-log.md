@@ -859,3 +859,29 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   failure, runs the loop with no diff, and shows the ledger holding a successful run of the same
   job, and the next dry run finding nothing to do and exiting 0. On this machine the live
   `Aswath\improve` job was run by hand and returned the same 0.
+### D19 - a job description becomes a resume through a JSON variant, and the gap list is part of the answer
+- Context: a SuperDream SDE-intern posting needed a resume that reads as an engineer's, not the
+  product-manager resume already on the site. Doing it by hand meant re-typing the evidence, and
+  the next posting would have needed it again. The candidate has more real engineering work on
+  this machine (an orchestration runtime, a command centre, a desktop app) than the public resume
+  listed, and none of it was in a shape a recruiter's screen would accept.
+- Decision:
+  - One skill, `aswath-resume-tailor`, in `writing/`. It answers "how should this be said to this
+    employer", which is the question `aswath-talk` answers for a reply.
+  - The content is a JSON variant per role, never an edit of the base profile. The builder is
+    generic: same script, same schema, different file.
+  - The skill code is public; the candidate's data stays in the private store
+    (`~/.agents/state/resume/`). A public skill must not carry a CV.
+  - A requirement in the JD with no evidence is reported as a gap, not filled with an adjective.
+    The resume is the honest document; the delivery message carries the honest gap list.
+- Rejected:
+  - A second builder per role. The content changes, the code does not.
+  - Letting the agent rewrite the DOCX directly. The JSON is the source of truth; the document is
+    generated from it, so a variant can be rebuilt and compared.
+  - Two pages for a richer story. An internship resume is one page; cut projects, not type size.
+  - Putting the profile JSON in this repo. It would publish a CV, an email address and a phone
+    number.
+- Evidence: `skills/writing/aswath-resume-tailor/scripts/build_resume.py` built the SuperDream
+  variant from `~/.agents/state/resume/variants/superdream-sde.json` -> `pages 1`, 4,995 characters
+  of extracted text, no placeholder. The router fires the pinned rule on "tailor my resume for this
+  job description": `Pinned rule. Load the aswath-resume-tailor skill and follow it.`

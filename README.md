@@ -101,6 +101,7 @@ Two ways in, and they are the same units.
 | Skill | What it does | Invoke |
 |---|---|---|
 | `aswath-talk` | Plain words, short shape, smallest honest answer. The compression/minimalism register for every reply. | `/aswath-talk` |
+| `aswath-resume-tailor` | A job description becomes a tailored, one-page, ATS-safe resume. Maps the JD onto evidence the candidate already has, writes a role-specific JSON variant, builds the DOCX and PDF, and reports the gaps it refused to invent. | `/aswath-resume-tailor` |
 
 ### utilities
 
@@ -120,7 +121,7 @@ skills/
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
   workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking
   orchestration/    aswath-capability, aswath-manual-demo
-  writing/          aswath-talk
+  writing/          aswath-talk, aswath-resume-tailor
   utilities/        aswath-csvjson, aswath-catalog, aswath-schedule
 ```
 
