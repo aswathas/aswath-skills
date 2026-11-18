@@ -133,7 +133,7 @@
       "name": "aswath-commit-discipline",
       "category": "workflow",
       "path": "skills/workflow/aswath-commit-discipline/SKILL.md",
-      "description": "Use when work is about to be committed or pushed to GitHub, when the user says \"push to GitHub\", \"mass push\", \"commit per meaningful work\", \"well documented commit\", or when a change set needs its decisions, edits, prompts and new skills written down before it leaves the machine. Enforces the standing rule that every decision spoken with an AI, every edit, every prompt and every skill added is documented in detail and then committed and pushed, and that a brief with separable parts lands as one commit and one push per unit planned in docs/reviews/delivery-plan.md. The commit count is free; the detail is not.",
+      "description": "Use when work is about to be committed or pushed to GitHub, when the user says \"push to GitHub\", \"mass push\", \"commit per meaningful work\", \"well documented commit\", or when a change set needs its decisions, edits, prompts and new skills written down before it leaves the machine. Enforces the standing rule that every decision spoken with an AI, every edit, every prompt and every skill added is documented in detail and then committed and pushed. The commit count is free; the detail is not.",
       "resources": [
         "reference",
         "scripts"

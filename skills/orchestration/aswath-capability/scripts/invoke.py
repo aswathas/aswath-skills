@@ -44,7 +44,7 @@ thing things kind sort part side end top bottom left right first second third
 # root, other harnesses read theirs). The mutable state - the registry index
 # and the outcome ledger - must have exactly one copy, or the two installs
 # drift and the router ranks differently depending on who is asking.
-# Shared location: ~/.agents/state/ (the store; tracked in git)
+# Shared location: ~/.minimax/local-runtime/skill-learning/
 def shared_state_dir():
     """Where the mutable router state lives.
 
@@ -54,7 +54,7 @@ def shared_state_dir():
     env = os.environ.get("SKILL_ROUTER_STATE_DIR")
     if env:
         return Path(env)
-    return Path.home() / ".agents" / "state"
+    return Path.home() / ".minimax" / "local-runtime" / "skill-learning"
 
 
 def shared_registry_path():

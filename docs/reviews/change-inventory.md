@@ -371,3 +371,32 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/delivery-plan.md` | Changed. Unit 13 | The plan is the record of what landed | Read back |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
 | `BUILDLOG.md` | Changed. The unit 13 entry | The build log is the running narrative | Read back after the change |
+
+## aswath-skills-wk - `chore/push-everything` (units 14-16: the pending work, split and pushed)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-commit-discipline/SKILL.md` | Changed. The unit/plan obligation is gone: five obligations instead of six, commit granularity is a soft preference, the delivery-plan row is out of the records table, and the three unit/bulk findings are out of the warning table | The rule is a documentation gate, and the plan file was enforcement machinery around it | Read back against the diff of `scripts/check_push.py`; the finding names in the SKILL.md match the codes the checker still emits |
+| `skills/workflow/aswath-commit-discipline/reference/contract.txt` | Changed. The units block is gone; "one commit per meaningful unit is preferred, not required" replaces "one commit per unit is the rule" | The contract text is printed on every prompt that matches, so it has to say the same thing the skill says | Printed by `hook.py` in the smoke test below |
+| `skills/workflow/aswath-commit-discipline/reference/delivery.txt` | Deleted. It carried the build-time delivery rule | Its only reader was the build-pattern branch of the hook, which is gone | `grep -rn "delivery.txt" skills/workflow/aswath-commit-discipline/` returns nothing |
+| `skills/workflow/aswath-commit-discipline/reference/doc-rules.json` | Changed. `delivery_plan`, `bulk_commit_file_threshold` and `bulk_commit_line_threshold` removed | The checker reads these; a rule the checker ignores is a rule that lies | `check_push.py` runs against the repo with no unknown-key errors |
+| `skills/workflow/aswath-commit-discipline/reference/record-templates.md` | Changed. The delivery-plan template section removed | It documented a file the contract no longer asks for | Read back; the remaining templates match the files the contract names |
+| `skills/workflow/aswath-commit-discipline/scripts/check_push.py` | Changed. `check_delivery_units`, `parse_delivery_plan`, `subject_matches`, `normalise_subject`, `fork_point`, `plan_governs_range` and the bulk-commit warning removed; the three delivery findings are gone | The checker has to stop enforcing the rule the contract dropped | `python scripts/check_push.py --repo .` runs clean and reports only `UNPUSHED_WORK` and `DIRTY_AT_PUSH` |
+| `skills/workflow/aswath-commit-discipline/scripts/hook.py` | Changed. `DELIVERY`, `FALLBACK_DELIVERY`, `BUILD_PATTERNS`, `delivery_text()` and `build_hits()` removed | The build-time delivery rule no longer has a rule to print | `hook.py` with a `UserPromptSubmit` payload prints the relaxed contract and exits 0 |
+| `skills/workflow/aswath-commit-discipline/scripts/test_check_push.py` | Deleted. All five cases covered the removed delivery warnings | A test for a feature that is gone is a test that fails for the wrong reason | `grep -rn "delivery" skills/workflow/aswath-commit-discipline/` returns nothing |
+| `manifest.json` | Changed. The `aswath-commit-discipline` description drops the delivery-plan sentence; the `aswath-talk` description is unquoted again | The catalogue description must match the skill's own frontmatter | `python -c "import json;json.load(open('manifest.json'))"` |
+| `README.md` | Changed. The `aswath-commit-discipline` row drops the delivery-plan sentence | The README row is the catalogue's face of the skill | Row read against the manifest entry |
+| `skills/orchestration/aswath-capability/SKILL.md` | Changed. The default state dir is `~/.minimax/local-runtime/skill-learning/`; the file table keeps the source registry and the generated state in two tables again | The staged edit had duplicated three registry rows into the state table and dropped the per-skill scores row | Read back; the two tables no longer overlap |
+| `skills/orchestration/aswath-capability/scripts/build-registry.py` | Changed. The default state dir | All eight scripts have to agree on one dir | `python -m py_compile` on all eight; `query-registry.py stats` reads the registry from the new default |
+| `skills/orchestration/aswath-capability/scripts/invoke.py` | Changed. The default state dir | As above | As above |
+| `skills/orchestration/aswath-capability/scripts/learn.py` | Changed. The default state dir | As above | As above |
+| `skills/orchestration/aswath-capability/scripts/query-registry.py` | Changed. The default state dir | As above | As above |
+| `skills/orchestration/aswath-capability/scripts/record-outcome.py` | Changed. The default state dir | As above | As above |
+| `skills/orchestration/aswath-capability/scripts/stage-install.py` | Changed. The default state dir | As above | As above |
+| `skills/orchestration/aswath-capability/scripts/taxonomy-audit.py` | Changed. The default state dir | As above | As above |
+| `skills/workflow/aswath-thevai/SKILL.md` | Changed. English examples with the Tanglish variant beside them, a fast path for a complete brief, verify-once QA, a rule against cold-opening, and a rule against handling money | The user's register was leaking into the contact's, and a complete brief was paying for a sign-off round trip it did not need | Read back in full |
+| `docs/reviews/decision-log.md` | Changed. D23, D24, D25 | The rule requires the reasoning written down before the push | Read back |
+| `docs/reviews/prompts.md` | Changed. The 2026-11-18 entry for this push | The rule requires every prompt that shaped the work | Read back |
+| `docs/reviews/delivery-plan.md` | Changed. Units 14, 15 and 16 | The plan file stays in the repo and the improve loop still writes into it | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+| `BUILDLOG.md` | Changed. The unit 14-16 entry | The build log is the running narrative | Read back after the change |

@@ -35,7 +35,6 @@ EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 DEFAULT_RULES = {
     "decision_log": "docs/reviews/decision-log.md",
     "change_inventory": "docs/reviews/change-inventory.md",
-    "delivery_plan": "docs/reviews/delivery-plan.md",
     "prompt_record_patterns": [
         "docs/reviews/decision-log.md",
         "docs/reviews/prompts.md",
@@ -46,8 +45,6 @@ DEFAULT_RULES = {
     "doc_file_names": ["README.md", "CHANGELOG.md", "LICENSE", "LICENSE.md"],
     "skill_path_prefixes": ["skills/"],
     "min_commit_body_chars": 20,
-    "bulk_commit_file_threshold": 30,
-    "bulk_commit_line_threshold": 2000,
     "placeholder_subject_patterns": [
         "wip",
         "fixup",
@@ -448,8 +445,6 @@ def check_commits(repo: str, base: str, head: str, rules: dict, report: Report) 
         r"^(" + "|".join(re.escape(w) for w in words) + r")[\s!:-]*$", re.IGNORECASE
     )
     min_body = int(rules.get("min_commit_body_chars", 20))
-    max_files = int(rules.get("bulk_commit_file_threshold", 30))
-    max_lines = int(rules.get("bulk_commit_line_threshold", 2000))
 
     for c in commits:
         if placeholder.match(c["subject"].strip()):
@@ -478,131 +473,6 @@ def check_commits(repo: str, base: str, head: str, rules: dict, report: Report) 
                 if cell.isdigit():
                     lines += int(cell)
         report.note(f"{c['short']}  {files} file(s), {lines} line(s)  {c['subject']}")
-        if files > max_files or lines > max_lines:
-            report.warn(
-                "BULK_COMMIT",
-                f"commit {c['short']} carries {files} file(s) and {lines} line(s), over the bulk "
-                f"thresholds ({max_files} files / {max_lines} lines); split it into units",
-            )
-
-
-# ------------------------------------------------------------------ delivery plan
-
-
-def normalise_subject(text: str) -> str:
-    """Lowercase, and drop everything that is not a letter or a digit."""
-    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
-
-
-def subject_matches(planned: str, subject: str) -> bool:
-    """True when a commit subject is the subject the plan gave a unit."""
-    a = normalise_subject(planned)
-    b = normalise_subject(subject)
-    if not a or not b:
-        return False
-    if a == b:
-        return True
-    if len(a) < 8 or len(b) < 8:
-        return False
-    return a in b or b in a
-
-
-def parse_delivery_plan(text: str) -> list[dict]:
-    """Units from a delivery plan table: number, unit, commit subject, state."""
-    units = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped.startswith("|"):
-            continue
-        cells = [c.strip() for c in stripped.strip("|").split("|")]
-        if len(cells) < 4 or not cells[0].isdigit():
-            continue
-        state = cells[3].strip().strip("`").lower()
-        if state not in ("planned", "doing", "done", "dropped"):
-            continue
-        units.append(
-            {"number": cells[0], "unit": cells[1], "commit": cells[2], "state": state}
-        )
-    return units
-
-
-def fork_point(repo: str, head: str) -> str:
-    """The commit the branch forked from, when it can be found."""
-    for candidate in ("origin/main", "origin/master", "main", "master"):
-        code, out, _ = git(repo, "rev-parse", "--verify", "--quiet", candidate)
-        if code != 0:
-            continue
-        code, out, _ = git(repo, "merge-base", head, candidate)
-        if code == 0 and out.strip():
-            return out.strip()
-    return ""
-
-
-def plan_governs_range(repo: str, base: str, head: str, plan_rel: str, changed: list[str]) -> bool:
-    """True when the plan is this range's plan.
-
-    It is, when the plan file changed in the range, or when the plan does not
-    exist at the point the branch forked from - that means the plan was written
-    for this branch. A plan that arrived with an earlier merge governs that
-    merge, not the work that comes after it.
-    """
-    if any(p == plan_rel or os.path.basename(p) == os.path.basename(plan_rel) for p in changed):
-        return True
-    anchor = fork_point(repo, head) or base
-    if not anchor:
-        return True
-    code, _, _ = git(repo, "cat-file", "-e", f"{anchor}:{plan_rel}")
-    return code != 0
-
-
-def check_delivery_units(repo: str, base: str, head: str, rules: dict, report: Report) -> None:
-    """The plan names the commits the work is made of. Check the range against it."""
-    plan_rel = rules.get("delivery_plan") or "docs/reviews/delivery-plan.md"
-    plan_path = Path(repo) / plan_rel
-    if not plan_path.is_file():
-        return
-    try:
-        text = plan_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return
-    units = parse_delivery_plan(text)
-    if not units:
-        return
-
-    changed = files_in_range(repo, base, head)
-    if not plan_governs_range(repo, base, head, plan_rel, changed):
-        return
-
-    range_commits = commits_in_range(repo, base, head)
-    if not range_commits:
-        return
-
-    # A unit marked done must have a commit on the branch that carries it. The
-    # commit may sit outside this range: each unit is pushed as it lands.
-    branch_subjects = git_lines(repo, "log", "--format=%s", head)
-    for unit in units:
-        if unit["state"] != "done":
-            continue
-        if any(subject_matches(unit["commit"], s) for s in branch_subjects):
-            continue
-        report.warn(
-            "UNIT_NOT_COMMITTED",
-            f"unit {unit['number']} ({unit['unit']}) is marked 'done' in '{plan_rel}' but no commit "
-            f"on the branch carries it; expected subject '{unit['commit']}'",
-        )
-
-    # A commit that matches no unit is work the plan does not account for.
-    planned = [u["commit"] for u in units]
-    for c in range_commits:
-        subject = c["subject"].strip()
-        if any(subject_matches(p, subject) for p in planned):
-            continue
-        if re.match(r"^(docs|chore|ci)\b", subject, re.IGNORECASE):
-            continue
-        report.warn(
-            "COMMIT_NOT_PLANNED",
-            f"commit {c['short']} '{subject}' matches no unit in '{plan_rel}'",
-        )
 
 
 # -------------------------------------------------------------------------- main
@@ -630,7 +500,6 @@ def main() -> int:
     if base or head:
         check_docs(repo, base, head, rules, report)
         check_commits(repo, base, head, rules, report)
-        check_delivery_units(repo, base, head, rules, report)
 
     if report.warnings:
         print(f"[commit-discipline] range: {desc}")

@@ -53,3 +53,10 @@ Rows the learning loop added. Each row is a commit the loop pushed.
 |---|------|--------|-------|
 | 12 | `aswath-gform-fill`: a reusable Google Form filler - persistent browser, heading-matched fill, dry run before submit | feat(gform-fill): fill and submit a Google Form from one script | done |
 | 13 | `aswath-gform-fill`: any account, not one account - a saved account store, a profile and a port per email, self-computed 2FA, and a `/gform-fill` command | feat(gform-fill): fill a Google Form with any saved Google account | done |
+
+## The pending-work units
+| # | Unit | Commit | State |
+|---|------|--------|-------|
+| 14 | `aswath-commit-discipline`: the contract asks for documentation, not for a delivery plan | refactor(commit-discipline): ask for documentation, not for a plan | done |
+| 15 | `aswath-capability`: the shared router state moves under the minimax runtime dir | refactor(capability): move the shared router state under the runtime dir | done |
+| 16 | `aswath-thevai`: the skill speaks plain English, verifies once, and never handles money | refactor(thevai): speak the contact's language and verify once | done |

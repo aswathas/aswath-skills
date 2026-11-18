@@ -104,7 +104,7 @@ Two ways in, and they are the same units.
 | `aswath-first-principles` | Research → questions → spec → approval, before any implementation. The template other tasks route into. | `/aswath-first-principles` |
 | `aswath-forge` | Routes a task to a minted skill if one exists, otherwise into first-principles, then mints the asset afterwards. | `/aswath-forge` |
 | `aswath-commit` | Decision log and file-by-file change inventory, then commits. No mass dumps. | `/aswath-commit` |
-| `aswath-commit-discipline` | Push-time gate: every decision spoken with an AI, every edit, every prompt and every new skill documented in detail, then committed and pushed. Work with separable parts lands as one commit and one push per unit, planned in `docs/reviews/delivery-plan.md`. Commit count is free; detail is not. Ships a warn-only checker. | `/aswath-commit-discipline` |
+| `aswath-commit-discipline` | Push-time gate: every decision spoken with an AI, every edit, every prompt and every new skill documented in detail, then committed and pushed. One commit per meaningful unit is preferred; commit count is free, detail is not. Ships a warn-only checker. | `/aswath-commit-discipline` |
 | `aswath-chronicle` | Persistent audit trail of prompts, choices and git history without re-printing docs into context. | `/aswath-chronicle` |
 | `aswath-throw` | Raw request → harness work item → leader-authored test → agent pool → two independent verifiers → report. | `/aswath-throw` |
 | `aswath-delivery` | The other end of `aswath-thevai`: finished work back to a person on a chat channel, with only the final version in the chat. Deletes the superseded messages and files, sends the current build once. | `/aswath-delivery` |

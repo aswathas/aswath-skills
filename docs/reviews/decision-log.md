@@ -974,3 +974,84 @@ marketplace carry version 1.9.0.
   `node scripts/selftest.mjs` -> `18 passed, 0 failed`, including the three RFC 6238 vectors
   (`94287082` at t=59, `287082` in six digits, `07081804` at t=1111111109), the account slug,
   the store round trip and the CLI listing.
+
+### D23 - the commit rule asks for documentation, not for a plan
+
+- Context: three units of work were sitting staged and uncommitted - the commit-discipline
+  contract losing its unit machinery, the capability router moving its shared state, and the
+  Thevai skill rewriting its own examples. The rule in force asked for a
+  `docs/reviews/delivery-plan.md` row per unit, and the staged change to the contract removed
+  that requirement. The two had to be decided together: either the rule stays and the plan file
+  stays, or the rule relaxes and the plan file goes.
+- Decision:
+  - The contract keeps five obligations: decisions documented, edits inventoried, prompts logged,
+    skills described, then pushed. The unit/plan machinery is dropped - the sixth obligation and
+    the delivery-plan row in the records table.
+  - Commit granularity becomes a soft preference. "One commit per meaningful unit where the
+    units are separable"; one commit is fine when the unit is one. The measure is documentation
+    detail, never commit count.
+  - The checker stops enforcing the plan. `BULK_COMMIT`, `COMMIT_NOT_PLANNED` and
+    `UNIT_NOT_COMMITTED` are removed, along with `bulk_commit_*_threshold` and
+    `delivery_plan` in `doc-rules.json`, the plan parsing in `check_push.py`, and the
+    build-time prompt hook that printed the delivery rule while the work was still being
+    planned.
+  - `docs/reviews/delivery-plan.md` stays in the repository. `aswath-improve` still writes unit
+    rows into it, and the unit history is worth keeping even where the contract no longer
+    demands it.
+  - The checker keeps `UNDOCUMENTED_COMMIT`, `PLACEHOLDER_SUBJECT`, `PROMPT_NOT_LOGGED`,
+    `UNPUSHED_WORK` and `DIRTY_AT_PUSH`. Those are the warnings that catch undocumented work,
+    which is the thing the rule is actually for.
+- Rejected:
+  - Keeping the plan gate and writing the plan rows for these three units. It would have meant
+    editing the contract in the same change that removes the contract, and the plan file's
+    value was the enforcement, not the history.
+  - Keeping the bulk-commit threshold without the plan. A line count is a proxy for
+    documentation, and the documentation checks measure that directly.
+  - Deleting `docs/reviews/delivery-plan.md`. The improve loop writes into it.
+- Evidence: `python skills/workflow/aswath-commit-discipline/scripts/check_push.py --repo .`
+  runs clean on the three units' code and reports only the expected `UNPUSHED_WORK` and
+  `DIRTY_AT_PUSH` warnings. `hook.py` prints the relaxed contract and no longer references
+  `reference/delivery.txt`, which is deleted. The checker self-test, whose five cases all
+  covered the removed delivery warnings, is deleted with the feature.
+
+### D24 - the capability router's shared state moves under the minimax runtime dir
+
+- Context: `aswath-capability`'s scripts all resolve the same shared state dir through a
+  duplicated `shared_state_dir()` helper. The staged change moved the default from
+  `~/.agents/state/` to `~/.minimax/local-runtime/skill-learning/`, which on this machine is a
+  symlink to `~/.agents/state/`. The value is the same directory; the name is the one the
+  minimax runtime already uses.
+- Decision:
+  - The default moves to `~/.minimax/local-runtime/skill-learning/`, and `SKILL_ROUTER_STATE_DIR`
+    still overrides it. All eight scripts change together, so they cannot disagree.
+  - The skill's file table keeps the source registry and the generated state in two tables, so
+    a reader can tell which files are edited and which are written.
+- Rejected:
+  - One shared helper module imported by all eight scripts. They are standalone scripts run
+    individually by the Agent tool; a shared import path would make each one depend on the
+    others being installed together.
+  - Leaving the two directories as they are. The staged change was already made and the symlink
+    makes it free.
+- Evidence: `python skills/orchestration/aswath-capability/scripts/query-registry.py stats`
+  reads the registry from the new default and prints the same index; all eight scripts compile.
+
+### D25 - the Thevai skill speaks plain English by default
+
+- Context: the Thevai skill is the WhatsApp brief collector. Its examples were written in
+  Tanglish, which made the assistant write Tanglish to contacts who write English - the user's
+  own language was leaking into the contact's register.
+- Decision:
+  - The examples are English. The Tanglish form stays as the variant for a contact who writes
+    Tanglish, and the skill says to match the contact's own messages, not the user's.
+  - A fast path: when the deliverable, the format, the names and the deadline are all on the
+    table, the build starts without a sign-off round trip. An explicit go-ahead in any form is
+    approval.
+  - Verify once, not in a loop: one contact sheet and one read-back is what "no quality issues"
+    means.
+  - Two new rules: thevai never cold-opens on a contact who has not asked for anything, and it
+    never handles money - it asks what the money refers to and relays the user's exact words.
+- Rejected:
+  - Keeping Tanglish examples and adding a warning. The example is what the model copies.
+  - Removing the five phases. The fast path is a shortcut through them, not their replacement.
+- Evidence: the skill text read back in full; the English and Tanglish variants of each
+  message sit next to each other so the rule is visible at the point of use.

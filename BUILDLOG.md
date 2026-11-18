@@ -229,3 +229,21 @@ What shipped, when, and where. Each entry names the branch, the change and how i
 - Verified: `node scripts/selftest.mjs` -> `18 passed, 0 failed`, including three RFC 6238 vectors
   and the account store round trip. `account add` -> `list` -> `remove` run against a temp store.
 - Records: `docs/reviews/decision-log.md` (D22), `docs/reviews/change-inventory.md`.
+
+## 2026-11-18 - the pending work, split and pushed (units 14-16)
+- Branch: `chore/push-everything`
+- Shipped:
+  - `aswath-commit-discipline` - the unit/plan machinery is gone. Five obligations, commit
+    granularity as a soft preference, and the checker's plan and bulk-commit findings removed
+    with the code that produced them. `reference/delivery.txt` and the checker's self-test
+    deleted with the feature.
+  - `aswath-capability` - all eight scripts resolve the shared state dir at
+    `~/.minimax/local-runtime/skill-learning/`, and the skill's file table keeps the source
+    registry and the generated state apart.
+  - `aswath-thevai` - English examples with the Tanglish variant beside them, a fast path for a
+    complete brief, verify-once QA, no cold opens, no money handling.
+  - `manifest.json` and `README.md` brought back in line with the skills they describe.
+- Verified: `check_push.py --repo .` runs clean; `hook.py` prints the relaxed contract; all
+  eight capability scripts compile and `query-registry.py stats` reads the registry from the new
+  default; `manifest.json` parses.
+- Records: `docs/reviews/decision-log.md` (D23, D24, D25), `docs/reviews/change-inventory.md`.

@@ -9,14 +9,8 @@ Before it is committed and pushed, every one of these must be written down:
 
 Then push it: branch first, push on explicit instruction, never amend a published commit.
 
-Work lands in units, not in one bulk commit:
-- A brief with separable parts becomes docs/reviews/delivery-plan.md first: one row per unit,
-  the commit it gets, its state.
-- Each unit is committed when it is done and pushed as it lands - not one push at the end.
-- One commit carries one unit's files and one unit's decisions.
-
 The commit count is free. 100 documented commits are fine. The detail is not optional.
-One commit per unit is the rule whenever the work has units.
+One commit per meaningful unit is preferred, not required.
 
 Full contract and templates: /aswath-commit-discipline
 Push-time checker (read-only, warn only): python <skill>/scripts/check_push.py --repo <repo path>
