@@ -1055,3 +1055,38 @@ marketplace carry version 1.9.0.
   - Removing the five phases. The fast path is a shortcut through them, not their replacement.
 - Evidence: the skill text read back in full; the English and Tanglish variants of each
   message sit next to each other so the rule is visible at the point of use.
+
+### D26 - the token guard installer recognises its own hook groups, and the selftest tests the shipped plugin
+
+- Context: the token guard plugin shipped two hook scripts named `token_guard-hook.sh` and
+  `token_guard-hook.ps1`, but `install.py` decided whether a group was its own by looking for
+  the string `token-guard-hook` - with a hyphen between `token` and `guard`. The marker never
+  matched, so `is_ours` was always false for a group the installer itself had written. Two
+  consequences followed, both live: re-running the installer appended a second copy of every
+  token guard group instead of replacing the first, and `install.py uninstall` removed nothing
+  at all. The live `~/.minimax/hooks.json` carried two copies of each of the three groups.
+  Separately, `scripts/selftest.py` had been written against an API - `hook.handle(event, payload)`
+  returning a dict - that the shipped plugin does not have. The plugin has no `handle` function
+  in any branch or any commit; it is two command line scripts plus `patch_hooks`.
+- Decision:
+  - The marker is corrected to the string the scripts actually carry: `token_guard-hook`. The
+    hyphenated spelling never existed on disk.
+  - The selftest is rewritten against the real plugin instead of being deleted or left failing.
+    The installer is imported and `patch_hooks` is called directly; the two hook scripts are
+    run as subprocesses the way the harnesses run them, with `MINIMAX_DATA_DIR` pointed at a
+    scratch tree for the MiniMax hook and `HOME`/`USERPROFILE` pointed at a scratch tree for
+    the Claude Code hook. Every case now touches nothing real.
+  - The live `hooks.json` is repaired by re-running the corrected installer, which replaces the
+    duplicated groups rather than adding a third copy.
+- Rejected:
+  - Matching on the group name (`Token guard orientation`) instead of the command. The name is
+    a display string a user can edit; the command is what the installer wrote.
+  - Removing the selftest because it fails. The failure was real - it exposed the marker bug -
+    and a plugin that changes behaviour with no check is a plugin that changes behaviour unseen.
+  - Keeping a `handle()` facade on the plugin to satisfy the old test. That would add an
+    interface nothing calls to satisfy a test that was never right.
+- Evidence: the selftest reports `13/13 case(s) passed`. A direct reproduction before the fix
+  showed the installer leaving every group in place after `patch_hooks(..., install=False)` and
+  the live `hooks.json` carrying each group twice; after the fix the same reproduction removes
+  the three token guard groups, keeps the foreign `Someone else` group, and a second install
+  leaves one group per event. The live file now shows one group per event.

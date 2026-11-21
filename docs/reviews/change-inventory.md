@@ -407,3 +407,12 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 |---|---|---|---|
 | `.impeccable/config.json` | New. The `overused-font` rule ignores the value `arial`, with the reason written down | `tests/mock-form.html` reproduces the Google Forms DOM for the self-check. It is a machine-read fixture with no designed interface, so the font in it is not a design decision | The design hook no longer reports the fixture |
 | `.gitignore` | Changed. `.impeccable/hook.cache.json` ignored | The hook's cache is machine state and does not belong in the repository | `git status` shows the cache untracked and ignored |
+
+## aswath-skills-wk - `main` (the token guard marker and its selftest)
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/context/aswath-token-guard/plugin/install.py` | Changed. `is_ours` now looks for `token_guard-hook` instead of `token-guard-hook` | The hook scripts on disk are `token_guard-hook.sh` and `token_guard-hook.ps1`. The hyphenated marker never matched, so the installer duplicated its own groups on every run and uninstall removed nothing | The selftest's install cases: a second install leaves one group per event, and uninstall removes the three token guard groups while keeping the foreign one |
+| `skills/context/aswath-token-guard/scripts/selftest.py` | New. Thirteen cases covering the installer and both hook scripts | The plugin shipped with no check. The earlier draft of this file tested a `handle()` API that exists in no branch and no commit; it is rewritten against the shipped plugin - `patch_hooks` called directly, the hook scripts run as subprocesses against a scratch `MINIMAX_DATA_DIR` and a scratch `HOME` | `python skills/context/aswath-token-guard/scripts/selftest.py` reports `13/13 case(s) passed` |
+| `docs/reviews/decision-log.md` | Changed. This section | The rule requires every decision to be written down before it is pushed | Read back |
+| `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |

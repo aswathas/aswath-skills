@@ -83,8 +83,8 @@ def group_matches(group, matcher):
 
 def is_ours(group):
     for hook in (group.get("hooks") or []):
-        if "token-guard-hook" in str(hook.get("command", "")) or \
-           "token-guard-hook" in str(hook.get("commandWindows", "")):
+        if "token_guard-hook" in str(hook.get("command", "")) or \
+           "token_guard-hook" in str(hook.get("commandWindows", "")):
             return True
     return False
 

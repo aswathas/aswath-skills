@@ -128,3 +128,15 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   `arial` is ignored for the `overused-font` rule and the reason is written into
   `.impeccable/config.json`. The hook's cache file is gitignored.
 - Work it caused: `.impeccable/config.json`, one line in `.gitignore`, the inventory rows above.
+
+## 2026-11-21 - the token guard installer and its missing selftest
+
+- Prompt: the agent-infra repair session ("ok lets repair all the things", then "ok lets install
+  dejavu"). While committing the store's pending work the token guard selftest was run, and it
+  failed against the shipped plugin.
+- Decision it produced: the installer's ownership marker is corrected to the string the hook
+  scripts actually carry (`token_guard-hook`), the live `~/.minimax/hooks.json` is repaired by
+  re-running the corrected installer, and the selftest is rewritten against the real plugin
+  instead of being deleted.
+- Work it caused: `plugin/install.py`, `scripts/selftest.py`, the decision-log entry, the
+  inventory rows above, and the repair of the live hooks file.
