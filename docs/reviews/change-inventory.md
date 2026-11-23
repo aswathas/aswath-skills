@@ -439,3 +439,13 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D2 | Contract requires every decision to be written down | Read back; the entry names the prompt, the options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-24 — the precedent store
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/orchestration/aswath-capability/scripts/precedent.py` | New: reads the recorded request/skill pairs and answers which skill was used last time for a request like this one | 27 of 38 strict failures were a sibling of the right skill winning, and no matcher can tell them apart. Only history can | `pytest tests` -> 58 passed; `precedent.py stats` lists the recorded pairs; `precedent.py lookup` finds the skill for a rephrased request |
+| `skills/orchestration/aswath-capability/SKILL.md` | The file table names `precedent.py`, and the state table says the `observations.ndjson` `load` rows are the precedent | A file that is not in the table does not get used | Read back; both rows present |
+| `docs/reviews/decision-log.md` | Added D3 | Contract requires every decision to be written down, including the ones the measurements ended | Read back; the entry names the decomposition, the three rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |

@@ -1140,3 +1140,40 @@ marketplace carry version 1.9.0.
   benchmark from this repo's copy of the scripts.
 - Consequence: a machine that clones this repo gets the layer, and the router
   repo stays the place where the layer is measured and changed.
+
+## D3 — Precedent, not a better matcher, for interchangeable skills
+- Date: 2026-11-24
+- Prompt: "solv eit fully >?"
+- Context: the strict-subset failures decompose into three groups, and only
+  the third is a ranking problem:
+  - 35 of 63 strict expectations were dropped before ranking (score 0),
+  - 25 of 63 expected skills are not installed on this machine at all, so the
+    ceiling here is 38/63 = 0.603,
+  - of the 38 that are installed, 23 sit inside the semantic top ten.
+  The keyword router picks the expected skill in 13 cases, the semantic one in
+  12, and their union is 14. Two signals that agree on the same cases; there
+  is no combined headroom. The failures are local-to-local sibling choices:
+  "generate a changelog from the commits" reaches `version-bump` instead of
+  `changelog-generator`.
+- Options:
+  - Keep improving the matcher - the measurements say the signal is not there.
+    The expected skill sits at median rank 157 by description similarity, and
+    a semantic-lead path was measured: it left strict top-1 unchanged and cost
+    capability top-1 0.805 -> 0.779.
+  - Prefer a source class - there is no bias to exploit. The expected skill is
+    local in 33 of 38 installed cases and the chosen one is local in 30.
+  - Use history: which skill did we use last time for a request like this one?
+    The learning hook already sees both halves - the request text and the skill
+    that was loaded - and was throwing the pairing away.
+- Chosen: record the pairing and use it. The hook now writes a `load` row
+  carrying the request and the skill; `scripts/precedent.py` reads those rows;
+  the router gives the skill that was used before a decisive bonus, and puts it
+  back if the matcher dropped it. A load is precedent, not an accept: it does
+  not touch the ledger score.
+- Evidence: `router ask "bump the version and publish the release notes for the
+  plugin"` -> `version-bump` with the line `precedent: version-bump (used
+  before, match 1.00)`; `router precedent` lists the recorded pairs; the
+  simulated hook run writes one `load` row and the store reads it back.
+- Consequence: this is the part of the limit that can actually be solved, and it
+  is not measurable on the benchmark, because the benchmark has no history. It
+  works on the requests this machine has actually been asked.

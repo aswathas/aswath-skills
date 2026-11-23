@@ -234,6 +234,7 @@ The generated index and the mutable state live in ONE place, overridable with
 | `<state>/observations.ndjson` | Raw learning events. |
 | `<state>/scores/<skill>.json` | Per-skill quality scores, one file per key, so two machines never conflict on one file. |
 | `<state>/embeddings.json` | The local embedding index over the catalogue, built by `scripts/embed.py build`. |
+| `<state>/observations.ndjson` | Raw learning events. A `load` row carries the request and the skill, which is the precedent the router reads. |
 
 And the skill's own runtime files:
 
@@ -247,6 +248,7 @@ And the skill's own runtime files:
 | `scripts/stage-install.py` | Stage a marketplace plugin for approval. |
 | `scripts/embed.py` | The local embedding index: embeds every installed skill, so a request that names no capability can still be routed. |
 | `scripts/semantic.py` | The semantic layer: rescues a capability when the keywords named none, and breaks ties between sibling skills by meaning. Falls back to the keyword path when the local provider is down. |
+| `scripts/precedent.py` | The precedent store: which skill was used last time for a request like this one. The learning hook records the pair, and the router uses it to break ties between interchangeable skills. |
 | `scripts/install-agents.py` | Install the subagent briefs into `~/.claude/agents/` so the Agent tool can spawn them. |
 | `reference/authoring.md` | How to write a new skill that is worth keeping. |
 | `reference/promotion.md` | The approval and promotion contract. |

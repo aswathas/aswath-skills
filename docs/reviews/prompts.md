@@ -158,3 +158,10 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Decision it produced: D2 in this repo, and D12-D13 in `aswathas/skill-router`.
 - Work it caused: `scripts/embed.py`, `scripts/semantic.py` and the SKILL.md rows
   for both, inside `skills/orchestration/aswath-capability/`.
+
+## 2026-11-24 — precedent routing for interchangeable skills
+- Prompt: "solv eit fully >?"
+- Decision it produced: D3 in this repo, and D14 in `aswathas/skill-router`.
+- Work it caused: `scripts/precedent.py`, the SKILL.md rows for it, and the
+  records above. The learning hook change that fills the store lives in
+  `aswathas/skill-router`.
