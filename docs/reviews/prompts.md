@@ -140,3 +140,15 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   instead of being deleted.
 - Work it caused: `plugin/install.py`, `scripts/selftest.py`, the decision-log entry, the
   inventory rows above, and the repair of the live hooks file.
+
+## 2026-11-23 — a skill fetched from the internet, judged and minted
+- Prompt: "everything also one more feature find the best skill in the internet and
+  update automaticallyu or if new task is given get new skills(tested with some evals
+  download and load that skill automaticcly for the task and use it then copy that skill
+  and store it under aswath skills(forging) ( not use this lets try this additonaly
+  copying best skills and building something bettert than them for our own custom
+  skills)"
+- Decision it produced: D1 in this repo, and D8-D11 in `aswathas/skill-router`.
+- Work it caused: `skills/utilities/aswath-rust-security/`, its manifest row, its
+  README row, the ledger fix in `aswath-capability/scripts/build-registry.py`, and
+  the records above.

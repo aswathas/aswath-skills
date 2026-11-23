@@ -1090,3 +1090,30 @@ marketplace carry version 1.9.0.
   the live `hooks.json` carrying each group twice; after the fix the same reproduction removes
   the three token guard groups, keeps the foreign `Someone else` group, and a second install
   leaves one group per event. The live file now shows one group per event.
+
+## D1 — Mint a fetched skill as `aswath-<slug>`, with its origin kept
+- Date: 2026-11-23
+- Prompt: "everything also one more feature find the best skill in the internet and
+  update automaticallyu or if new task is given get new skills(tested with some evals
+  download and load that skill automaticcly for the task and use it then copy that
+  skill and store it under aswath skills(forging) ( not use this lets try this
+  additonaly copying best skills and building something bettert than them for our own
+  custom skills)"
+- Context: the catalogue can grow from the internet, but a third-party skill brought
+  in as it is would break this repo's rules: the `aswath-` naming, the description
+  that begins "Use when", and the category that answers a question.
+- Options:
+  - Install it unchanged - the catalogue stops being ours.
+  - Mint it under our conventions and record where it came from - one naming scheme,
+    one description rule, one category rule, and the origin stays visible.
+  - Keep fetched skills outside the repo - then they are not ours at all.
+- Chosen: mint it. `aswath-rust-security` lands in `skills/utilities/`, keeps an
+  origin line naming the upstream repository, and is registered in `manifest.json`
+  and the README like every other skill.
+- Evidence: `skills/utilities/aswath-rust-security/SKILL.md` reads
+  `name: "aswath-rust-security"` with a quoted description and an
+  `> Origin: github.com/claude-dev-suite/claude-dev-suite` line; `install.ps1`
+  linked it into `~/.claude/skills` and `~/.agents/skills`; `router ask "rust
+  security vulnerabilities cargo audit"` answers it.
+- Consequence: the catalogue can take skills from the internet without losing its
+  shape or its rules.

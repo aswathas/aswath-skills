@@ -3,7 +3,7 @@
   "version": "1.11.0",
   "author": "Aswath S",
   "license": "MIT",
-  "updated": "2026-11-18",
+  "updated": "2026-11-23",
   "invocation": {
     "manual": "/<skill-name>",
     "example": "/aswath-token-guard",
@@ -236,6 +236,13 @@
         "skills/utilities/aswath-gform-fill/assets/answers.template.json",
         "skills/utilities/aswath-gform-fill/tests/mock-form.html"
       ]
+    },
+    {
+      "name": "aswath-rust-security",
+      "category": "utilities",
+      "path": "skills/utilities/aswath-rust-security/SKILL.md",
+      "description": "Use when | Rust security patterns for web applications. Covers memory safety guarantees, dependency auditing, secure coding practices, and OWASP for Rust ecosystem. USE WHEN: user works with \"Rust\", \"Actix\", \"Axum\", \"Rocket\", \"Warp\", asks about \"Rust vulnerabilities\", \"cargo audit\", \"Rust injection\", \"Rust authentication\" DO NOT USE FOR: general OWASP concepts - use `owasp` or `owasp-top-10` instead, other language security - use language-specific skills",
+      "resources": []
     }
   ]
 }

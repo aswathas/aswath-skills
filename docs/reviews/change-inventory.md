@@ -416,3 +416,15 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `skills/context/aswath-token-guard/scripts/selftest.py` | New. Thirteen cases covering the installer and both hook scripts | The plugin shipped with no check. The earlier draft of this file tested a `handle()` API that exists in no branch and no commit; it is rewritten against the shipped plugin - `patch_hooks` called directly, the hook scripts run as subprocesses against a scratch `MINIMAX_DATA_DIR` and a scratch `HOME` | `python skills/context/aswath-token-guard/scripts/selftest.py` reports `13/13 case(s) passed` |
 | `docs/reviews/decision-log.md` | Changed. This section | The rule requires every decision to be written down before it is pushed | Read back |
 | `docs/reviews/change-inventory.md` | Changed. This section | The rule requires one row per changed file | Read back |
+
+## 2026-11-23 — fetched skill minted into the catalogue
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/utilities/aswath-rust-security/SKILL.md` | New: the Rust security skill fetched from `claude-dev-suite/claude-dev-suite`, renamed, given a `Use when` description and an origin line | The catalogue did not cover Rust security, and a fetched skill must follow this repo's naming, description and category rules | The harness lists the skill with the right description; `router ask "rust security vulnerabilities cargo audit"` answers `aswath-rust-security` |
+| `manifest.json` | One skill row for `aswath-rust-security` in category `utilities` | Every skill in this repo is registered | JSON parses; the row count matches the skills on disk |
+| `README.md` | One row in the utilities table | The README is the catalogue the human reads | Row present under the utilities heading |
+| `skills/orchestration/aswath-capability/scripts/build-registry.py` | `load_ledger()` folds the outcome counts into one number per skill, and the merge keys on the slug and covers plugin skills | The counts were handed over as a dict where a number belonged, so the ledger could not change a ranking | `router learn` prints the weighted map; the benchmark moved from 0.792 to 0.805 top-1 |
+| `docs/reviews/decision-log.md` | Added D1 | Contract requires every decision to be written down | Read back; the entry names the prompt, the options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-23 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
