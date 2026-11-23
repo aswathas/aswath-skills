@@ -46,6 +46,32 @@ python $S list
 as UTF-16 task XML and created with `schtasks /create /xml`, because the plain command form
 cannot set the missed-start flag.
 
+## No console window
+
+A task that runs `cmd.exe` or `powershell.exe` in the logged-on session opens a terminal window
+on the desktop every time it fires. Windows Terminal is the default console host here, so the
+window is a full Terminal tab, not a flash of a legacy console.
+
+So the task never runs the command directly. The command is written to
+`~/.claude/scheduled-tasks/<name>.cmd` and the task runs:
+
+```
+wscript.exe //nologo ~/.claude/tools/run-hidden.vbs ~/.claude/scheduled-tasks/<name>.cmd
+```
+
+`run-hidden.vbs` reads the command from the file and runs it through `WScript.Shell.Run` with
+window style 0, so the job does its work with nothing on the screen. The command lives in a file
+rather than in the task's `Arguments` because the task's argument field is a Windows command line:
+any quote inside the command would be eaten before the script ever saw it.
+
+`schedule.py` installs the runner itself and writes the command file. A task made by hand, or
+one that already exists, is converted by exporting its XML, replacing only the `<Actions>` block
+and re-creating it — the triggers, the principal and the settings stay exactly as they were.
+
+Job interpreters: the copy of Python under
+`AppData\Local\Programs\Python\Python313` lost its standard library and cannot run a script.
+Use `C:\Users\ADMIN\AppData\Roaming\uv\python\cpython-3.13.1-windows-x86_64-none\python.exe`.
+
 ## The two estate jobs
 
 The runtime design gives this skill two jobs to schedule:
@@ -73,6 +99,6 @@ elevated shell and a different principal.
 python skills/utilities/aswath-schedule/scripts/selftest.py
 ```
 
-Checks the task name, the missed-start flag, the escaped command and the trigger boundary against
-scratch files; reads a scratch Claude Code task list and a scratch MiniMax cron table; and on
-Windows creates one live task, sees it in `schtasks /query` and removes it again.
+Checks the task name, the missed-start flag, the hidden runner, the command file and the trigger
+boundary against scratch files; reads a scratch Claude Code task list and a scratch MiniMax cron
+table; and on Windows creates one live task, sees it in `schtasks /query` and removes it again.

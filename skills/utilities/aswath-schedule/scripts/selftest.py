@@ -76,12 +76,35 @@ def t_flag(_root: Path) -> None:
     assert "\\Aswath\\improve" in xml, xml
 
 
-@case("the task carries the command and escapes it")
+@case("the task runs through the hidden runner, not a console")
 def t_command(_root: Path) -> None:
     xml = schedule.task_xml("probe", "echo a & b", at="09:30")
+    cmd = xml.split("<Command>")[1].split("</Command>")[0]
     args = xml.split("<Arguments>")[1].split("</Arguments>")[0]
-    assert "echo a &amp; b" in args, args
-    assert "&" not in args.replace("&amp;", ""), args
+    assert "wscript.exe" in cmd, cmd
+    assert "run-hidden.vbs" in args, args
+    assert "cmd" in args, args
+
+
+@case("the command is kept in a file so its quotes survive")
+def t_command_file(root: Path) -> None:
+    old = schedule.CMD_DIR
+    schedule.CMD_DIR = root / "cmds"
+    try:
+        path = schedule.command_file("probe")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('echo "a & b"\n', encoding="utf-8")
+        assert path.read_text(encoding="utf-8").strip() == 'echo "a & b"'
+    finally:
+        schedule.CMD_DIR = old
+
+
+@case("the hidden runner is installed where the tasks point at it")
+def t_runner(_root: Path) -> None:
+    assert schedule.RUNNER_SRC.is_file(), schedule.RUNNER_SRC
+    schedule.install_runner()
+    assert schedule.RUNNER.is_file(), schedule.RUNNER
+    assert schedule.RUNNER.read_bytes() == schedule.RUNNER_SRC.read_bytes()
 
 
 @case("the daily trigger starts in the future")

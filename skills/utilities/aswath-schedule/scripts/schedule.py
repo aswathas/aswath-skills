@@ -33,6 +33,15 @@ CMD = Path(os.environ.get("COMSPEC", r"C:\Windows\System32\cmd.exe"))
 SCHEDULER_DB = HOME / ".minimax/v2/sqlite/runtime-state.sqlite"
 CLAUDE_TASKS = HOME / ".claude/scheduled_tasks.json"
 
+# A task that runs cmd.exe in the user's session opens a console window on the
+# desktop. The command is therefore handed to wscript.exe, which runs it with
+# no window at all. The command itself lives in a file so that quotes in the
+# command survive the trip through the task's Arguments field.
+WSCRIPT = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32/wscript.exe"
+RUNNER_SRC = Path(__file__).resolve().parent / "run-hidden.vbs"
+RUNNER = HOME / ".claude/tools/run-hidden.vbs"
+CMD_DIR = HOME / ".claude/scheduled-tasks"
+
 
 # ---------------------------------------------------------------- the task
 
@@ -81,8 +90,23 @@ def trigger_xml(at: str, every: int) -> str:
     )
 
 
+def command_file(name: str) -> Path:
+    """Where the command for one task is kept."""
+    safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in name)
+    return CMD_DIR / f"{safe}.cmd"
+
+
+def install_runner() -> None:
+    """Put the hidden runner where the tasks point at it."""
+    RUNNER.parent.mkdir(parents=True, exist_ok=True)
+    if RUNNER.is_file() and RUNNER.read_bytes() == RUNNER_SRC.read_bytes():
+        return
+    RUNNER.write_bytes(RUNNER_SRC.read_bytes())
+
+
 def task_xml(name: str, command: str, at: str = "", every: int = 0) -> str:
     """The task definition. StartWhenAvailable is the point of the whole thing."""
+    cmd_file = command_file(name)
     return (
         '<?xml version="1.0" encoding="UTF-16"?>\n'
         '<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">\n'
@@ -115,8 +139,8 @@ def task_xml(name: str, command: str, at: str = "", every: int = 0) -> str:
         "  </Settings>\n"
         "  <Actions Context=\"Author\">\n"
         "    <Exec>\n"
-        f"      <Command>{escape(str(CMD))}</Command>\n"
-        f"      <Arguments>/c \"{escape(command)}\"</Arguments>\n"
+        f"      <Command>{escape(str(WSCRIPT))}</Command>\n"
+        f"      <Arguments>//nologo \"{escape(str(RUNNER))}\" \"{escape(str(cmd_file))}\"</Arguments>\n"
         f"      <WorkingDirectory>{escape(str(HOME))}</WorkingDirectory>\n"
         "    </Exec>\n"
         "  </Actions>\n"
@@ -223,6 +247,10 @@ def cmd_add(args) -> int:
         print("schedule: give exactly one of --at HH:MM or --every MINUTES.", file=sys.stderr)
         return 1
     name = task_name(args.name)
+    cmd_file = command_file(args.name)
+    cmd_file.parent.mkdir(parents=True, exist_ok=True)
+    cmd_file.write_text(args.command.strip() + "\n", encoding="utf-8")
+    install_runner()
     xml = task_xml(args.name, args.command, args.at, args.every)
     handle, path = tempfile.mkstemp(prefix="aswath-task-", suffix=".xml")
     with os.fdopen(handle, "wb") as fh:
@@ -248,6 +276,7 @@ def cmd_remove(args) -> int:
               file=sys.stderr)
         return 1
     print(f"schedule: {name} removed.")
+    command_file(args.name).unlink(missing_ok=True)
     return 0
 
 
