@@ -428,3 +428,14 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D1 | Contract requires every decision to be written down | Read back; the entry names the prompt, the options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-23 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-24 — the semantic layer, shipped inside the capability skill
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/orchestration/aswath-capability/scripts/embed.py` | New: the local embedding index builder (LM Studio, OpenAI-compatible, base64 float32 cache) | The requests that never name a capability were the largest group of routing failures, and this repo's skill is what other harnesses load | `embed.py build` embeds the catalogue in 15 s and writes a 12.6 MB index; `embed.py status` loads it warm in 0.000 s |
+| `skills/orchestration/aswath-capability/scripts/semantic.py` | New: the semantic layer, with the conservative profile as default and the keyword fallback | Same reason; the layer is what turns a meaning match into a routed skill | `semantic.py status`; `router ask` shows the semantic line and 0.31 s per query |
+| `skills/orchestration/aswath-capability/SKILL.md` | The file table now names the two scripts, and the state table names `<state>/embeddings.json` | A file that is not in the table does not get used | Read back; both scripts and the state path are listed |
+| `docs/reviews/decision-log.md` | Added D2 | Contract requires every decision to be written down | Read back; the entry names the prompt, the options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |

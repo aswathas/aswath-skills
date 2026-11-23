@@ -233,6 +233,7 @@ The generated index and the mutable state live in ONE place, overridable with
 | `<state>/ledger.json` | The outcome ledger. The learning hook appends to it. |
 | `<state>/observations.ndjson` | Raw learning events. |
 | `<state>/scores/<skill>.json` | Per-skill quality scores, one file per key, so two machines never conflict on one file. |
+| `<state>/embeddings.json` | The local embedding index over the catalogue, built by `scripts/embed.py build`. |
 
 And the skill's own runtime files:
 
@@ -244,6 +245,8 @@ And the skill's own runtime files:
 | `scripts/record-outcome.py` | Ledger writes and promotion proposals. |
 | `scripts/taxonomy-audit.py` | Proposes taxonomy improvements: unroutable skills, stale tags, starved capabilities. Read-only. |
 | `scripts/stage-install.py` | Stage a marketplace plugin for approval. |
+| `scripts/embed.py` | The local embedding index: embeds every installed skill, so a request that names no capability can still be routed. |
+| `scripts/semantic.py` | The semantic layer: rescues a capability when the keywords named none, and breaks ties between sibling skills by meaning. Falls back to the keyword path when the local provider is down. |
 | `scripts/install-agents.py` | Install the subagent briefs into `~/.claude/agents/` so the Agent tool can spawn them. |
 | `reference/authoring.md` | How to write a new skill that is worth keeping. |
 | `reference/promotion.md` | The approval and promotion contract. |

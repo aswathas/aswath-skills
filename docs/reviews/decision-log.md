@@ -1117,3 +1117,26 @@ marketplace carry version 1.9.0.
   security vulnerabilities cargo audit"` answers it.
 - Consequence: the catalogue can take skills from the internet without losing its
   shape or its rules.
+
+## D2 — Ship the semantic layer inside the capability skill, not only in the router repo
+- Date: 2026-11-24
+- Prompt: "lets solve the limit"
+- Context: the semantic layer was written in `aswathas/skill-router`, which holds
+  its own copy of this skill. The copy that other harnesses load is the one in
+  this repo, so without the scripts here the layer would exist only behind the
+  `router` command on this machine.
+- Options:
+  - Keep it in the router repo only - the feature would not travel to the second
+    PC or to a harness that never clones the router repo.
+  - Copy the two scripts here as well - two copies of the same code, which is
+    the drift this repo has already suffered with `build-registry.py`.
+  - Have this repo's scripts import the router repo's - a hard dependency on a
+    path that may not exist.
+- Chosen: copy the two scripts here and keep the shared logic inside them, with
+  the same treatment the ledger fix got in D1 - the same fix, applied to both
+  copies, with the reason recorded in each repo.
+- Evidence: `scripts/embed.py` and `scripts/semantic.py` exist here; the SKILL.md
+  file table names both; the router's own measurement script runs the same
+  benchmark from this repo's copy of the scripts.
+- Consequence: a machine that clones this repo gets the layer, and the router
+  repo stays the place where the layer is measured and changed.

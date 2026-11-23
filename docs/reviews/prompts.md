@@ -152,3 +152,9 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: `skills/utilities/aswath-rust-security/`, its manifest row, its
   README row, the ledger fix in `aswath-capability/scripts/build-registry.py`, and
   the records above.
+
+## 2026-11-24 — the semantic layer, shipped inside the capability skill
+- Prompt: "lets solve the limit"
+- Decision it produced: D2 in this repo, and D12-D13 in `aswathas/skill-router`.
+- Work it caused: `scripts/embed.py`, `scripts/semantic.py` and the SKILL.md rows
+  for both, inside `skills/orchestration/aswath-capability/`.
