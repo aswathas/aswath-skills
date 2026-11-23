@@ -131,6 +131,7 @@ Two ways in, and they are the same units.
 
 | Skill | What it does | Invoke |
 |---|---|---|
+| `aswath-rust-security` | Use when | Rust security patterns for web applications. Covers memory safety guarantees, dependency auditing, secure coding practices, and OWASP for Rust ecosystem. USE WHEN: user works with "Rust", "Actix", "Axum", "Rocket", "Warp", asks about "Rust vulnerabilities", "cargo audit", "Rust injection", "Rust authentication" DO NOT USE FOR: general OWASP concepts - use `owasp` or `owasp-top-10` instead, other language security - use language-specific skills | `/aswath-rust-security` |
 | `aswath-csvjson` | CSV → JSON done properly: header-keyed rows, type sniffing, quoting, embedded newlines, leading-zero IDs kept as strings. | `/aswath-csvjson` |
 | `aswath-catalog` | The estate's own layout, made checkable. One map says where every skill lives and which copy is canonical; one check says whether the machine still matches it. Also the lease that keeps two PCs from writing the same shared state. | `/aswath-catalog` |
 | `aswath-schedule` | Work that runs without a human. Windows Task Scheduler jobs named `Aswath\<name>`, created so a missed slot runs late instead of never — and one report for the Windows, Claude Code and MiniMax schedulers together. | `/aswath-schedule` |
