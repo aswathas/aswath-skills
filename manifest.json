@@ -1,9 +1,9 @@
 {
   "name": "aswath-skills",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "author": "Aswath S",
   "license": "MIT",
-  "updated": "2026-11-23",
+  "updated": "2026-11-24",
   "invocation": {
     "manual": "/<skill-name>",
     "example": "/aswath-token-guard",
@@ -40,6 +40,15 @@
       "path": "skills/context/aswath-token-ledger/SKILL.md",
       "description": "Use when the user wants the raw context ledger of a session - every token attributed to a cause, the costliest tool outputs, files read more than once - or wants to compare token spend across sessions. Reads the Claude Code and MiniMax Code transcript stores directly, including sessions that predate any hook.",
       "resources": []
+    },
+    {
+      "name": "aswath-autocompact",
+      "category": "context",
+      "path": "skills/context/aswath-autocompact/SKILL.md",
+      "description": "Use when the user wants to change the auto-compact window for a task, says \"autocompact template\", \"compact window\", \"set compaction to 200k/300k/400k\", \"basic/medium/hard task compaction\", or asks what compaction rules apply to the current task. Also use when compaction is landing at the wrong size, or when the summary that came back dropped the parts that mattered. Sets the window and the compaction rule set together: basic 200k, medium 300k, hard 400k.",
+      "resources": [
+        "scripts"
+      ]
     },
     {
       "name": "aswath-minimax-compaction-handoff",

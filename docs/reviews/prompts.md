@@ -172,3 +172,11 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
   command) and D15 in the skill-router repo.
 - Work it caused: `rank_with_router()` in `query-registry.py`, mirrored into
   both copies of the file, and the records above.
+
+## 2026-11-24 - autocompact templates per task class
+- Prompt: "i want to keep autocomapct templates for small , medium , hard task we i need differtn diffetn autocompacting rules basic is 150k-200k , medium -250k to 300k , hard or heavy task - 400k"
+- Decision it produced: D5 (the window is a settings write, the rules ride in a
+  `PreCompact` hook, and the env-var override had to be removed).
+- Work it caused: `skills/context/aswath-autocompact/` with `presets.json`,
+  `scripts/autocompact.py`, `scripts/compaction_rules.py` and
+  `scripts/selftest.py`, the manifest and README rows, and the records above.
