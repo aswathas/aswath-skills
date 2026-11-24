@@ -1,0 +1,107 @@
+{
+  "topics": [
+    {
+      "name": "Setting up and Interacting with a Contract using Mist Wallet",
+      "units": 2,
+      "diagram": {
+        "title": "What Mist bundled into one window",
+        "kind": "stack",
+        "nodes": [
+          { "label": "Browser", "sub": "contract interfaces as web pages" },
+          { "label": "Wallet", "sub": "holds the key, signs" },
+          { "label": "Light node", "sub": "local chain view", "kind": "core" },
+          { "label": "Network", "sub": "peers, not a central server" }
+        ],
+        "caption": "One desktop app replaced a browser plus a separately configured node."
+      }
+    },
+    {
+      "name": "Python Ethereum Client (pyethapp)",
+      "units": 3,
+      "diagram": {
+        "title": "How Python talks to Ethereum now",
+        "kind": "flow",
+        "nodes": [
+          { "label": "Python script" },
+          { "label": "web3.py", "sub": "library, not a client" },
+          { "label": "JSON-RPC", "sub": "to a node" },
+          { "label": "Client", "sub": "geth or Nethermind", "kind": "core" },
+          { "label": "Chain" }
+        ],
+        "edges": [[0, 1], [1, 2], [2, 3], [3, 4]],
+        "caption": "pyethapp implemented the protocol itself; today Python only calls a node."
+      }
+    },
+    {
+      "name": "Mist Ethereum Wallet",
+      "units": 3,
+      "diagram": {
+        "title": "Mist against the pattern that replaced it",
+        "kind": "compare",
+        "nodes": [
+          { "label": "Mist: desktop app" },
+          { "label": "Mist: bundled light node" },
+          { "label": "Mist: discontinued" },
+          { "label": "Mist: history only" },
+          { "label": "Today: browser extension" },
+          { "label": "Today: talks to a node" },
+          { "label": "Today: maintained" },
+          { "label": "Today: key stays client-side" }
+        ],
+        "caption": "The idea survives; the bundling does not."
+      }
+    },
+    {
+      "name": "Swarm Setup",
+      "units": 4,
+      "diagram": {
+        "title": "Bringing a storage node up",
+        "kind": "flow",
+        "nodes": [
+          { "label": "Install node", "sub": "storage software" },
+          { "label": "Supply address", "sub": "Ethereum payment address" },
+          { "label": "Start node" },
+          { "label": "Store and serve", "sub": "chunks to peers", "kind": "core" }
+        ],
+        "edges": [[0, 1], [1, 2], [2, 3]],
+        "caption": "No stake and no hashing: setup is three steps, not five."
+      }
+    },
+    {
+      "name": "Working with Swarm",
+      "units": 4,
+      "diagram": {
+        "title": "The hash is the whole handle",
+        "kind": "flow",
+        "nodes": [
+          { "label": "Upload file" },
+          { "label": "Returns content hash", "kind": "core" },
+          { "label": "Share the hash" },
+          { "label": "Download by hash" },
+          { "label": "Chunks verified" }
+        ],
+        "edges": [[0, 1], [1, 2], [2, 3], [3, 4]],
+        "caption": "No server path exists, so the hash is what you store and what you send."
+      }
+    },
+    {
+      "name": "Case Study: Stock Photos Dapp",
+      "units": 4,
+      "diagram": {
+        "title": "Where each part of a photo marketplace lives",
+        "kind": "compare",
+        "nodes": [
+          { "label": "On-chain: licence terms" },
+          { "label": "On-chain: the payment" },
+          { "label": "On-chain: purchase record" },
+          { "label": "On-chain: release trigger" },
+          { "label": "Off-chain: the image" },
+          { "label": "Off-chain: Swarm or IPFS" },
+          { "label": "Off-chain: referenced by hash" },
+          { "label": "Off-chain: bulk and private" }
+        ],
+        "caption": "Rights and money on-chain; the bytes off-chain."
+      }
+    }
+  ]
+}

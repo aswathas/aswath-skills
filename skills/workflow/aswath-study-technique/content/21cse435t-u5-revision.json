@@ -1,0 +1,48 @@
+{
+  "revision": {
+    "mentalMap": [
+      { "label": "Double spend", "sub": "two spends → ordered → first wins → depth makes reversal costly" },
+      { "label": "BFT", "sub": "n ≥ 3f + 1 · rounds of messages · small permissioned sets" },
+      { "label": "PoW vs PoS", "sub": "burnt energy vs locked stake" },
+      { "label": "CAP", "sub": "partition is given → choose consistency or availability" },
+      { "label": "Turing completeness", "sub": "general machine + gas bound = finite execution" },
+      { "label": "GHOST", "sub": "heaviest subtree, not longest chain" },
+      { "label": "Sybil", "sub": "free identity floods → make identity costly" },
+      { "label": "Pools", "sub": "production concentrates though validation does not" },
+      { "label": "Vulnerabilities", "sub": "reentrancy · overflow · tx.origin · unchecked call · front-run" },
+      { "label": "Scalability", "sub": "L1 bound by block size; L2 posts proofs back" }
+    ],
+    "topExamQuestions": [
+      "Explain the double-spend problem and how it is mitigated.",
+      "Define Byzantine fault tolerance and derive the 3f + 1 bound.",
+      "Compare PoW and PoS on security, energy and finality.",
+      "Apply CAP to a blockchain design.",
+      "Why is the EVM Turing complete, and how is that made safe?",
+      "Explain GHOST and why it improves on longest-chain.",
+      "Define a Sybil attack and give the defence.",
+      "Why do mining pools exist, and what centralisation risk do they create?",
+      "Name the main smart-contract vulnerabilities and the fix for each.",
+      "Compare Layer 1 and Layer 2 scaling and state the trade-off."
+    ],
+    "drill": [
+      ["Does a chain prevent a double spend?", "No — it orders the two spends and rejects the later one"],
+      ["What do confirmations add?", "Depth; reversal gets progressively costlier"],
+      ["With n = 10, how many Byzantines tolerated?", "f = 3, since n ≥ 3f + 1"],
+      ["What makes a fault Byzantine?", "It may lie, not merely crash"],
+      ["What do PoW and PoS both do?", "Make identity expensive — Sybil resistance"],
+      ["Which has deterministic finality?", "PoS at checkpoints"],
+      ["Which does a blockchain sacrifice under partition?", "Availability on the minority side"],
+      ["What bounds the EVM?", "Gas — the meter reaches the limit and reverts"],
+      ["What does an out-of-gas halt still cost?", "The gas fee"],
+      ["What does GHOST score?", "Total accumulated difficulty of the subtree"],
+      ["When does a Sybil attack work?", "Wherever identity is free to create"],
+      ["Why do pools exist?", "Solo mining variance is too high"],
+      ["What power does a pool operator have?", "Choosing which transactions enter the block"],
+      ["Reentrancy fix?", "Update state before the external call"],
+      ["Why is tx.origin unsafe?", "A phishing contract in the middle satisfies it"],
+      ["Why are bigger blocks not free scaling?", "They raise validation cost and centralise the network"],
+      ["What decides L2 security inheritance?", "Whether its data is posted to L1"]
+    ],
+    "covered": "10 of 10 syllabus topics — 9 must-learn"
+  }
+}

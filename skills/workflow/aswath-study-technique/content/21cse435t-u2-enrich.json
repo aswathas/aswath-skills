@@ -1,0 +1,205 @@
+{
+  "unit": 2,
+  "topics": {
+    "Structure of a Contract": {
+      "scenario": "You want a contract that holds funds, tracks who deposited, lets them withdraw, and lets only the deployer pause it — with the compiler, not good intentions, enforcing the rules.",
+      "code": [
+        {
+          "title": "A complete contract, annotated",
+          "lang": "solidity",
+          "snippet": "pragma solidity ^0.8.20;\n\ncontract Vault {\n    mapping(address => uint256) public balanceOf;\n    address public owner;\n\n    event Deposited(address indexed user, uint256 amount);\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not owner\");\n        _;\n    }\n\n    function deposit() external payable {\n        balanceOf[msg.sender] += msg.value;\n        emit Deposited(msg.sender, msg.value);\n    }\n\n    function withdraw(uint256 amount) external {\n        require(balanceOf[msg.sender] >= amount, \"Insufficient balance\");\n        balanceOf[msg.sender] -= amount;\n        (bool ok, ) = msg.sender.call{value: amount}(\"\");\n        require(ok, \"Transfer failed\");\n    }\n}",
+          "breakdown": [
+            ["pragma solidity", "Compiler version constraint — fixes the language rules"],
+            ["contract Vault", "Declares the contract and its permanent address on deploy"],
+            ["mapping", "Per-address balances, held in contract storage"],
+            ["address owner", "Set once in the constructor to the deployer"],
+            ["event Deposited", "Declares the announcement shape, cheap log not storage"],
+            ["constructor()", "Runs exactly once, at deployment"],
+            ["modifier onlyOwner", "Access check; `_;` is where the function body executes"],
+            ["external", "Callable from outside; part of the ABI"],
+            ["payable", "Allows the function to receive Ether"],
+            ["msg.sender", "The immediate caller — the account that invoked this function"],
+            ["msg.value", "Ether attached to this call, in wei"],
+            ["emit", "Writes the event into the transaction log"]
+          ],
+          "note": "Educational example, not production-ready: withdraw() should follow checks-effects-interactions fully and is shown for structure, not safety."
+        }
+      ],
+      "advantages": [
+        "Deterministic: the same call produces the same state change on every node.",
+        "Auditable before deployment — the code is the specification.",
+        "Composable: contracts call other contracts through ordinary functions."
+      ],
+      "limitations": [
+        "Cannot be patched after deployment, so bugs are permanent.",
+        "Every write costs gas, so state design is an economic decision.",
+        "Cannot fetch outside data by itself — it needs an oracle."
+      ],
+      "memoryTrick": "**State = data | Function = action | Modifier = gate | Event = announcement.**",
+      "examAnswer": {
+        "question": "Explain the structure of a smart contract with a Solidity example. (8 marks)",
+        "full": "A smart contract is a program deployed at a blockchain address that executes predefined rules and maintains its own state. A Solidity contract is built from six structural elements, and each has a distinct job.\n\n**1. Pragma.** `pragma solidity ^0.8.20;` fixes the compiler version, and therefore which language rules apply.\n\n**2. State variables.** These persist in contract storage: `mapping(address => uint256) public balanceOf;` and `address public owner;`. They are the contract's memory and cost gas to change.\n\n**3. Constructor.** `constructor() { owner = msg.sender; }` runs exactly once, at deployment, and initialises state.\n\n**4. Functions.** These are the callable interface. `deposit()` is `external payable` so it may be called from outside and receive Ether; `withdraw()` changes state and so carries no `view` keyword.\n\n**5. Modifiers.** `modifier onlyOwner() { require(msg.sender == owner, \"Not owner\"); _; }` centralises authorisation, so it is decided in one place instead of at every function.\n\n**6. Events.** `event Deposited(address indexed user, uint256 amount);` lets the contract announce activity to off-chain listeners without writing to storage.\n\nVisibility (`public`, `external`, `internal`, `private`) says who may call a function. Mutability (`view`, `pure`, `payable`) says what the function may do to state or value. Together they make the compiler, not the developer's intention, enforce the interface.\n\nThus: state variables store data, functions perform actions, modifiers control access, and events communicate activity."
+      }
+    },
+    "Setting up and Interacting with a Contract using Geth Client": {
+      "scenario": "You have no deployment service and no hosted API. You must become the node: create a private chain, create a key, deploy bytecode as a transaction, then call the deployed address.",
+      "code": [
+        {
+          "title": "The course-era command sequence",
+          "lang": "bash",
+          "snippet": "# 1. Initialise the chain from a genesis file\ngeth init genesis.json --datadir ./node1\n\n# 2. Create a signing key (stored in the local keystore)\ngeth account new --datadir ./node1\n\n# 3. Run the node and expose JSON-RPC\ngeth --datadir ./node1 --networkid 1 --http --port 8545\n\n# 4. Attach an interactive console to the running node\ngeth attach http://localhost:8545\n\n# 5. Inside the console: deploy then call\neth.sendTransaction({ from: acct, data: bytecode })                 // deploy: no `to`\neth.sendTransaction({ from: acct, to: contractAddress, data: sel }) // call: has `to`",
+          "breakdown": [
+            ["geth init", "Creates the chain database from a genesis config"],
+            ["--datadir", "Where chain data and keys live"],
+            ["geth account new", "Creates a keypair in the keystore"],
+            ["--http --port 8545", "Exposes the JSON-RPC endpoint"],
+            ["geth attach", "Console against an already-running node"],
+            ["data: bytecode", "Deployment — the contract's code is the payload"],
+            ["to: contractAddress", "Call — the recipient is the deployed contract"],
+            ["eth.call", "Same encoding, but executes without changing state and costs no gas"]
+          ]
+        }
+      ],
+      "modernNote": "Geth has changed since this material was written: after the Merge, a full Ethereum node also needs a consensus client (e.g. Prysm or Lighthouse), and mining flags no longer apply to mainnet. Learn the sequence for the syllabus, but do not describe Geth alone as a complete modern mainnet node.",
+      "advantages": [
+        "Full control: you hold the chain, the keys and the console.",
+        "The receipt gives you the deployed address authoritatively.",
+        "Every operation is a transaction, so nothing is hidden behind an API."
+      ],
+      "limitations": [
+        "Manual and slow compared with a framework like Truffle.",
+        "Keys must be unlocked locally to sign, which is an operational risk.",
+        "The console is a development tool, not an application architecture."
+      ],
+      "memoryTrick": "**init → account → run → attach → interact.** Five words, in that order.",
+      "examAnswer": {
+        "question": "Explain setting up and interacting with a smart contract using the Geth client. (8 marks)",
+        "full": "Geth (Go-Ethereum) is the reference Ethereum client, written in Go. It lets a machine participate in an Ethereum network: connecting to peers, validating data, executing transactions and maintaining chain state. It is the engine, and the console is the steering wheel.\n\n**Step 1 — Initialise.** `geth init genesis.json --datadir ./node1` creates the chain database from a genesis configuration, which defines the starting state of a private chain.\n\n**Step 2 — Create an account.** `geth account new --datadir ./node1` creates a keypair and stores it in the local keystore. This key is what will sign every transaction.\n\n**Step 3 — Run the node.** `geth --datadir ./node1 --networkid 1 --http --port 8545` starts the client and exposes JSON-RPC, which is how tools and the console talk to it.\n\n**Step 4 — Attach the console.** `geth attach http://localhost:8545` gives an interactive JavaScript console bound to that running node.\n\n**Step 5 — Interact.** Deployment is a transaction whose `data` field carries the compiled bytecode and which has no recipient; the contract address appears in the receipt. Calling the contract is a second transaction with `to` set to that address and `data` carrying the function selector and encoded arguments. Reads use `eth.call`, which executes without changing state and costs no gas.\n\nGeth therefore acts as the interface between a user or application and the Ethereum network: the same binary initialises a chain, holds keys, serves RPC, and drives contract deployment and calls."
+      }
+    },
+    "Gas": {
+      "scenario": "A contract has a bug that loops forever. On a normal computer you would kill the process. On a replicated chain, every node would hang — so execution has to run out of something.",
+      "advantages": [
+        "Bounds execution, so a Turing-complete chain cannot be stalled by one contract.",
+        "Prices resources honestly: storage writes cost more than reads, so state stays lean.",
+        "Pays validators for real work rather than for holding a role."
+      ],
+      "limitations": [
+        "Fees are volatile, which makes user cost unpredictable.",
+        "Out-of-gas reverts still charge the sender, so failure is not free.",
+        "High demand raises the base fee and prices out small transactions."
+      ],
+      "memoryTrick": "**Gas = work | Gas price = rate | Fee = total.** 1 ETH = 10⁹ gwei.",
+      "examAnswer": {
+        "question": "What is gas? Explain gas usage, the gas limit and transaction fees. (8 marks)",
+        "full": "Gas is the unit used to measure the computational work required to execute a transaction or a smart contract on Ethereum. It exists because the network is not a free computer: without a price on computation, anyone could submit an infinite loop and exhaust every validating node.\n\n**Why gas is necessary.** It (1) measures the work the EVM performs, (2) prevents programs from running without limit, (3) reduces spam and denial-of-service transactions, and (4) compensates validators for processing.\n\n**The three quantities must be kept distinct.**\n\n- *Gas* is the amount of computational work.\n- *Gas price* is the price paid per unit of gas, in gwei.\n- *Transaction fee* is the total paid: `Fee = Gas used × Gas price`.\n\n**Worked calculation.** A transaction consumes 50,000 gas at a gas price of 20 gwei.\n\n```\nFee = 50,000 × 20 = 1,000,000 gwei\n1 ETH = 1,000,000,000 gwei\nFee = 1,000,000 / 1,000,000,000 = 0.001 ETH\n```\n\n**Gas limit.** The gas limit is the maximum a transaction may consume. If execution needs more, the transaction runs out of gas and fails, but the gas already spent is still charged. A transaction may set a limit above its actual usage; the unused portion is refunded.\n\n**Why usage differs.** A plain ETH transfer does almost no computation. A token transfer executes contract code. Deployment creates code and storage, so it is expensive. The more state changes and computation a transaction requires, the more gas it consumes.\n\n**EIP-1559.** Modern fees split into a protocol-set base fee that is burned and a priority fee (tip) that goes to the validator, bounded by the sender's maximum fee per gas.\n\nGas is therefore both a resource meter and a pricing mechanism — the reason a shared, Turing-complete chain remains usable."
+      }
+    },
+    "Logs": {
+      "scenario": "Covering the plain phrase: an event is the shape you declare; a log is the entry actually produced when it fires. A marker wants that distinction, not a definition of 'log file'.",
+      "examAnswer": {
+        "question": "What are logs? Explain topics and data. (short answer)",
+        "full": "Logs are records produced when a smart contract emits an event during execution. They are written into the transaction receipt, not into contract storage, so they are cheap and outside the state trie.\n\nA log contains four things:\n\n- **Address** — the contract that emitted it.\n- **Topic 0** — the hash of the event signature, which identifies the event type.\n- **Topics 1..3** — each `indexed` parameter, so it can be filtered directly.\n- **Data** — the non-indexed parameters, ABI-encoded.\n\nFor `event Deposited(address indexed user, uint256 amount);`, the emitting address and `user` appear in topics, while `amount` appears in data — because only `user` was declared `indexed`.\n\nLogs are used by explorers, wallets, frontends and indexers to follow contract activity without re-reading every storage variable. Crucially, a contract cannot read its own past logs: they serve observers, not logic."
+      },
+      "memoryTrick": "**Event = blueprint of the announcement. Log = the recorded announcement.**"
+    },
+    "Events": {
+      "scenario": "A frontend must learn that a user deposited, without downloading and re-executing every block. Storage polling is expensive and slow; the contract needs a cheap, filterable announcement.",
+      "advantages": [
+        "Cheap: outside the state trie, so far less gas than a storage write.",
+        "Filterable: indexed parameters become topics queryable by address.",
+        "Decouples the contract from its consumers — many listeners, one emit."
+      ],
+      "limitations": [
+        "One-way: the emitting contract cannot read its own logs back.",
+        "Only indexed parameters are directly searchable.",
+        "Not a source of truth for logic — application state must still be in storage."
+      ],
+      "memoryTrick": "**Declare → Emit → Log → Listen.** Events announce; they do not store.",
+      "examAnswer": {
+        "question": "Explain events in Solidity with an example, and why they are not state. (8 marks)",
+        "full": "An event is a mechanism by which a smart contract announces that something happened during execution. It is declared in the contract and emitted with `emit`; the node records it in the transaction log.\n\n**Working, in order.** (1) The event is declared: `event Deposited(address indexed user, uint256 amount);`. (2) A function executes and changes state: `balanceOf[msg.sender] += msg.value;`. (3) The function emits the event: `emit Deposited(msg.sender, msg.value);`. (4) The emitted data is recorded in the transaction log and receipt. (5) External applications listening for that event update their interface.\n\n**`indexed`.** A parameter marked `indexed` becomes a searchable log topic, so a client can filter the whole chain for deposit events belonging to one address. A non-anonymous event permits up to three indexed parameters in addition to the signature topic.\n\n**Why events are not state.** Events are written to the transaction log, which lives outside the contract's storage trie. Consequently: they do not change the state root, they cost far less than a storage write, and — the decisive point — a contract has no instruction that reads a past log. A contract can therefore never make logic depend on its own events.\n\n**Use.** Events are used by wallets, block explorers, frontends, monitoring systems and indexers to follow contract activity, and they support analytics over history. Storage remains the source of truth for state; events are the announcement channel to the outside world.\n\nThus events provide an efficient way for a contract to communicate activity to off-chain consumers, without paying the price of persistent storage."
+      }
+    },
+    "Setting up and Interacting with a Contract using Mist Wallet": {
+      "examAnswer": {
+        "question": "Explain interacting with a contract using Mist Wallet. (short answer)",
+        "full": "Mist was a graphical Ethereum wallet and decentralised-application browser. It shipped a user interface, a wallet and a light Ethereum node in one desktop application, so a user could call a contract without running a separate node or trusting a third-party endpoint.\n\n**Steps.** (1) Open Mist. (2) Create or import an Ethereum account. (3) Connect to a node. (4) Open the DApp or deployed contract. (5) Initiate a transaction. (6) Review and sign it. (7) Submit to the blockchain and verify after confirmation.\n\n**Why it is only historical.** Mist is discontinued. Its pattern — a graphical wallet plus a node endpoint — survives in browser-extension wallets such as MetaMask, except that those do not bundle a node. For the paper, treat Mist as ecosystem history and examinable only at recognition level."
+      }
+    },
+    "Smart Contract Examples": {
+      "scenario": "How to read a contract the way an examiner does: not as code, but as a table of legal state transitions where each function is one row.",
+      "code": [
+        {
+          "title": "A counter — the smallest state machine",
+          "lang": "solidity",
+          "snippet": "pragma solidity ^0.8.20;\n\ncontract Counter {\n    uint256 public count;\n\n    function increment() public {\n        count++;\n    }\n\n    function getCount() public view returns (uint256) {\n        return count;\n    }\n}",
+          "breakdown": [
+            ["uint256 public count", "The entire state: one number"],
+            ["increment()", "Write transition: 0 → 1 → 2 …"],
+            ["getCount() view", "Read-only; promises not to change state"],
+            ["public", "Callable by anyone — no access control here"]
+          ]
+        },
+        {
+          "title": "A token — the classic two-rule ledger",
+          "lang": "solidity",
+          "snippet": "function transfer(address to, uint256 amount) external {\n    require(balanceOf[msg.sender] >= amount, \"insufficient\");\n    balanceOf[msg.sender] -= amount;\n    balanceOf[to] += amount;\n    emit Transfer(msg.sender, to, amount);\n}\n\nfunction mint(uint256 amount) external onlyOwner {\n    balanceOf[msg.sender] += amount;\n    totalSupply += amount;\n}",
+          "breakdown": [
+            ["transfer", "Moves balance; totalSupply unchanged"],
+            ["require(...)", "The state transition is only legal if the sender can afford it"],
+            ["mint", "Owner-only; the only way supply rises"],
+            ["emit Transfer", "Every transition is announced off-chain"]
+          ]
+        }
+      ],
+      "advantages": [
+        "A demonstrated pattern for each domain: data, governance, funding, assets, conditional release.",
+        "Each example is small enough to reproduce and trace under exam conditions.",
+        "The same state-transition reading works on any contract you meet."
+      ],
+      "limitations": [
+        "All five are teaching examples; none is production-hardened.",
+        "'One address = one vote' in the voting example does not equal one human.",
+        "A token does not necessarily represent money — it is a design decision."
+      ],
+      "memoryTrick": "**Counter = data · Voting = governance · Crowdfunding = conditions · Token = assets · Escrow = conditional release.**",
+      "examAnswer": {
+        "question": "Explain smart contract examples and their applications. (8 marks)",
+        "full": "A smart contract is best understood through what it does, and the course uses five canonical examples.\n\n**1. Counter.** One state variable and one write function: `count++`. It demonstrates the minimal state machine — a read (`getCount`) and a write (`increment`). Application: any monotonically increasing record.\n\n**2. Voting.** `mapping(uint256 => uint256) votes` plus `mapping(address => bool) hasVoted`. The `vote` function requires the sender has not voted, marks them, and increments the candidate's count. Application: a shared, auditable tally. Limitation: one address does not equal one person, so real voting needs eligibility checks and Sybil resistance.\n\n**3. Crowdfunding.** Contributions are recorded, a deadline and target are checked, and funds are released on success or refunded on failure. Application: verifiable conditional funding.\n\n**4. Token (ERC-20 style).** Per-address balances with `transfer`, `approve` and `totalSupply`. Each call is a state transition: `transfer` moves balance and leaves supply unchanged; `mint` is owner-only and raises supply; `burn` lowers it. Application: fungible digital assets, loyalty points, any unit of value.\n\n**5. Escrow.** The contract holds the buyer's funds and releases them on an objectively checkable condition, or refunds on timeout. Application: freelance marketplaces and any exchange where neither party will move first.\n\nIn each case the value of the example is that the contract can be written as 'if this, then that' transitions — which is exactly what an examiner wants drawn."
+      }
+    },
+    "Smart Contract Patterns": {
+      "scenario": "The same handful of bugs recur because a contract hands control to code it does not control. A pattern is the proven structural answer — cheaper to recall than to re-derive under pressure.",
+      "code": [
+        {
+          "title": "The unsafe order, then the safe order",
+          "lang": "solidity",
+          "snippet": "// UNSAFE: send first, update later — re-entrant call sees the old balance\nfunction withdraw(uint256 amount) external {\n    require(balanceOf[msg.sender] >= amount);\n    (bool ok, ) = msg.sender.call{value: amount}(\"\");   // callee runs here\n    balanceOf[msg.sender] -= amount;                     // too late\n    require(ok, \"failed\");\n}\n\n// SAFE: checks → effects → interactions\nfunction withdraw(uint256 amount) external {\n    require(balanceOf[msg.sender] >= amount);             // checks\n    balanceOf[msg.sender] -= amount;                     // effects\n    (bool ok, ) = msg.sender.call{value: amount}(\"\");    // interactions\n    require(ok, \"failed\");\n}",
+          "breakdown": [
+            ["require(balance >= amount)", "Checks: is this transition legal?"],
+            ["balance -= amount", "Effects: commit the state change before any call out"],
+            ["msg.sender.call{...}", "Interactions: now hand control to the recipient"],
+            ["require(ok)", "Verify the external call's result — never ignore it"]
+          ],
+          "note": "Checks-effects-interactions is necessary but not always sufficient; a reentrancy guard and careful accounting may also be needed."
+        }
+      ],
+      "advantages": [
+        "Each pattern is named after the specific attack it closes, so recall is direct.",
+        "They are structural, so applying them cannot be forgotten under pressure the way a remembered rule can.",
+        "They compose: a contract can use several at once."
+      ],
+      "limitations": [
+        "A pattern is not a proof of safety — testing and review are still required.",
+        "Circuit breakers introduce centralised control, which is itself a risk.",
+        "Over-applying patterns can make a contract harder to audit."
+      ],
+      "memoryTrick": "**CEI = Check → Change → Call.** Pull payment = let the recipient collect.",
+      "examAnswer": {
+        "question": "Explain smart contract patterns and the failure each one removes. (8 marks)",
+        "full": "Smart contract patterns are reusable structural solutions to the recurring mistakes in contract development. They improve security, organisation and maintainability, and each is named after the failure it prevents.\n\n**1. Access control.** Problem: not every user should perform every action. Solution: a modifier such as `onlyOwner` applied to sensitive functions, so authorisation is decided in one place rather than at every doorway.\n\n**2. Checks–Effects–Interactions.** Problem: if a contract sends Ether before updating its own state, the recipient can re-enter while the old balance is still recorded — a reentrancy vulnerability. Solution: validate first, then update internal state, then make the external call. Memory: Check → Change → Call.\n\n**3. Pull payment.** Problem: a contract pushing payments to many recipients lets one failing recipient interfere with the whole batch. Solution: credit what each user is owed and let them withdraw individually, so payouts cannot block each other.\n\n**4. Factory.** Problem: deploying many similar contracts by hand is inefficient and error-prone. Solution: a factory contract that deploys children, centralising creation while each child keeps its own address and state.\n\n**5. Circuit breaker.** Problem: a contract may be found vulnerable after deployment and cannot be patched. Solution: a pause mechanism guarded by `whenNotPaused`, so sensitive operations can be halted during an incident. The trade-off is centralised control, which must be governed carefully.\n\nUsed together these patterns produce contracts that are more secure, more reusable and easier to maintain — which is why they are examined as a set rather than as individual tricks."
+      }
+    }
+  }
+}

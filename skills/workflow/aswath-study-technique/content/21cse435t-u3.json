@@ -1,0 +1,698 @@
+{
+  "unit": 3,
+  "glossary": {
+    "EOA": {
+      "definition": "An externally owned account controlled by a private key, holding no code, that can sign and originate transactions.",
+      "whyItMatters": "Only an EOA can start a transaction, so every contract action on the chain is ultimately reached through one.",
+      "confusions": [
+        "An EOA has no bytecode at its address.",
+        "It has a nonce that increments each time it sends a transaction."
+      ],
+      "topics": ["External Owned Account (EOAs)", "Working with EOA Accounts"]
+    },
+    "Contract account": {
+      "definition": "An account created by a deployment transaction, holding bytecode and storage, with no private key.",
+      "whyItMatters": "It can hold and move value but can never act first; it only executes when called.",
+      "confusions": [
+        "A contract cannot initiate a transaction, ever.",
+        "It can send ether, but only as an effect of a call it received."
+      ],
+      "topics": ["Contract Account", "Working with Contract Accounts"]
+    },
+    "Keypair": {
+      "definition": "A private key and the public key derived from it, where the private key signs and the public key verifies.",
+      "whyItMatters": "Signing is what authorises a transaction, and it works without ever revealing the secret.",
+      "confusions": [
+        "The address is derived from the public key, not stored as the key.",
+        "Losing the private key loses the account; there is no reset."
+      ],
+      "topics": ["Keypairs", "MetaMask"]
+    },
+    "dApp": {
+      "definition": "A decentralised application: smart contracts holding the rules, an interface to reach them, a wallet to sign, and off-chain storage for bulk data.",
+      "whyItMatters": "The exam question is almost always 'what are the components and which are on-chain'.",
+      "confusions": [
+        "Only the contract is on-chain; the interface, wallet and storage are not.",
+        "An oracle is often the fifth component, bridging outside data."
+      ],
+      "topics": ["Blockchain Application Components", "Implementing Dapps"]
+    },
+    "Geth": {
+      "definition": "The reference Ethereum client, written in Go, which validates blocks, executes the EVM and exposes JSON-RPC.",
+      "whyItMatters": "It is the most widely deployed client and the one whose commands exam traces quote.",
+      "confusions": [
+        "geth holds the chain; it is not a wallet, though it manages keys in its keystore.",
+        "geth attach opens a console on a running node; it does not start one."
+      ],
+      "topics": ["Go-Ethereum Client (geth)", "Ethereum Clients"]
+    },
+    "MetaMask": {
+      "definition": "A browser-extension wallet that holds the user's private key and signs transactions locally before relaying them to a node over JSON-RPC.",
+      "whyItMatters": "It is the canonical example of identity held client-side while data is held by the node.",
+      "confusions": [
+        "MetaMask is not a node: it does not validate blocks or hold the chain.",
+        "The key never leaves the extension; only signed transactions travel."
+      ],
+      "topics": ["MetaMask", "External Owned Account (EOAs)"]
+    }
+  },
+  "topics": [
+    {
+      "name": "Blockchain Application Components",
+      "definition": "A decentralised application is composed of a smart contract for the rules, a user interface, a wallet that signs, off-chain storage for bulk data, and typically an oracle for outside facts.",
+      "problem": "A single contract cannot present itself, cannot hold a user's key, and cannot store bulk data economically. Each missing capability needs a component with a different trust model.",
+      "mechanism": [
+        "Smart contract: holds the rules and the state that must be agreed and proved; the only on-chain logic.",
+        "User interface: web or mobile front end that reads state and logs and constructs transactions.",
+        "Wallet: holds the private key and signs; identity lives here, not on-chain.",
+        "Off-chain storage: a content-addressed store such as IPFS or Swarm for anything too large or too private for the ledger.",
+        "Oracle: supplies a fact the contract cannot compute from its own state, such as a price or a delivery flag."
+      ],
+      "terminology": [
+        ["On-chain", "Recorded in the ledger and agreed by consensus."],
+        ["Content-addressed", "Named by the hash of the content."],
+        ["Oracle", "Trusted external data feed."],
+        ["Signer", "The component holding the key."]
+      ],
+      "examAnswer": {
+        "question": "List the components of a dApp and state what each contributes.",
+        "points": [
+          "Smart contract: the rules and shared state; the only part on-chain.",
+          "User interface: presents state and constructs transactions; off-chain.",
+          "Wallet: holds the key and signs; identity is client-side.",
+          "Off-chain storage (IPFS/Swarm): bulk or private data, referenced by hash.",
+          "Oracle: brings in facts the chain cannot see for itself.",
+          "Design point: only the contract needs consensus; the rest is replaceable."
+        ]
+      },
+      "traps": [
+        "Do not say the UI is on-chain - it is not.",
+        "The wallet holds identity, not the chain's data.",
+        "An oracle is a trust dependency, not a component you can ignore."
+      ],
+      "revision": "Contract (on-chain rules) + UI (presents) + wallet (signs) + off-chain storage (bulk) + oracle (outside facts).",
+      "recall": [
+        ["Which component is the only one on-chain?", "The smart contract."],
+        ["Where does identity live?", "In the wallet, as a private key held client-side."],
+        ["What does an oracle supply?", "A fact from outside the chain that the contract cannot compute."],
+        ["Why keep bulk data off-chain?", "Storage on-chain is expensive and public; bulk belongs in a content-addressed store."]
+      ]
+    },
+    {
+      "name": "Design Methodology for Blockchain Applications",
+      "definition": "A design methodology that names the actors and the trust boundary before choosing any technology, and writes the smart contracts last, once the data model is settled.",
+      "problem": "Teams usually pick blockchain first and problems second, producing a slow expensive database. The methodology exists to make 'do not use a chain' a legitimate outcome of the design.",
+      "mechanism": [
+        "Name the business problem and the actors: who writes, who reads, who is trusted.",
+        "Decide whether a chain is needed at all - if one organisation controls the data, use a database.",
+        "Choose the network type: public, permissioned or consortium, based on who may write.",
+        "Model the data: what must be on-chain and proved, and what can live off-chain.",
+        "Design the contract as a state machine: states and legal transitions.",
+        "Deploy, then govern: decide who may upgrade or pause, and how disputes resolve."
+      ],
+      "terminology": [
+        ["Trust boundary", "The line across which parties do not trust each other."],
+        ["Permissioned", "Only identified writers may commit."],
+        ["State machine", "States plus legal transitions."],
+        ["Governance", "Who may change the deployed rules."]
+      ],
+      "examAnswer": {
+        "question": "Give a step-by-step methodology for designing a blockchain application.",
+        "points": [
+          "Name the problem and the actors, and locate the trust boundary.",
+          "Justify blockchain at all: no shared owner means a database may win.",
+          "Choose network type from who may write: public, permissioned, consortium.",
+          "Split the data: on-chain for facts that must be proved, off-chain for bulk.",
+          "Design the contract as an explicit state machine.",
+          "Deploy with governance decided in advance: upgrade, pause, dispute."
+        ]
+      },
+      "traps": [
+        "The first step is not 'choose a chain' - it is 'is a chain needed'.",
+        "Contract design comes after the data model, not before.",
+        "Governance must be decided at design time; retrofitting it is a fork."
+      ],
+      "revision": "Problem -> actors -> is a chain needed -> network type -> data model (on/off chain) -> contract state machine -> deploy + govern.",
+      "recall": [
+        ["What is the first design decision?", "Whether a blockchain is needed at all."],
+        ["When do you design the contract?", "Last, after the data model and trust boundary are settled."],
+        ["What decides public versus permissioned?", "Who is allowed to write to the shared record."],
+        ["Why decide governance before deployment?", "Changing rules after deployment requires a fork or an upgrade path that must already exist."]
+      ]
+    },
+    {
+      "name": "Blockchain Application Templates",
+      "definition": "A template is a ready-made shape for a recurring scenario - escrow, exchange, provenance, identity - fixing the parties and their state transitions, leaving only the business rules to supply.",
+      "problem": "Most applications are instances of a handful of party-and-transition patterns. Re-deriving the shape each time invites missing a party or a transition.",
+      "mechanism": [
+        "Identify the scenario's parties and which of them distrust each other.",
+        "Match it to a template: escrow (buyer, seller), exchange (traders, order book), provenance (supplier, consumer), identity (holder, verifier), registry (owner, registrar), notarisation (author, notary).",
+        "Check the match against who writes and who reads; the wrong template costs more than building fresh.",
+        "Instantiate the template with the business rules: amounts, deadlines, dispute paths.",
+        "Reuse the state transitions unchanged - they are the part a template contributes."
+      ],
+      "terminology": [
+        ["Template", "A party-and-transition shape, not a framework."],
+        ["Provenance", "Signed custody trail of an item."],
+        ["Registry", "Authoritative mapping of identifiers to owners."],
+        ["Notarisation", "Timestamped attestation by a trusted party."]
+      ],
+      "examAnswer": {
+        "question": "Match blockchain application templates to business scenarios.",
+        "points": [
+          "Escrow: buyer, seller and a condition; funds held until release or refund.",
+          "Exchange: traders against an order book with settlement.",
+          "Provenance: supplier to consumer with a signed custody trail.",
+          "Identity: holder and verifier, credentials checkable without contacting the issuer.",
+          "Registry: owner and registrar, authoritative ownership mapping.",
+          "Notarisation: author and notary, timestamped attestation.",
+          "Rule: the template fixes the parties; the business supplies the rules."
+        ]
+      },
+      "traps": [
+        "A template is not a framework or a library - it is a shape of parties and transitions.",
+        "Choosing the wrong template is worse than building from scratch.",
+        "The template does not supply the business rules; you still write those."
+      ],
+      "revision": "Escrow(buyer, seller) · Exchange(traders, book) · Provenance(supplier, consumer) · Identity(holder, verifier) · Registry(owner, registrar) · Notary(author, notary).",
+      "recall": [
+        ["What does a template actually fix?", "The parties and their legal state transitions."],
+        ["When is a template the wrong choice?", "When the parties do not match who writes and who reads in the scenario."],
+        ["Which template fits a custody trail for goods?", "Provenance."],
+        ["Which fits verifiable credentials?", "Identity."]
+      ]
+    },
+    {
+      "name": "Ethereum Clients",
+      "definition": "A client is a program that speaks the Ethereum protocol - validating blocks, executing transactions and holding chain state - and several independent implementations exist.",
+      "problem": "A chain that depends on one implementation has one point of failure, both technical and social. Multiple clients keep the protocol honest and the network recoverable.",
+      "mechanism": [
+        "Geth (Go): the reference and most widely deployed client.",
+        "Besu (Java): enterprise-oriented, permissioned-friendly.",
+        "Nethermind (C#): fast, popular for infrastructure providers.",
+        "Erigon (Go): optimised for archive and RPC performance.",
+        "pyethapp (Python): a research implementation, largely abandoned.",
+        "A client validates and executes; the protocol is the shared spec, so they interoperate."
+      ],
+      "terminology": [
+        ["Client", "An implementation of the protocol."],
+        ["Full node", "Validates and stores the whole chain."],
+        ["Light client", "Verifies headers, trusts others for state."],
+        ["Implementation diversity", "Multiple independent clients on one network."]
+      ],
+      "examAnswer": {
+        "question": "Compare Ethereum clients and state which dominates.",
+        "points": [
+          "Geth (Go) is the reference client and the most widely deployed.",
+          "Besu (Java) targets enterprise and permissioned deployments.",
+          "Nethermind (C#) is fast and common in infrastructure.",
+          "Erigon (Go) optimises storage and RPC performance.",
+          "pyethapp (Python) is a research client, largely abandoned.",
+          "Why it matters: one implementation is one point of failure."
+        ]
+      },
+      "traps": [
+        "Geth dominates but is not the only client - saying so loses the 'diversity' mark.",
+        "A client is not a wallet; wallets hold keys, clients validate chains.",
+        "pyethapp is deprecated - mention it as history, not as a recommendation."
+      ],
+      "revision": "Geth=Go (reference), Besu=Java (enterprise), Nethermind=C# (fast), Erigon=Go (optimised), pyethapp=Python (abandoned).",
+      "recall": [
+        ["Which client is the reference implementation?", "Geth, written in Go."],
+        ["Why does implementation diversity matter?", "It removes a single point of technical and social failure."],
+        ["Which client targets enterprise/permissioned use?", "Hyperledger Besu."],
+        ["Which client is deprecated?", "pyethapp."]
+      ]
+    },
+    {
+      "name": "Go-Ethereum Client (geth)",
+      "definition": "geth is the reference Ethereum client, written in Go, whose subcommands and flags cover the whole life of a node and an account.",
+      "problem": "One binary must serve as a full node, a miner or validator, and an interactive console. Subcommands and flags exist so the same program can take each role.",
+      "mechanism": [
+        "geth init --datadir ./node: creates the chain and keystore in that folder.",
+        "geth account new: creates a new key.",
+        "geth --datadir ./node --networkid 1 --http --port 8545: runs the node and exposes JSON-RPC.",
+        "geth attach http://localhost:8545: opens a JavaScript console against the running node.",
+        "From the console: eth.accounts, personal.newAccount(), personal.unlockAccount(), eth.sendTransaction.",
+        "geth --syncmode snap: syncs faster by trusting recent checkpoints from peers."
+      ],
+      "terminology": [
+        ["datadir", "Folder holding chain data and keys."],
+        ["networkid", "Which network to join."],
+        ["--http", "Enables the HTTP JSON-RPC endpoint."],
+        ["snap sync", "Snapshot-based fast sync."],
+        ["console", "Interactive JS shell over RPC."]
+      ],
+      "examAnswer": {
+        "question": "Give the geth commands and options you are expected to know.",
+        "points": [
+          "geth init --datadir ./node creates the chain and keystore.",
+          "geth account new creates a key; geth attach opens a console on a running node.",
+          "geth --datadir --networkid --http --port runs the node and exposes RPC.",
+          "In console: eth.accounts, personal.newAccount(), personal.unlockAccount().",
+          "Deploy with eth.sendTransaction({from, data: bytecode}) and no recipient.",
+          "--syncmode snap trades full validation of old history for speed."
+        ]
+      },
+      "traps": [
+        "geth attach does not start a node - it connects to one already running.",
+        "init creates the chain; it does not join mainnet on its own.",
+        "snap sync is faster but trusts checkpoints; say what is traded away."
+      ],
+      "revision": "geth init -> account new -> run with --datadir --networkid --http --port -> attach -> eth.sendTransaction.",
+      "recall": [
+        ["Which geth command opens a console?", "geth attach <endpoint>."],
+        ["What does --datadir control?", "Where chain data and keys are stored."],
+        ["What does snap sync trade away?", "Full independent validation of old history, in exchange for speed."],
+        ["Which console command creates an account?", "personal.newAccount()."]
+      ]
+    },
+    {
+      "name": "Python Ethereum Client (pyethapp)",
+      "definition": "pyethapp was a Python implementation of the Ethereum protocol, used for research and scripting, and is now abandoned.",
+      "problem": "Researchers needed a readable implementation to experiment with protocol changes. Python offered clarity at the cost of performance and maintenance.",
+      "mechanism": [
+        "It implemented the Ethereum protocol in Python with an emphasis on readability.",
+        "It was used for research and scripting rather than production nodes.",
+        "The protocol moved faster than a small project could track, so it was abandoned.",
+        "Modern Python tooling talks to a client over JSON-RPC (web3.py) instead of implementing the protocol."
+      ],
+      "terminology": [
+        ["Research client", "An implementation for experiment, not production."],
+        ["web3.py", "The Python library that talks to a node over RPC."],
+        ["Deprecated", "No longer maintained."]
+      ],
+      "examAnswer": {
+        "question": "What was pyethapp and what replaced its role?",
+        "points": [
+          "A Python implementation of the Ethereum protocol, oriented to research.",
+          "It was never a production client.",
+          "It was abandoned when the protocol outran the project.",
+          "Its role is now filled by libraries such as web3.py over JSON-RPC."
+        ]
+      },
+      "traps": [
+        "Do not present pyethapp as a usable client - the paper asks for recognition.",
+        "web3.py is a library, not a client: it needs a node behind it."
+      ],
+      "revision": "pyethapp = Python research client, abandoned. Modern Python talks to a node via web3.py.",
+      "recall": [
+        ["Why was pyethapp abandoned?", "The protocol moved too fast for a small project to track."],
+        ["What do Python developers use instead?", "web3.py, a library that calls a node over JSON-RPC."]
+      ]
+    },
+    {
+      "name": "Ethereum Languages",
+      "definition": "Any language that compiles deterministically to EVM bytecode can deploy a contract; Solidity and Vyper are the two that matter, with opposite design philosophies.",
+      "problem": "The EVM is deterministic and replicated, so a contract language cannot offer floating point, wall-clock time or non-deterministic input. That constraint shapes every language on the platform.",
+      "mechanism": [
+        "Compilation: source -> EVM bytecode plus an ABI describing the interface.",
+        "Determinism: no floating point, no wall-clock time, no unbounded sequences that consensus cannot reproduce.",
+        "Solidity: C-like, statically typed, large tooling ecosystem, feature-rich.",
+        "Vyper: Python-like, deliberately minimal, aiming at auditability by removing features.",
+        "Both produce the same bytecode form, so trade-offs are about what the language lets you write."
+      ],
+      "terminology": [
+        ["EVM bytecode", "The executable form deployed on-chain."],
+        ["ABI", "The declared interface for calling the contract."],
+        ["Determinism", "Same input always produces same state change."],
+        ["Auditability", "How easily a reader can verify intent."]
+      ],
+      "examAnswer": {
+        "question": "Name the Ethereum contract languages and their trade-offs.",
+        "points": [
+          "Solidity: C-like, statically typed, the industry default with the largest ecosystem.",
+          "Vyper: Python-like, minimal by design, easier to audit.",
+          "Both compile to EVM bytecode and must be deterministic.",
+          "Determinism forbids floating point, wall-clock time and outside input.",
+          "Choice: Solidity for tooling and features, Vyper for small auditable contracts."
+        ]
+      },
+      "traps": [
+        "Determinism is a protocol requirement, not a language preference.",
+        "Solidity is not the only option - saying so loses the comparison marks.",
+        "The ABI is not the bytecode; one is the interface, the other is the code."
+      ],
+      "revision": "Solidity: C-like, big ecosystem. Vyper: Python-like, minimal, auditable. Both -> EVM bytecode, both deterministic.",
+      "recall": [
+        ["Why can a contract language not use floating point?", "Every node must compute the identical result; floating point is platform-dependent."],
+        ["What does Vyper optimise for?", "Auditability by removing features."],
+        ["What is the ABI?", "The declared call interface for the deployed contract."],
+        ["Do Solidity and Vyper produce different bytecode forms?", "No - both compile to EVM bytecode; the difference is what you may write."]
+      ]
+    },
+    {
+      "name": "TestRPC",
+      "definition": "TestRPC, later renamed Ganache, is a local fake chain that mines a block instantly for each transaction, making the write-test-deploy loop take seconds.",
+      "problem": "Waiting for real blocks makes iterating on a contract unbearable. A developer needs the same interface with the latency removed.",
+      "mechanism": [
+        "It exposes the same JSON-RPC interface as a real node.",
+        "Each transaction is mined into its own block immediately, so tests do not wait.",
+        "Accounts are pre-funded, so no faucet is needed.",
+        "It simulates the chain, not the network: no real peers, fees or latency.",
+        "Consequence: it cannot tell you how a contract behaves under contention or real gas prices."
+      ],
+      "terminology": [
+        ["TestRPC / Ganache", "Local instant-block chain."],
+        ["Fake chain", "A chain with simulated consensus."],
+        ["Deterministic test", "A test that yields the same result every run."]
+      ],
+      "examAnswer": {
+        "question": "What does TestRPC simulate and why do developers use it?",
+        "points": [
+          "A local chain with the same RPC interface as a real node.",
+          "Every transaction is mined instantly, so the loop is seconds not minutes.",
+          "Accounts are pre-funded, removing setup friction.",
+          "It is deterministic, so tests are reproducible.",
+          "Limitation: no peers, no real fees, no contention - not a network simulation."
+        ]
+      },
+      "traps": [
+        "TestRPC does not simulate network latency or gas markets.",
+        "Ganache is the same tool renamed - do not treat them as different products.",
+        "Instant mining means you cannot test reorg or confirmation-depth behaviour on it."
+      ],
+      "revision": "TestRPC = Ganache: local chain, instant blocks, pre-funded accounts. Simulates the chain, not the network.",
+      "recall": [
+        ["What is TestRPC called now?", "Ganache."],
+        ["What does it deliberately not simulate?", "The network: peers, fees, latency and contention."],
+        ["Why does instant mining help?", "The write-test-deploy loop closes in seconds, so tests run repeatedly."]
+      ]
+    },
+    {
+      "name": "Mist Ethereum Wallet",
+      "definition": "Mist was a desktop wallet and built-in Ethereum browser running its own light node; it is discontinued and examinable only as ecosystem history.",
+      "problem": "Early users needed one application that could both browse contract interfaces and hold keys while running a node locally.",
+      "mechanism": [
+        "It combined a wallet, a browser and a light Ethereum node in one desktop application.",
+        "Contracts were interacted with through ordinary web pages rendered inside it.",
+        "It was discontinued as extension wallets and remote RPC became the norm.",
+        "Its successor pattern is MetaMask plus a node endpoint."
+      ],
+      "terminology": [
+        ["Light node", "Verifies headers, not all state."],
+        ["Built-in browser", "A browser shipped inside the wallet application."]
+      ],
+      "examAnswer": {
+        "question": "What was Mist and why is it only historically relevant?",
+        "points": [
+          "A desktop wallet with a built-in browser and a light Ethereum node.",
+          "It let users call contracts without a separate node or a trusted RPC.",
+          "It is discontinued, so only its historical role is examinable.",
+          "Its pattern survives as an extension wallet plus a node endpoint."
+        ]
+      },
+      "traps": [
+        "Do not describe Mist as current tooling.",
+        "Do not merge Mist and MetaMask: one bundles a node, the other does not."
+      ],
+      "revision": "Mist = desktop wallet + browser + light node, discontinued. Survivor pattern: MetaMask + RPC.",
+      "recall": [
+        ["What did Mist bundle that a modern extension does not?", "A light Ethereum node."],
+        ["Is Mist examinable as a tool or as history?", "History only - it is discontinued."]
+      ]
+    },
+    {
+      "name": "MetaMask",
+      "definition": "MetaMask is a browser-extension wallet that holds the private key, signs transactions locally, and relays them to a node over JSON-RPC.",
+      "problem": "A user should be able to authorise transactions without running a node and without handing their private key to a server. That requires the key to stay client-side while the data stays with a node.",
+      "mechanism": [
+        "The dApp constructs a transaction and hands it to the extension.",
+        "MetaMask shows it to the user for approval.",
+        "On approval it signs with the user-held private key inside the extension.",
+        "The signed transaction is broadcast to a node over JSON-RPC.",
+        "The node validates and relays it to peers; the key never travelled.",
+        "The EOA address is the last 20 bytes of keccak256 of the public key, so it can be published freely."
+      ],
+      "terminology": [
+        ["Extension wallet", "Key holder that runs in the browser."],
+        ["JSON-RPC", "The protocol between wallet and node."],
+        ["Signing", "Producing a signature only the private key can make."],
+        ["Provider", "The RPC endpoint the wallet talks to."]
+      ],
+      "examAnswer": {
+        "question": "How does MetaMask authorise a transaction?",
+        "points": [
+          "The dApp builds the transaction: to, value, data.",
+          "The user approves it inside the extension.",
+          "MetaMask signs with the user-held private key; the key never leaves the machine.",
+          "The signed transaction is sent to a node over JSON-RPC.",
+          "The node verifies the signature against the public key and relays it.",
+          "MetaMask is not a node: it holds identity, the node holds data."
+        ]
+      },
+      "traps": [
+        "MetaMask does not run a full node or validate blocks.",
+        "The private key is never sent anywhere - only the signature travels.",
+        "Approving in the UI is not signing; signing is what authorises."
+      ],
+      "revision": "dApp builds tx -> user approves -> extension signs with private key -> JSON-RPC to node -> node verifies and relays.",
+      "recall": [
+        ["Does MetaMask validate blocks?", "No - it is a wallet, not a node."],
+        ["What actually authorises the transaction?", "The signature produced with the private key."],
+        ["How is the address derived?", "Last 20 bytes of keccak256 of the public key."],
+        ["What travels to the node?", "The signed transaction, never the private key."]
+      ]
+    },
+    {
+      "name": "Truffle",
+      "definition": "Truffle bundles the everyday contract workflow - compile, test, migrate, console - behind one project layout, and its migrations deploy contracts in order while recording addresses.",
+      "problem": "Compiling, testing, deploying and poking at a contract used to be four unrelated tools with no record of what was deployed where. A standard layout and numbered migrations make deployment repeatable.",
+      "mechanism": [
+        "truffle compile: builds artifacts (bytecode + ABI) from contracts/.",
+        "truffle test: runs the suite against a local chain.",
+        "truffle migrate: executes numbered migration scripts in order, deploying contracts.",
+        "Addresses of deployed contracts are recorded, so later code can find them.",
+        "truffle console: an interactive shell against the deployed network.",
+        "Underneath it is still compiler + node + wallet - Truffle is convenience, not a new chain."
+      ],
+      "terminology": [
+        ["Migration", "A numbered script that deploys and records."],
+        ["Artifact", "Compiled bytecode plus ABI."],
+        ["Migration order", "Deterministic deployment sequence."]
+      ],
+      "examAnswer": {
+        "question": "Describe the Truffle workflow and why migrations matter.",
+        "points": [
+          "truffle compile produces bytecode and ABI.",
+          "truffle test runs the suite against a local chain.",
+          "truffle migrate runs numbered scripts in order, deploying contracts.",
+          "Migrations record deployed addresses, making deployment repeatable.",
+          "truffle console pokes the live deployment.",
+          "It is a convenience layer over compiler, node and wallet."
+        ]
+      },
+      "traps": [
+        "truffle migrate deploys; truffle compile only builds.",
+        "Truffle is not a chain or a consensus - it is tooling.",
+        "Migrations are ordered files, not an ad-hoc command."
+      ],
+      "revision": "compile -> test -> migrate (numbered scripts, addresses recorded) -> console.",
+      "recall": [
+        ["Which command deploys contracts?", "truffle migrate."],
+        ["Why are migrations numbered?", "So deployment order is deterministic and repeatable."],
+        ["What does compile produce?", "Bytecode and the ABI."],
+        ["Is Truffle a chain client?", "No - it orchestrates compiler, node and wallet."]
+      ]
+    },
+    {
+      "name": "External Owned Account (EOAs)",
+      "definition": "An externally owned account is controlled by a private key, holds no code, and is the only kind of account that can originate a transaction.",
+      "problem": "The chain needs an origin for every action. A contract cannot act first, so something key-controlled must be able to sign and pay.",
+      "mechanism": [
+        "It is created from a keypair; the address is derived from the public key.",
+        "It holds a balance and a nonce that increments with each transaction it sends.",
+        "It has no code, so every decision it makes is made by the key holder.",
+        "It pays gas and signs; it is the only account that can start a transaction.",
+        "Everything on-chain is ultimately reached through an EOA."
+      ],
+      "terminology": [
+        ["Nonce", "Per-account transaction counter."],
+        ["Originate", "To start a transaction."],
+        ["Key-controlled", "Authority is the private key."]
+      ],
+      "examAnswer": {
+        "question": "What is an EOA and why is it the only account that can start a transaction?",
+        "points": [
+          "Controlled by a private key; the address derives from the public key.",
+          "It holds no code at its address.",
+          "It holds a balance and a nonce, and pays gas.",
+          "Only it can sign, so only it can originate a transaction.",
+          "Contracts act only when called, so every chain action traces back to an EOA."
+        ]
+      },
+      "traps": [
+        "An EOA is not 'empty': it has a balance and a nonce, just no code.",
+        "The nonce belongs to the account and increments per transaction.",
+        "A contract cannot start a transaction, on a timer or otherwise."
+      ],
+      "revision": "EOA: private key, no code, balance + nonce, can originate a transaction and pay gas.",
+      "recall": [
+        ["What does an EOA hold that a contract account also holds?", "A balance and a nonce."],
+        ["What does an EOA lack that a contract has?", "Bytecode at its address."],
+        ["Can an EOA be called?", "Only as the sender of a transaction; it has no code to execute."]
+      ]
+    },
+    {
+      "name": "Contract Account",
+      "definition": "A contract account is created by a deployment transaction, holds bytecode and storage, has no private key, and acts only when called by an EOA or another contract.",
+      "problem": "Rules need a permanent home that cannot sign and cannot be bribed - something that responds deterministically and holds value without a person in the loop.",
+      "mechanism": [
+        "An EOA sends a transaction whose data is bytecode and whose recipient is empty.",
+        "The node executes the constructor, creating the account.",
+        "The account then has an address, code and its own storage trie.",
+        "It has no private key, so it can never initiate a transaction.",
+        "It can hold and move ether, but only as the effect of a call it received.",
+        "A factory contract creating other contracts still does so inside a transaction it was called by."
+      ],
+      "terminology": [
+        ["Deployment transaction", "The transaction that creates the account."],
+        ["Storage trie", "The contract's own storage, rooted in its account."],
+        ["Factory", "A contract that deploys other contracts."]
+      ],
+      "examAnswer": {
+        "question": "How is a contract account created and what can it do?",
+        "points": [
+          "Created by a deployment transaction carrying bytecode and no recipient.",
+          "The constructor runs once, at creation.",
+          "It has an address, code and its own storage trie.",
+          "It has no private key and cannot originate a transaction.",
+          "It can hold and send ether as an effect of a call.",
+          "Even a factory deploys inside a transaction it was called by."
+        ]
+      },
+      "traps": [
+        "A contract can never act first - no timers, no self-initiated sends.",
+        "It has no keypair; its authority is its code.",
+        "Deployment is the only moment the constructor runs."
+      ],
+      "revision": "EOA sends tx (data=bytecode, no to) -> constructor runs -> account with address + code + storage -> only acts when called.",
+      "recall": [
+        ["Can a contract account initiate a transaction?", "No - it only executes when called."],
+        ["When does the constructor run?", "Once, at deployment."],
+        ["How does a factory contract deploy others?", "Inside a transaction that was sent to the factory itself."],
+        ["Does a contract have a nonce?", "Yes, it has an account nonce like an EOA."]
+      ]
+    },
+    {
+      "name": "Keypairs",
+      "definition": "A keypair is a private key and its derived public key: the private key signs, the public key verifies, and the address is derived from the public key by hashing.",
+      "problem": "A transaction must be attributable to its author without transmitting a secret. Asymmetric signatures provide exactly that property.",
+      "mechanism": [
+        "Private key: 32 bytes of entropy, kept secret.",
+        "Public key: a 64-byte point on secp256k1, derived from the private key.",
+        "Signing: the private key produces a signature over the transaction.",
+        "Verification: anyone can check that signature using only the public key.",
+        "Address: the last 20 bytes of keccak256 of the public key.",
+        "Recovery is impossible from the address, because hashing destroys the structure."
+      ],
+      "terminology": [
+        ["secp256k1", "The elliptic curve used for signing."],
+        ["Signature", "Proof produced by the private key."],
+        ["keccak256", "The hash used to derive an address."],
+        ["Asymmetric", "Sign with private, verify with public."]
+      ],
+      "examAnswer": {
+        "question": "Explain the roles of the private key, public key and address.",
+        "points": [
+          "Private key: 32 bytes, secret, produces signatures.",
+          "Public key: derived from the private key, used to verify.",
+          "Address: last 20 bytes of keccak256 of the public key.",
+          "Signing is asymmetric, so a transaction is attributable without revealing the secret.",
+          "The derivation is one-way: an address cannot be turned back into a key.",
+          "Losing the private key loses the account permanently."
+        ]
+      },
+      "traps": [
+        "The address is not the public key - it is a hash of it.",
+        "Never say the public key is secret or the private key is shareable.",
+        "Hashing is one-way, which is why publishing an address is safe."
+      ],
+      "revision": "private key (32B) -> public key (secp256k1, 64B) -> keccak256 -> last 20 bytes = address.",
+      "recall": [
+        ["How many bytes is a private key?", "32 bytes."],
+        ["How is the address obtained?", "Last 20 bytes of keccak256 of the public key."],
+        ["What property makes publishing an address safe?", "The derivation is one-way - hashing cannot be reversed."],
+        ["Which key verifies a signature?", "The public key."]
+      ]
+    },
+    {
+      "name": "Working with EOA Accounts",
+      "definition": "An EOA's lifecycle is create or import, back up the secret, fund the address, then unlock it to sign - and step two is the one people skip.",
+      "problem": "A key is the entire account. Operational mistakes in creation or backup are unrecoverable, so the sequence matters more than the commands.",
+      "mechanism": [
+        "Create with geth account new (or import an existing key).",
+        "Back up the key or seed phrase - there is no reset path.",
+        "Fund the address: a faucet on a test chain, purchase or mining on mainnet.",
+        "Unlock for signing: personal.unlockAccount(acct, \"\", 0).",
+        "Send a transaction; the nonce increments."
+      ],
+      "terminology": [
+        ["Faucet", "Test-network funding source."],
+        ["Seed phrase", "Human-readable backup of a key."],
+        ["Unlock", "Make the key available to sign."]
+      ],
+      "examAnswer": {
+        "question": "Give the sequence for getting a usable EOA.",
+        "points": [
+          "Create (geth account new) or import the key.",
+          "Back up the key or seed phrase immediately - loss is permanent.",
+          "Fund the address: faucet on test nets, purchase or mining on mainnet.",
+          "Unlock locally to sign: personal.unlockAccount.",
+          "Send a transaction; the account nonce increments."
+        ]
+      },
+      "traps": [
+        "Funding is required before an account can pay gas.",
+        "An unlocked account is still protected by the key; unlocking is local.",
+        "There is no account recovery - say so rather than implying support."
+      ],
+      "revision": "create/import -> back up -> fund (faucet/purchase) -> unlock -> send tx (nonce++).",
+      "recall": [
+        ["Which step is most often skipped?", "Backing up the key or seed phrase."],
+        ["How is a test account funded?", "From a faucet."],
+        ["What does unlocking allow?", "Signing transactions locally."],
+        ["What increments when an EOA sends?", "Its nonce."]
+      ]
+    },
+    {
+      "name": "Working with Contract Accounts",
+      "definition": "Deploying means sending compiled bytecode in a transaction; invoking means a second transaction to that address with the function selector and encoded arguments; reading executes code without changing state.",
+      "problem": "A contract must be created, then used, then inspected - and those are three different operations with different costs and side effects.",
+      "mechanism": [
+        "Compile: produce bytecode and ABI.",
+        "Deploy: send a transaction with data = bytecode and no recipient.",
+        "Read the address from the receipt's contractAddress.",
+        "Call: send a transaction to that address with the 4-byte selector plus encoded args (costs gas, may change state).",
+        "Read: eth.call with the same encoding, which executes but changes nothing and costs no gas."
+      ],
+      "terminology": [
+        ["Selector", "First 4 bytes of keccak256 of the function signature."],
+        ["ABI", "Encoding rules for arguments."],
+        ["eth.call", "Read-only execution."]
+      ],
+      "examAnswer": {
+        "question": "Describe deploying, invoking and reading a contract account.",
+        "points": [
+          "Compile to bytecode plus ABI.",
+          "Deploy with a transaction carrying bytecode and no recipient.",
+          "Read the address from the receipt.",
+          "Invoke with a transaction to the address carrying selector and args; costs gas.",
+          "Read with eth.call, which executes without changing state and costs no gas."
+        ]
+      },
+      "traps": [
+        "A call is not a read: eth.call is the read, eth.sendTransaction is the state change.",
+        "Deployment must have no recipient or you are calling instead.",
+        "The selector is not the same as the ABI."
+      ],
+      "revision": "compile -> deploy (no to, data=bytecode) -> address from receipt -> call (to + selector, gas) / read (eth.call, free).",
+      "recall": [
+        ["Where does the contract address come from?", "The deployment receipt."],
+        ["Which operation costs no gas?", "eth.call, the read-only execution."],
+        ["What is the selector?", "The first 4 bytes of keccak256 of the function signature."],
+        ["What can a call change that a read cannot?", "State, because it executes and persists its effects."]
+      ]
+    }
+  ]
+}

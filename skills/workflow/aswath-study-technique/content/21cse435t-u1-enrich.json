@@ -1,0 +1,43 @@
+{
+  "topics": {
+    "Blockchain Evolution": {
+      "advantages": [
+        "Removes the trusted central party across organisations, which is the only saving that pays for the overhead.",
+        "One shared history removes duplicated reconciliation work.",
+        "Any participant can verify the record independently."
+      ],
+      "limitations": [
+        "Much slower and dearer than a database for the same write.",
+        "Governance has no natural authority — decisions become social.",
+        "Recovery from error requires consensus, not an admin action."
+      ],
+      "memoryTrick": "**Central ledger → copies → hash links → consensus → contracts.** Each step removes one trusted party."
+    },
+    "Blockchain Structure": {
+      "memoryTrick": "**Header proves, body carries.** Previous hash + Merkle root live in the header."
+    },
+    "Blockchain Characteristics": {
+      "memoryTrick": "**Every property is a mechanism:** immutability←hash links, decentralisation←replication, transparency←public data, integrity←Merkle root."
+    },
+    "Blockchain Application Example: Escrow": {
+      "scenario": "A freelance marketplace: the client will not pay first and the freelancer will not deliver first. Both need a neutral holder that releases on a condition code can actually evaluate.",
+      "advantages": [
+        "Custody is programmatic, so neither party can move funds unilaterally mid-deal.",
+        "Release and fee deduction happen in one atomic transaction.",
+        "The condition and the payout are both auditable afterwards."
+      ],
+      "limitations": [
+        "The contract can only check an objective condition — it cannot judge quality.",
+        "It depends on an oracle, which becomes the weakest link.",
+        "Without a timeout path, funds can be stuck forever."
+      ],
+      "memoryTrick": "**Deposit → held → condition → release OR refund.** The contract is the middleman."
+    },
+    "Blockchain Stack": {
+      "memoryTrick": "**App → Contract → Protocol → Data → Ledger.** Read top-down; the user touches only the top."
+    },
+    "Blockchain Benefits & Challenges": {
+      "memoryTrick": "**Same property, two sides:** no single owner = no single point of failure AND no single point of control."
+    }
+  }
+}

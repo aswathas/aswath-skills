@@ -1,0 +1,430 @@
+{
+  "unit": 1,
+  "glossary": {
+    "Ledger": {
+      "definition": "An ordered, append-only record of transactions that participants agree is authoritative.",
+      "whyItMatters": "Everything else in the course - blocks, consensus, contracts - exists to keep many copies of this one record in agreement without a trusted owner.",
+      "confusions": [
+        "A ledger is not a database: it does not support UPDATE or DELETE in place.",
+        "A ledger records state transitions; it does not hold balances as separate truth."
+      ],
+      "topics": ["Blockchain Evolution", "Blockchain Stack"]
+    },
+    "Node": {
+      "definition": "A machine that stores a copy of the ledger, validates blocks and relays them to peers.",
+      "whyItMatters": "Decentralisation is measured by how independently nodes validate; if a few operators control most nodes, the property weakens.",
+      "confusions": [
+        "A full node stores and validates everything; a light node trusts others for most history."
+      ],
+      "topics": ["Blockchain Characteristics", "Blockchain Stack"]
+    },
+    "Consensus": {
+      "definition": "The protocol by which nodes agree on one canonical history when their copies diverge.",
+      "whyItMatters": "Replication alone creates disagreement; consensus is what turns copies into a ledger.",
+      "confusions": [
+        "Consensus decides ordering, not validity - invalid transactions are rejected before consensus.",
+        "Consensus is not voting in the human sense; it is a protocol with an economic or quorum rule."
+      ],
+      "topics": ["Blockchain Evolution", "Blockchain Characteristics"]
+    },
+    "Immutability": {
+      "definition": "The property that past entries cannot be altered without the alteration being detectable by every other node.",
+      "whyItMatters": "It replaces the need to trust an owner with the need to trust a hash function and the cost of rewriting history.",
+      "confusions": [
+        "Not 'cannot be changed' - it is 'cannot be changed undetectably'.",
+        "It is a consequence of hash chaining, not a setting."
+      ],
+      "topics": ["Blockchain Characteristics", "Blockchain Structure"]
+    },
+    "Merkle root": {
+      "definition": "A single hash derived by hashing transaction hashes pairwise up a tree, committing to every transaction in a block.",
+      "whyItMatters": "It lets a node prove one transaction belongs to a block without transmitting the whole block.",
+      "confusions": [
+        "It proves integrity, not validity.",
+        "It lives in the header, not the body."
+      ],
+      "topics": ["Blockchain Structure"]
+    },
+    "Finality": {
+      "definition": "The point after which a confirmed transaction cannot be reversed by the protocol.",
+      "whyItMatters": "Financial settlement depends on knowing when a payment is irreversible.",
+      "confusions": [
+        "Probabilistic finality (PoW) strengthens with confirmations; deterministic finality (BFT/PoS) occurs at a defined checkpoint.",
+        "Finality is not the same as inclusion in one block."
+      ],
+      "topics": ["Blockchain Characteristics", "Domain Specific Blockchain Applications"]
+    },
+    "Escrow": {
+      "definition": "Neutral custody of funds until an objectively checkable condition is satisfied.",
+      "whyItMatters": "It is the canonical smart-contract example because custody and release are both expressible in code.",
+      "confusions": [
+        "It relocates trust to the oracle and the code; it does not remove trust.",
+        "Release and refund must be mutually exclusive, with a timeout to avoid stuck funds."
+      ],
+      "topics": ["Blockchain Application Example: Escrow"]
+    },
+    "Oracle": {
+      "definition": "An off-chain data source a contract trusts for a fact it cannot compute itself.",
+      "whyItMatters": "Every real escrow or insurance contract depends on one, and the oracle is usually the weakest link.",
+      "confusions": [
+        "An oracle is not a miner; it supplies data, not ordering.",
+        "A contract cannot verify an oracle's honesty, only its signature."
+      ],
+      "topics": ["Blockchain Application Example: Escrow"]
+    },
+    "Smart contract": {
+      "definition": "Deterministic code deployed at an address that executes when called and whose effects are recorded on the ledger.",
+      "whyItMatters": "It is the layer where rules become enforceable without an administrator.",
+      "confusions": [
+        "It is not a legal contract by default; legal recognition is a separate question.",
+        "It cannot initiate action - it only runs when a transaction calls it."
+      ],
+      "topics": ["Blockchain Evolution", "Blockchain Stack"]
+    },
+    "Tamper-evident": {
+      "definition": "Any alteration is detectable after the fact, even if the alteration itself cannot be prevented.",
+      "whyItMatters": "This is the precise claim blockchain makes, and the one to write in an exam.",
+      "confusions": [
+        "Not tamper-proof: a majority attacker can rewrite history at high cost.",
+        "Tamper-evident is a property of the data structure; tamper-proof would be a property of the world."
+      ],
+      "topics": ["Blockchain Evolution", "Blockchain Characteristics"]
+    }
+  },
+  "topics": [
+    {
+      "name": "Blockchain Evolution",
+      "definition": "A blockchain is a distributed, append-only ledger in which each block commits to the hash of its predecessor, so the record is jointly maintained by many nodes instead of one owner, and any change to history becomes detectable.",
+      "problem": "Before blockchain, a ledger had an owner. Whoever held the database could rewrite, delete or reorder entries, and everyone else had to trust that owner. Replication alone did not fix it: copies can disagree and there is no referee.",
+      "mechanism": [
+        "Central ledger: one party owns the record and is trusted by construction.",
+        "Replicated copies: many nodes hold the same ledger, so there is no single point of failure - but copies can diverge.",
+        "Hash-linked blocks: each block stores the previous block's hash, so history becomes tamper-evident rather than tamper-proof by trust.",
+        "Consensus: nodes run a protocol (PoW, PoS, BFT) to agree which chain is canonical when copies diverge.",
+        "Smart contracts: once one history is agreed, code deployed on it can enforce rules automatically, removing the last manual step."
+      ],
+      "terminology": [
+        ["Ledger", "The ordered record of transactions."],
+        ["Node", "A machine that stores the ledger and validates blocks."],
+        ["Append-only", "Entries may be added, never rewritten in place."],
+        ["Tamper-evident", "Alteration is detectable, not merely discouraged."],
+        ["Consensus", "The protocol by which nodes choose one canonical history."]
+      ],
+      "examAnswer": {
+        "question": "Explain how a blockchain differs from a traditional distributed database.",
+        "points": [
+          "Ownership: a distributed database still has an administrator who authorises writes; a blockchain has no privileged writer.",
+          "Write rule: database writes are trusted because the admin is trusted; blockchain writes are accepted only when consensus rules are satisfied (valid signature, correct nonce, majority agreement).",
+          "History: a database supports UPDATE and DELETE; a blockchain is append-only, and each block commits to the previous hash, so past entries cannot be silently edited.",
+          "Conflict resolution: a database uses a coordinator or lock; a blockchain uses a consensus protocol to pick one history.",
+          "Consequence: a database is faster and cheaper; a blockchain is slower but removes the need for a trusted central party across organisational boundaries."
+        ]
+      },
+      "traps": [
+        "Do not call a blockchain 'unhackable'. Say tamper-evident: the cost of rewriting history is what protects it.",
+        "Do not say blocks store 'the previous transaction'. They store the previous block's hash.",
+        "Immutability is a consequence of hash chaining plus consensus, not a feature anybody switches on."
+      ],
+      "revision": "Central ledger -> replicated copies -> hash-linked blocks -> consensus -> smart contracts. Each step removes one trusted party.",
+      "recall": [
+        ["What makes history tamper-evident rather than merely trusted?", "Each block stores the previous block's hash, so editing a past block breaks every later hash."],
+        ["Why is replication alone not enough?", "Copies can diverge, and without a consensus protocol there is no way to decide which copy is canonical."],
+        ["At which step does code start enforcing rules?", "At the smart-contract step, after consensus can agree on one history."],
+        ["Name the five stages in order.", "Central ledger, replicated copies, hash-linked blocks, consensus, smart contracts."]
+      ]
+    },
+    {
+      "name": "Blockchain Structure",
+      "definition": "A block is a header carrying proof of linkage and content commitment, plus a body carrying the transactions; the header stores the previous block's hash and the Merkle root of the body.",
+      "problem": "If a block simply listed transactions, a node could not cheaply prove that a block belongs to the canonical chain, nor detect that one transaction inside it was altered. Both need a compact, verifiable commitment.",
+      "mechanism": [
+        "The block header holds: previous block hash, Merkle root, timestamp, nonce, difficulty target, and (post-merge) the state root.",
+        "The body holds the list of transactions (and, in Ethereum, the transaction receipts and gas used).",
+        "The Merkle root is computed by hashing transaction hashes pairwise up a tree, so one root commits to all transactions in O(log n) proof size.",
+        "The block hash is computed over the header; because the header contains the previous hash, blocks form a chain.",
+        "Altering any transaction changes its hash, changes the Merkle root, changes the header, changes the block hash, and invalidates every later block that referenced it."
+      ],
+      "terminology": [
+        ["Header", "Fixed-size metadata proving linkage and content."],
+        ["Body", "The variable-length transaction list."],
+        ["Merkle root", "Single hash committing to every transaction in the body."],
+        ["Nonce", "Counter varied during mining to find a hash below the target."],
+        ["State root", "Hash of the global account/storage state after the block (Ethereum)."]
+      ],
+      "examAnswer": {
+        "question": "Explain the structure of a blockchain block and the role of each element.",
+        "points": [
+          "Header: previous block hash - provides the chain link and makes history tamper-evident.",
+          "Header: Merkle root - a single commitment to every transaction, allowing compact inclusion proofs.",
+          "Header: timestamp and nonce - ordering, and the mining variable that satisfies the difficulty target.",
+          "Header: difficulty target - the threshold the block hash must beat, setting mining cost.",
+          "Body: ordered transaction list - the actual state transitions, each signed by its sender.",
+          "Consequence: verification is cheap (a header plus a Merkle path), while tampering is expensive (every later block breaks)."
+        ]
+      },
+      "traps": [
+        "The Merkle root is in the header, the transactions are in the body. Do not swap them.",
+        "A Merkle root does not prove the transactions are valid - it proves they are unaltered. Validity is checked by executing them.",
+        "The nonce is not a security secret; it is a search counter."
+      ],
+      "revision": "Header = previous hash + Merkle root + timestamp + nonce + difficulty. Body = transactions. Change one transaction -> root changes -> header changes -> later blocks break.",
+      "recall": [
+        ["Which field commits to all transactions at once?", "The Merkle root in the block header."],
+        ["What breaks if a past transaction is edited?", "Its hash, the Merkle root, the header hash, and then every later block that stores that header hash."],
+        ["Why is the previous hash inside the header rather than the body?", "So the proof of linkage is itself covered by the block hash, making the chain inseparable."],
+        ["What does a Merkle proof let you do?", "Prove one transaction is in the block without sending the whole block."]
+      ]
+    },
+    {
+      "name": "Blockchain Characteristics",
+      "definition": "The advertised properties of a blockchain - immutability, decentralisation, transparency, traceability, finality, integrity - are each the observable result of a specific engineering mechanism, not policy promises.",
+      "problem": "Properties are usually stated as slogans ('trustless', 'immutable'), which cannot be examined or engineered. Each one must be traceable to the mechanism that produces it.",
+      "mechanism": [
+        "Immutability <- hash linking: each block commits to its predecessor, so rewriting history changes every later hash.",
+        "Decentralisation <- replication: many nodes hold the ledger and independently validate, so there is no master copy.",
+        "Transparency <- public data: the ledger is readable by any participant.",
+        "Traceability <- block links and signatures: every entry names its predecessor and its author.",
+        "Finality <- consensus: once a block is buried under the protocol's rule (confirmations, or a PoS checkpoint) reversal becomes economically infeasible.",
+        "Integrity <- Merkle root: one changed transaction invalidates the header commitment."
+      ],
+      "terminology": [
+        ["Immutability", "Past entries cannot be altered without detection."],
+        ["Finality", "The point after which a transaction cannot be reversed."],
+        ["Probabilistic finality", "Finality that strengthens with each confirmation (PoW)."],
+        ["Deterministic finality", "Finality at a defined protocol point (BFT/PoS checkpoints)."],
+        ["Integrity", "Content has not been altered in transit or storage."]
+      ],
+      "examAnswer": {
+        "question": "List the key characteristics of a blockchain and state the mechanism behind each.",
+        "points": [
+          "Immutability - from hash chaining: changing block N breaks N+1 onwards.",
+          "Decentralisation - from replication and independent validation across nodes.",
+          "Transparency - from a publicly readable ledger; auditability follows.",
+          "Traceability - from each block naming its predecessor and each transaction being signed.",
+          "Finality - from the consensus rule; probabilistic in PoW, checkpointed in PoS.",
+          "Integrity - from the Merkle root committing to the body."
+        ]
+      },
+      "traps": [
+        "'Immutable' does not mean 'cannot be changed'. It means changing it is detectable and therefore economically irrational.",
+        "Finality is not the same as confirmation depth - state which model the chain uses.",
+        "Decentralisation is a degree, not a boolean: mining pools can re-centralise a nominally decentralised chain."
+      ],
+      "revision": "Every property is a mechanism: immutability <- hash links, decentralisation <- replication, transparency <- public data, traceability <- links, finality <- consensus, integrity <- Merkle root.",
+      "recall": [
+        ["Which mechanism gives immutability?", "Hash chaining - each block commits to the previous block's hash."],
+        ["Distinguish probabilistic and deterministic finality.", "PoW finality strengthens with each confirmation; BFT/PoS reaches a defined checkpoint after which reversal is not permitted."],
+        ["What does traceability actually come from?", "Block links plus per-transaction signatures identifying the sender."],
+        ["Why is 'decentralised' a matter of degree?", "Because block production can concentrate in a few mining pools even when validation is widespread."]
+      ]
+    },
+    {
+      "name": "Blockchain Application Example: Escrow",
+      "definition": "Escrow is a arrangement where a neutral third party holds funds until a condition is met; a smart contract replaces that third party because it can hold funds itself and release them only when a condition written in code evaluates true.",
+      "problem": "Two parties who do not trust each other need to exchange value against delivery. Without escrow, whichever side moves first carries all the risk; with a human escrow agent, you have reintroduced a trusted middleman and their fee.",
+      "mechanism": [
+        "The client deploys or funds the escrow contract, which records the deposit against a deal identifier.",
+        "Funds are held by the contract address, not by either party.",
+        "A condition is evaluated: a delivery oracle reports success, or a timeout expires.",
+        "If the condition is met, release() transfers the balance to the seller, optionally deducting a platform fee.",
+        "If the timeout expires first, refund() returns the balance to the client.",
+        "Because the contract holds the funds, neither party can unilaterally move them mid-deal."
+      ],
+      "terminology": [
+        ["Escrow", "Neutral custody of funds until a condition is satisfied."],
+        ["Oracle", "An off-chain data feed the contract trusts for a fact it cannot compute."],
+        ["Release", "Condition-true path: funds go to the seller."],
+        ["Refund", "Condition-false/timeout path: funds return to the buyer."],
+        ["Objective condition", "A predicate code can evaluate deterministically."]
+      ],
+      "examAnswer": {
+        "question": "Why is escrow a natural smart-contract use case? Illustrate with the lifecycle.",
+        "points": [
+          "The trust problem: neither party will move first, and a human escrow agent is a middleman with a fee.",
+          "Custody: the contract address holds the funds, so custody is programmatic rather than personal.",
+          "Condition: release depends on an objectively checkable predicate (oracle flag, deadline), not on a subjective opinion.",
+          "Lifecycle: deposit -> held -> condition checked -> release to seller or refund to buyer.",
+          "Economics: the platform fee can be taken in the same transaction, so settlement and fee are atomic.",
+          "Limitation: the contract can only check what is on-chain or oracle-reported - it cannot judge 'quality'."
+        ]
+      },
+      "traps": [
+        "'Escrow' does not remove trust - it relocates it to the oracle and to the code's correctness.",
+        "Release and refund must be mutually exclusive; an unbounded contract loses funds.",
+        "If the condition can never evaluate true, funds are stuck - always include a timeout path."
+      ],
+      "revision": "Deposit -> held by contract -> objective condition (oracle/deadline) -> release to seller OR refund to buyer. Fee deducted atomically.",
+      "recall": [
+        ["Who holds funds during escrow?", "The contract address, not either party."],
+        ["What kind of condition can a contract check?", "An objective, deterministic one: an oracle-reported flag or a deadline."],
+        ["Why must there be a timeout path?", "Otherwise a condition that never becomes true locks the funds permanently."],
+        ["What does escrow actually replace?", "The trusted human middleman and their fee - not the need for correct code and a trustworthy oracle."]
+      ]
+    },
+    {
+      "name": "Blockchain Stack",
+      "definition": "The blockchain stack is a layered architecture in which each layer depends only on the one below it: application, smart contract, protocol, data, and the underlying distributed ledger.",
+      "problem": "Without separation of concerns, changing the consensus algorithm or the storage format would force a rewrite of every application. A layered stack lets each concern be replaced independently.",
+      "mechanism": [
+        "Application layer - wallets, dApps, APIs; what a user actually touches.",
+        "Smart contract layer - the deterministic code the application calls; sits between protocol and application.",
+        "Protocol layer - consensus, peer networking, cryptography, transaction validity rules.",
+        "Data layer - blocks, transactions, state trie, receipts.",
+        "Ledger layer - the distributed append-only record itself, replicated across nodes.",
+        "Each layer exposes an interface upward, so a dApp can be re-pointed at a different chain by changing the protocol/ledger beneath it."
+      ],
+      "terminology": [
+        ["Layer", "A concern with a defined interface to its neighbour."],
+        ["dApp", "Application whose logic runs on-chain and UI off-chain."],
+        ["EVM", "The execution environment inside the protocol layer."],
+        ["State trie", "The data-layer structure holding account and storage state."]
+      ],
+      "examAnswer": {
+        "question": "Draw and explain the blockchain stack, naming each layer and its role.",
+        "points": [
+          "Application: wallets, dApps, APIs - user-facing, off-chain in part.",
+          "Smart contract: the rules; deterministic code executed by the chain and called by the application.",
+          "Protocol: consensus, networking, cryptography - how nodes agree and communicate.",
+          "Data: blocks, transactions, state - how the ledger is represented.",
+          "Ledger: the replicated append-only record itself.",
+          "Design consequence: strict layering means the same dApp can run on a different chain without rewriting the application."
+        ]
+      },
+      "traps": [
+        "Do not put smart contracts above the application layer - they sit between protocol and application.",
+        "The OSI comparison is about separation of concerns, not about seven layers; this stack is five.",
+        "The user touches only the top layers; the ledger is below all of them."
+      ],
+      "revision": "Application -> Smart contract -> Protocol -> Data -> Ledger. Each layer talks only to its neighbour, so any lower layer can be swapped.",
+      "recall": [
+        ["Where do smart contracts sit?", "Between the protocol layer and the application layer."],
+        ["Why does layering matter practically?", "A dApp can be pointed at a different chain by swapping the layers beneath it."],
+        ["Which layer holds consensus and networking?", "The protocol layer."],
+        ["Which layer is what the user actually touches?", "The application layer (wallets, dApps, APIs)."]
+      ]
+    },
+    {
+      "name": "From Web 2.0 to the Next Generation Decentralized web",
+      "definition": "Web 3.0 is the shift of data ownership, identity and rule-setting from platform-owned servers to user-held cryptographic keys and code deployed on a public network.",
+      "problem": "In Web 2.0 the platform owns the servers, therefore owns the data, and can change the rules or revoke access unilaterally. Users get convenience in exchange for custody.",
+      "mechanism": [
+        "Data: Web 2.0 stores it on platform servers; Web 3.0 stores it on a public network replicated across nodes.",
+        "Identity: Web 2.0 uses a platform login; Web 3.0 uses a keypair the user holds, where the private key is the sole authority.",
+        "Rules: Web 2.0 rules are set by the platform and changeable at will; Web 3.0 rules are deployed code, changeable only by the governance the code specifies.",
+        "Recovery: a platform can reset a password; with a self-held key, loss is final.",
+        "The trade is explicit: self-sovereignty in exchange for operational convenience and recoverability."
+      ],
+      "terminology": [
+        ["Self-sovereign identity", "Identity controlled by the user's own keys."],
+        ["Keypair", "Public key identifies, private key authorises."],
+        ["Custody", "Who can technically move or read the asset."],
+        ["Governance", "The process by which deployed rules may change."]
+      ],
+      "examAnswer": {
+        "question": "Compare Web 2.0 and Web 3.0 in terms of ownership, identity and control.",
+        "points": [
+          "Ownership of data: platform-owned in Web 2.0; user/network-owned in Web 3.0.",
+          "Identity: platform account versus user-held keypair.",
+          "Rule-setting: platform discretion versus deployed code and its governance.",
+          "Failure mode: platform can censor or revoke; in Web 3.0, a lost key is unrecoverable.",
+          "Consequence: Web 3.0 removes platform rent and censorship but shifts all operational risk onto the user."
+        ]
+      },
+      "traps": [
+        "Web 3.0 is not 'the semantic web' - do not confuse the two uses of the term.",
+        "Decentralisation does not automatically mean privacy: a public ledger is transparent by default.",
+        "Key loss is final - that is a design consequence, not an implementation bug."
+      ],
+      "revision": "Web 2.0: platform owns data, login is identity, platform sets rules, password reset rescues you. Web 3.0: user owns data, keypair is identity, code sets rules, key loss is final.",
+      "recall": [
+        ["What replaces the platform login in Web 3.0?", "A user-held keypair, where the private key is the sole authority."],
+        ["What convenience is lost?", "Recoverability - no one can reset a lost key."],
+        ["Who sets the rules in Web 3.0?", "Deployed code and whatever governance that code specifies."],
+        ["Is a public blockchain private by default?", "No - it is transparent; privacy requires additional cryptography."]
+      ]
+    },
+    {
+      "name": "Domain Specific Blockchain Applications",
+      "definition": "A domain-specific blockchain application is the use of a shared ledger only where the participating parties lack a trusted common owner, with the network chosen to satisfy that domain's dominant requirement (finality, provenance, privacy).",
+      "problem": "Teams often adopt blockchain where a shared database would be cheaper and faster. The technology only pays when the participants do not share a trusted administrator.",
+      "mechanism": [
+        "Test 1 - is there a shared trusted owner? If yes, use a database.",
+        "Test 2 - identify the shared record that must be agreed by parties who distrust each other.",
+        "Test 3 - identify who may write to that record (permissioned or public).",
+        "Test 4 - identify the dominant property the domain needs: settlement finality, provenance, privacy, ownership proof.",
+        "Test 5 - choose the network and consensus that delivers that property at acceptable cost."
+      ],
+      "terminology": [
+        ["Provenance", "Verifiable origin and custody history of an item."],
+        ["Permissioned", "Only identified participants may write."],
+        ["Settlement finality", "Irrevocable transfer of value."],
+        ["Interoperability", "Ability of separate ledgers to exchange proofs."]
+      ],
+      "examAnswer": {
+        "question": "Match blockchain domains to the property each requires and justify the choice.",
+        "points": [
+          "Finance -> settlement finality and atomic delivery-versus-payment.",
+          "Supply chain -> provenance: each custodian signs a transfer, giving an auditable trail.",
+          "Healthcare -> controlled record sharing with privacy and access control, not public transparency.",
+          "Land registry -> ownership proof resistant to retrospective alteration.",
+          "Identity -> credentials verifiable without contacting the issuer.",
+          "Energy -> meter trading between parties who do not share a utility's database.",
+          "Rule: if the parties share a trusted owner, a database wins on cost and latency."
+        ]
+      },
+      "traps": [
+        "Do not claim blockchain suits every domain - state the no-shared-owner test first.",
+        "Supply chain needs provenance, not payments; do not conflate the two.",
+        "Healthcare on a public chain raises confidentiality problems - note permissioning."
+      ],
+      "revision": "Choose blockchain only when parties lack a trusted owner. Finance->finality, supply chain->provenance, healthcare->privacy, land->ownership, identity->credentials, energy->meter trading.",
+      "recall": [
+        ["What single test decides whether blockchain is justified?", "Whether the parties lack a shared trusted owner."],
+        ["What does supply chain primarily need?", "Provenance - a signed custody trail."],
+        ["Why is healthcare usually permissioned?", "Because patient records require confidentiality that a public ledger does not give."],
+        ["Which domain is driven by finality?", "Finance and settlement."]
+      ]
+    },
+    {
+      "name": "Blockchain Benefits & Challenges",
+      "definition": "Blockchain benefits and challenges originate from the same property - the absence of a single owner - which simultaneously removes single points of failure and single points of control.",
+      "problem": "Adoption arguments usually list benefits only. The honest analysis pairs each benefit with the cost that pays for it, because both come from the same design decision.",
+      "mechanism": [
+        "Benefit: no single owner -> Challenge: no one to intervene, so throughput is low and recovery is social.",
+        "Benefit: one shared history -> Challenge: governance across organisations has no natural authority.",
+        "Benefit: rules enforced by code -> Challenge: legal status of code-enforced outcomes is unsettled.",
+        "Benefit: cheap cross-organisation trust -> Challenge: default transparency leaks data that regulation expects to be private.",
+        "The hard problems are throughput, governance and legal recognition - not the cryptography."
+      ],
+      "terminology": [
+        ["Throughput", "Transactions settled per second."],
+        ["Governance", "Who may change protocol rules and how."],
+        ["Reconciliation", "Agreeing a shared record between organisations."],
+        ["Regulatory recognition", "Whether a court treats on-chain outcomes as binding."]
+      ],
+      "examAnswer": {
+        "question": "Discuss the benefits of blockchain and the challenges each one creates.",
+        "points": [
+          "Removal of a trusted middleman lowers reconciliation cost across organisations - the clearest real saving.",
+          "No single point of failure - but also no single point of control, so incident response becomes governance.",
+          "One shared history removes duplicated ledgers - but consensus makes writes slower than a database.",
+          "Code-enforced rules are deterministic - but their legal status and amendability are unresolved.",
+          "Public transparency enables audit - but conflicts with privacy regulation.",
+          "Conclusion: benefits are organisational, not cryptographic; so are the challenges."
+        ]
+      },
+      "traps": [
+        "Do not present benefits without the paired cost - the question is usually 'benefits AND challenges'.",
+        "Cryptography is the solved part; throughput, governance and law are the open ones.",
+        "Do not claim blockchain is cheaper in general - it is cheaper specifically at cross-organisation reconciliation."
+      ],
+      "revision": "Same property, both sides: no single owner -> no single point of failure AND no single point of control. Real saving is cross-org reconciliation. Hard parts: throughput, governance, legal status.",
+      "recall": [
+        ["What is the real economic saving?", "Removing cross-organisation reconciliation cost."],
+        ["Which three problems remain hard?", "Throughput, governance and legal status."],
+        ["Why does transparency create a problem?", "It conflicts with privacy regulation and confidential commercial data."],
+        ["What makes incident response hard?", "With no single owner, recovery requires governance agreement rather than an admin action."]
+      ]
+    }
+  ]
+}

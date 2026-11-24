@@ -1,0 +1,34 @@
+{
+  "topics": {
+    "Design Methodology for Blockchain Applications": {
+      "memoryTrick": "**Problem → actors → needed? → network → data → contract → govern.** Technology is chosen fourth."
+    },
+    "Ethereum Clients": {
+      "memoryTrick": "**Geth=Go · Besu=Java · Nethermind=C# · Erigon=Go · pyethapp=Python.** One chain, several implementations."
+    },
+    "Ethereum Languages": {
+      "memoryTrick": "**Solidity = everyone can hire for it. Vyper = fewer features, easier to audit.**"
+    },
+    "Contract Account": {
+      "memoryTrick": "**Deploy creates it; only a call wakes it.** A contract can never act first."
+    },
+    "Implementing Dapps": {
+      "memoryTrick": "**Model → contract → test → deploy → interface → events.** The contract is step two, not step one."
+    },
+    "Blockchain Application Templates": {
+      "memoryTrick": "**The template fixes the parties; the business supplies the rules.**"
+    },
+    "TestRPC": {
+      "memoryTrick": "**TestRPC = Ganache:** instant blocks, pre-funded accounts, no real network."
+    },
+    "Working with Contract Accounts": {
+      "memoryTrick": "**Deploy (no `to`) → address from receipt → call (with `to`) → read with eth.call.**"
+    },
+    "Working with EOA Accounts": {
+      "memoryTrick": "**Create → back up → fund → unlock → send.** Step two is the one people skip."
+    },
+    "External Owned Account (EOAs)": {
+      "memoryTrick": "**EOA: key, no code, can start.** Everything on-chain traces back to one."
+    }
+  }
+}

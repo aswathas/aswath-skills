@@ -8,7 +8,7 @@
     {
       "name": "aswath-skills",
       "source": "./",
-      "version": "1.11.0",
+      "version": "1.13.0",
       "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume.",
       "author": {
         "name": "Aswath S",
@@ -26,5 +26,5 @@
     }
   ],
   "description": "Atomic skills grouped by the question they answer - context, publishing, workflow, orchestration, writing and utilities. Install one skill or the whole library.",
-  "version": "1.11.0"
+  "version": "1.13.0"
 }

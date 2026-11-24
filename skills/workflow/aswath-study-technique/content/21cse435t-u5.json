@@ -1,0 +1,476 @@
+{
+  "unit": 5,
+  "glossary": {
+    "Sybil attack": {
+      "definition": "One entity creating many fake identities so a single interest counts many times in a network where identity is free.",
+      "whyItMatters": "It is the reason consensus must price identity, and it is the frame that makes PoW and PoS comparable.",
+      "confusions": [
+        "The defence is economic, not technical: make identity costly.",
+        "It is not the same as a 51% attack, though it can enable one."
+      ],
+      "topics": ["Sybil Attack", "Proof-of-Work vs Proof-of-Stake"]
+    },
+    "Byzantine fault tolerance": {
+      "definition": "The ability of a distributed system to agree despite members that may be malicious, provided n >= 3f + 1 for f faulty members.",
+      "whyItMatters": "It explains why BFT systems are small and permissioned, and why permissionless chains use economics instead of quorums.",
+      "confusions": [
+        "Byzantine faults include lying, not just crashing.",
+        "The 3f+1 bound is about quorum arithmetic, not about stake."
+      ],
+      "topics": ["Byzantine Fault Tolerance", "Consensus on Blockchain Network"]
+    },
+    "CAP theorem": {
+      "definition": "Under a network partition a distributed system cannot provide both strong consistency and full availability; it must sacrifice one.",
+      "whyItMatters": "It explains why a blockchain halts or isolates rather than accepting a transaction a longer chain may overturn.",
+      "confusions": [
+        "Partition tolerance is not optional at global scale - consistency versus availability is the real choice.",
+        "Blockchains generally choose consistency."
+      ],
+      "topics": ["Consistency, Availability & Partition Tolerance (CAP)"]
+    },
+    "Finality": {
+      "definition": "The point after which a confirmed block cannot be reversed by the protocol.",
+      "whyItMatters": "It is the property a settlement network is really buying, and it differs fundamentally between PoW and PoS.",
+      "confusions": [
+        "PoW finality is probabilistic and strengthens with depth.",
+        "PoS checkpoints can give deterministic finality."
+      ],
+      "topics": ["Proof-of-Work vs Proof-of-Stake", "Double-Spending Problem"]
+    },
+    "Reentrancy": {
+      "definition": "A vulnerability where an external call is made before the contract finishes updating its state, allowing the callee to re-enter and act on stale state.",
+      "whyItMatters": "It is the highest-value smart-contract bug ever exploited and the most likely vulnerability question.",
+      "confusions": [
+        "The fix is ordering (checks-effects-interactions), or a reentrancy guard.",
+        "It is not the same as an overflow or a tx.origin phishing bug."
+      ],
+      "topics": ["Smart Contracts Vulnerabilities"]
+    },
+    "GHOST": {
+      "definition": "Greedy Heaviest Observed Sub-Tree: a fork-choice rule that follows the child with the greatest accumulated difficulty below it, not the longest chain.",
+      "whyItMatters": "It closes the cheap-chain attack that a naive longest-chain rule would allow.",
+      "confusions": [
+        "It scores subtrees, not chain length.",
+        "It is a fork-choice rule, not a consensus algorithm in itself."
+      ],
+      "topics": ["Greedy Heaviest Observed Sub-Tree (GHOST)"]
+    }
+  },
+  "topics": [
+    {
+      "name": "Double-Spending Problem",
+      "definition": "Double spending is presenting the same digital coin to two recipients; a blockchain does not prevent the copy, it orders the two spends and rejects the later one.",
+      "problem": "Digital value is copied perfectly by accident. Without a shared ordering, two conflicting spends can both look valid to different observers.",
+      "mechanism": [
+        "Alice signs a transaction to Bob, then signs a conflicting one to Carol.",
+        "Both propagate; different nodes may see them in different orders.",
+        "Consensus orders them, so one is included first and the other is rejected as a conflicting nonce.",
+        "Confirmations are the safety margin: each new block buries the transaction deeper.",
+        "Reversing a spend at depth d means redoing d blocks of work, so finality strengthens with depth.",
+        "At six confirmations, an attacker must out-mine six blocks on top of the chain."
+      ],
+      "terminology": [
+        ["Confirmation", "One block mined on top of the transaction's block."],
+        ["Conflicting transaction", "A second spend of the same funds."],
+        ["Probabilistic finality", "Finality that strengthens with depth."]
+      ],
+      "examAnswer": {
+        "question": "Explain the double-spend problem and how it is mitigated.",
+        "points": [
+          "Digital value copies perfectly, so two spends can both appear valid.",
+          "The chain does not prevent the copy; consensus orders the two spends.",
+          "The first accepted spend wins; the conflicting one is rejected.",
+          "Confirmations add depth, and each block makes reversal costlier.",
+          "Finality is therefore probabilistic and strengthens with depth.",
+          "Prevention is economic, not cryptographic."
+        ]
+      },
+      "traps": [
+        "No blockchain 'prevents' a double spend at the point of signing - it resolves it by ordering.",
+        "Say probabilistic finality and explain depth; do not claim instant finality.",
+        "A double spend is not the same as a reorg, though a reorg can enable one."
+      ],
+      "revision": "Two conflicting spends -> consensus orders them -> first wins, second rejected -> confirmations add depth -> reversal gets costlier.",
+      "recall": [
+        ["Does the chain prevent the duplicate spend?", "No - it orders the two spends and rejects the later one."],
+        ["What do confirmations add?", "Depth, which makes reversal progressively more expensive."],
+        ["What kind of finality does this give?", "Probabilistic finality that strengthens with depth."],
+        ["What must an attacker redo at six confirmations?", "Re-mine six blocks on top of the chain."]
+      ]
+    },
+    {
+      "name": "Byzantine Fault Tolerance",
+      "definition": "Byzantine fault tolerance is the ability to reach agreement despite members that may lie or send contradictory messages, provided n >= 3f + 1 for f faulty members.",
+      "problem": "Distributed systems assumed nodes fail by crashing. In an open network, a node can stay online and actively deceive, which is a strictly harder problem.",
+      "mechanism": [
+        "Faulty members may lie, stay silent selectively, or send different messages to different peers.",
+        "Honest members must outnumber them enough to form a quorum no coalition of liars can fake.",
+        "The bound is n >= 3f + 1: with n = 4 you tolerate 1, with n = 7 you tolerate 2, with n = 10 you tolerate 3.",
+        "Agreement is reached in rounds of message exchange, not by spending electricity.",
+        "Because rounds are expensive in latency, BFT systems stay small and permissioned.",
+        "That is why permissionless chains use economic consensus instead."
+      ],
+      "terminology": [
+        ["Byzantine fault", "A fault that includes arbitrary, possibly malicious behaviour."],
+        ["Quorum", "The number of agreeing members required."],
+        ["f", "Number of faulty members tolerated."],
+        ["Round", "One message-exchange phase."]
+      ],
+      "examAnswer": {
+        "question": "Define Byzantine fault tolerance and derive the 3f + 1 bound.",
+        "points": [
+          "A Byzantine member may lie, not merely crash.",
+          "Agreement requires a quorum no coalition of liars can fake.",
+          "The bound is n >= 3f + 1, so n = 4 tolerates 1 and n = 7 tolerates 2.",
+          "Each extra liar you wish to survive costs three more members.",
+          "Agreement comes from rounds of messages, which costs latency.",
+          "Hence BFT suits small permissioned sets, not open networks."
+        ]
+      },
+      "traps": [
+        "Crash faults are not Byzantine faults - the distinction is the whole point.",
+        "The bound is on quorum arithmetic, not on stake or hashpower.",
+        "Do not claim BFT scales to thousands of anonymous members."
+      ],
+      "revision": "n >= 3f + 1: n=4 -> f=1, n=7 -> f=2, n=10 -> f=3. Rounds of messages, so small permissioned sets.",
+      "recall": [
+        ["With n = 10, how many Byzantine members are tolerated?", "f = 3, since n >= 3f + 1."],
+        ["What makes a fault Byzantine?", "It may lie or behave arbitrarily, not merely stop."],
+        ["Why do BFT systems stay small?", "Agreement needs rounds of messages, which is latency-expensive."],
+        ["What do open networks use instead?", "Economic consensus: proof of work or proof of stake."]
+      ]
+    },
+    {
+      "name": "Proof-of-Work vs Proof-of-Stake",
+      "definition": "Both PoW and PoS make identity expensive to stop one entity posing as many; PoW charges burnt electricity and PoS charges locked, slashable capital.",
+      "problem": "An open network cannot verify identity, so it must price it. Any mechanism that makes participation costly is Sybil-resistant by construction.",
+      "mechanism": [
+        "PoW: block producers must find a hash below the target, so influence costs hardware and energy.",
+        "PoW finality is probabilistic and strengthens with confirmations.",
+        "PoS: validators lock stake; producing a conflicting block risks the stake being slashed.",
+        "PoS uses ordinary servers and can reach deterministic finality at checkpoints.",
+        "PoW 51% attack means renting hashpower; PoS 51% means acquiring and risking stake.",
+        "Both are only as strong as their economic assumption about the attacker's budget."
+      ],
+      "terminology": [
+        ["Slashing", "Confiscation of a validator's stake."],
+        ["Weak subjectivity", "A PoS node needs a recent trusted checkpoint to sync safely."],
+        ["Checkpoint", "A block declared final."],
+        ["51% attack", "Majority control of block production."]
+      ],
+      "examAnswer": {
+        "question": "Compare PoW and PoS on security, energy and finality.",
+        "points": [
+          "Both are Sybil-resistance mechanisms: identity is made expensive.",
+          "PoW security rests on hashpower; energy cost is high and finality probabilistic.",
+          "PoS security rests on stake with slashing; finality can be deterministic.",
+          "PoS lowers energy use sharply but introduces weak subjectivity and stake concentration risk.",
+          "Attack cost differs: rent hashpower versus buy and risk stake.",
+          "Recommendation: PoS for efficiency, provided validator decentralisation holds."
+        ]
+      },
+      "traps": [
+        "Both are economic; neither is a cryptographic guarantee against a determined majority.",
+        "PoS finality is not free - it depends on checkpoint assumptions and weak subjectivity.",
+        "Do not say PoS is 'more secure' in the abstract; compare attack costs."
+      ],
+      "revision": "PoW: burnt energy, hardware, probabilistic finality, attack = rent hashpower. PoS: locked stake, servers, checkpoint finality, attack = lose stake.",
+      "recall": [
+        ["What is the shared goal of PoW and PoS?", "Making identity expensive, to resist Sybil attacks."],
+        ["What does PoS trade away compared with PoW?", "Energy-intensive hashing, in exchange for weak subjectivity and stake concentration risk."],
+        ["How does finality differ?", "PoW is probabilistic and depth-based; PoS can be deterministic at checkpoints."],
+        ["What does a PoS 51% attacker lose?", "The staked capital backing the conflicting blocks."]
+      ]
+    },
+    {
+      "name": "Consistency, Availability & Partition Tolerance (CAP)",
+      "definition": "CAP states that under a network partition a distributed system cannot provide both strong consistency and full availability, and a blockchain chooses consistency.",
+      "problem": "A global network will partition. The system must decide in advance what it will refuse to do when it cannot see all peers, or it will silently serve contradictory data.",
+      "mechanism": [
+        "Partition: the network splits into groups that cannot see each other.",
+        "Consistency: all nodes agree on one order - no conflicting reads.",
+        "Availability: every node answers every request.",
+        "Under partition, a strongly consistent system must refuse service on the side that cannot confirm the canonical order.",
+        "Blockchains choose consistency: the minority side stops confirming rather than accept a transaction a longer chain later overturns.",
+        "Most web applications choose availability and reconcile later."
+      ],
+      "terminology": [
+        ["Partition", "A split where groups cannot communicate."],
+        ["Strong consistency", "One agreed order of operations."],
+        ["Availability", "Every request gets a response."],
+        ["CAP", "The consistency-availability-partition theorem."]
+      ],
+      "examAnswer": {
+        "question": "Apply CAP to a blockchain design.",
+        "points": [
+          "Partition tolerance is not optional at global scale.",
+          "So the real choice is consistency versus availability.",
+          "Blockchains choose consistency: one agreed order over always answering.",
+          "Under partition, the minority side refuses to confirm rather than risk an overturn.",
+          "Cost of that choice is downtime on the minority side.",
+          "Web apps typically choose availability and reconcile divergent state later."
+        ]
+      },
+      "traps": [
+        "Partition tolerance is assumed, not chosen - say what the real trade is.",
+        "Choosing consistency means accepting downtime; that is the cost, not a bug.",
+        "Do not present CAP as three equal options you can all have."
+      ],
+      "revision": "Partition is a given -> choose consistency (blockchain) or availability (web app). Blockchain halts the minority rather than accept an overturnable tx.",
+      "recall": [
+        ["Which two properties actually trade off?", "Consistency and availability, because partition tolerance is mandatory."],
+        ["What does a blockchain sacrifice during a partition?", "Availability on the minority side."],
+        ["Why refuse to confirm on the minority side?", "To avoid accepting a transaction a longer chain later overturns."],
+        ["What do most web apps choose?", "Availability, reconciling later."]
+      ]
+    },
+    {
+      "name": "Turing Completeness",
+      "definition": "The EVM is Turing complete - it has general memory and loops - and gas is what keeps a Turing-complete shared machine from halting the network.",
+      "problem": "A general-purpose execution environment can compute anything, including a computation that never terminates. On a replicated machine that is fatal.",
+      "mechanism": [
+        "The EVM has bounded but general memory and supports loops, so in principle it computes anything computable.",
+        "An infinite loop would stall every node that executed it.",
+        "Gas prices every step, so the meter eventually reaches the limit.",
+        "On reaching the limit, execution halts and state is reverted.",
+        "The capability is therefore unlimited in principle, but every execution is finite and billable.",
+        "Consequence: gas converts the halting problem into an economic bound."
+      ],
+      "terminology": [
+        ["Turing complete", "Able to compute anything computable."],
+        ["Halting problem", "No general method decides whether a program terminates."],
+        ["Gas limit", "The economic bound that replaces halting analysis."]
+      ],
+      "examAnswer": {
+        "question": "Why is EVM Turing complete, and how is that made safe?",
+        "points": [
+          "It has general memory and loops, so it can compute anything computable.",
+          "A non-terminating program would stall every validating node.",
+          "Gas prices each step, so the meter rises as execution continues.",
+          "On reaching the gas limit, execution halts and state is reverted.",
+          "So execution is always finite and billable, despite the machine being general.",
+          "Gas substitutes an economic bound for the undecidable halting question."
+        ]
+      },
+      "traps": [
+        "Turing completeness is a capability, not a safety problem by itself - gas is the control.",
+        "The revert means state changes are undone, but the fee is still spent.",
+        "Do not claim the EVM is bounded in expressiveness; it is bounded in execution cost."
+      ],
+      "revision": "EVM = Turing complete (general memory + loops). Gas meters every step -> limit reached -> halt + revert. Capability unlimited, execution finite.",
+      "recall": [
+        ["What makes the EVM Turing complete?", "General-purpose memory plus loops."],
+        ["Why is that dangerous on a replicated machine?", "A non-terminating program would stall every node."],
+        ["What bounds execution?", "Gas: the meter reaches the limit and execution reverts."],
+        ["What still happens on an out-of-gas halt?", "State is reverted, but the gas fee is spent."]
+      ]
+    },
+    {
+      "name": "Greedy Heaviest Observed Sub-Tree (GHOST)",
+      "definition": "GHOST is a fork-choice rule that follows the child with the greatest accumulated difficulty in its subtree, rather than the longest chain.",
+      "problem": "When the chain forks, following the longest branch lets an attacker build a long chain of cheap blocks to win, because length says nothing about work done.",
+      "mechanism": [
+        "When a fork appears, a node must choose a branch to extend.",
+        "Naive rule: longest chain - exploitable by a cheap-chain attack.",
+        "GHOST scores each branch by the total difficulty of everything hanging below it.",
+        "At each step it greedily follows the heaviest child, which is cheap to compute.",
+        "An attacker's chain of many weak blocks therefore loses to a shorter chain of heavy blocks.",
+        "Result: resistance to the cheap-chain attack with a simple local rule."
+      ],
+      "terminology": [
+        ["Fork choice", "The rule for picking a branch."],
+        ["Subtree weight", "Total difficulty below a node."],
+        ["Cheap-chain attack", "Exploiting length rather than work."]
+      ],
+      "examAnswer": {
+        "question": "Explain GHOST and why it improves on longest-chain.",
+        "points": [
+          "On a fork a node must choose a branch.",
+          "Longest-chain is naive: a long branch may contain almost no real work.",
+          "GHOST scores a branch by accumulated difficulty in its subtree.",
+          "It greedily follows the heaviest child at each step.",
+          "So many weak blocks lose to fewer heavy blocks.",
+          "It resists the cheap-chain attack while staying cheap to compute."
+        ]
+      },
+      "traps": [
+        "GHOST scores subtrees, not lengths - the distinction is the entire answer.",
+        "It is a fork-choice rule, not a complete consensus protocol.",
+        "Greedy does not mean optimal in general graphs; here it is sufficient by design."
+      ],
+      "revision": "Fork -> score each branch by total difficulty below it -> greedy heaviest child. Beats longest-chain against cheap-chain attacks.",
+      "recall": [
+        ["Why is longest-chain exploitable?", "A long branch can be built from cheap blocks, so length does not prove work."],
+        ["What does GHOST score?", "Total accumulated difficulty of the subtree."],
+        ["What does greedy mean here?", "Follow the heaviest child at each step."],
+        ["What attack does it close?", "The cheap-chain attack."]
+      ]
+    },
+    {
+      "name": "Sybil Attack",
+      "definition": "A Sybil attack is one entity creating many fake identities so its single interest counts many times, effective wherever identity is free to create.",
+      "problem": "Any voting or quorum scheme assumes one member is one entity. If membership costs nothing, membership is meaningless.",
+      "mechanism": [
+        "One entity creates many identities.",
+        "Identity creation is free, so it floods the membership.",
+        "Its single interest now controls many votes or peers.",
+        "Defence: make identity cost something scarce, so votes are limited by resources.",
+        "PoW charges electricity per identity; PoS charges locked capital.",
+        "The threshold becomes economic rather than technical."
+      ],
+      "terminology": [
+        ["Sybil", "One entity, many identities."],
+        ["Sybil resistance", "Making identity costly enough that flooding fails."],
+        ["Identity cost", "The resource a membership consumes."]
+      ],
+      "examAnswer": {
+        "question": "Define a Sybil attack and give the defence.",
+        "points": [
+          "One entity creates many fake identities.",
+          "It works wherever identity is free to create.",
+          "The entity's single interest controls many votes or peers.",
+          "Defence: make identity cost a scarce resource.",
+          "PoW uses electricity, PoS uses locked capital.",
+          "Sybil resistance is therefore economic, not cryptographic."
+        ]
+      },
+      "traps": [
+        "Email verification and rate limits are not Sybil resistance in a permissionless chain.",
+        "The defence is not better identity documents; it is cost.",
+        "Sybil attack and 51% attack differ: one fakes membership, the other seizes majority."
+      ],
+      "revision": "Free identity -> one entity floods membership -> make identity costly (electricity in PoW, stake in PoS) -> flooding becomes expensive.",
+      "recall": [
+        ["When does a Sybil attack work?", "Wherever identity is free to create."],
+        ["What is the defence?", "Make identity cost a scarce resource."],
+        ["How does PoW price identity?", "In burnt electricity and hardware."],
+        ["How does PoS price identity?", "In locked, slashable capital."]
+      ]
+    },
+    {
+      "name": "Mining Pools and Centralization",
+      "definition": "A mining pool is one operator aggregating many miners' hashpower and splitting the reward, which creates a centralisation risk because the pool chooses block contents.",
+      "problem": "Solo mining has terrible variance - months may pass without a block - so rational miners pool. That concentrates the block-building function in a few operators even though the protocol is decentralised.",
+      "mechanism": [
+        "Miners contribute hashpower to a pool and share the reward by work contributed.",
+        "The pool operator builds the block, so it decides which transactions are included and in what order.",
+        "A pool with a large share can censor, delay or reorder transactions.",
+        "Validation may stay widespread while block production concentrates.",
+        "Centralisation is therefore a matter of degree, measured in block-production share.",
+        "Mitigation is economic and social - miners choosing smaller pools - not cryptographic."
+      ],
+      "terminology": [
+        ["Pool", "Aggregator of hashpower."],
+        ["Block-production share", "Fraction of blocks built by one operator."],
+        ["Censorship", "Refusing to include a valid transaction."]
+      ],
+      "examAnswer": {
+        "question": "Why do mining pools exist, and what centralisation risk do they create?",
+        "points": [
+          "Solo mining has high variance, so miners pool and split rewards.",
+          "The pool operator builds the block and chooses its contents.",
+          "A large pool can censor, delay or reorder valid transactions.",
+          "Validation can remain distributed while production concentrates.",
+          "Centralisation is a degree, measured by block-production share.",
+          "Mitigation is miner choice, not cryptography."
+        ]
+      },
+      "traps": [
+        "Do not say the network is centralised - block production is concentrated, validation may not be.",
+        "Pools are not malicious by definition; the risk is structural.",
+        "This risk is not solved by a protocol change in the short term."
+      ],
+      "revision": "Solo variance -> pool shares reward -> pool builds the block -> chooses contents -> large pool can censor. Risk = concentration of block production.",
+      "recall": [
+        ["Why do miners join pools?", "Solo mining variance is too high."],
+        ["What power does the pool operator have?", "Choosing which transactions go into the block."],
+        ["Is decentralisation a boolean?", "No - it is a degree, measured by production share."],
+        ["How is the risk mitigated?", "By miners choosing smaller pools, not by cryptography."]
+      ]
+    },
+    {
+      "name": "Smart Contracts Vulnerabilities",
+      "definition": "Smart-contract vulnerabilities are ordering and trust mistakes: the contract acts on an unchecked value, or hands control to code it does not control before finishing its own work.",
+      "problem": "A deployed contract cannot be patched quietly. Every bug is permanent and immediately exploitable by anyone who reads the bytecode.",
+      "mechanism": [
+        "Reentrancy: an external call is made before the balance is updated, so the callee re-enters and drains twice. Fix: checks-effects-interactions or a reentrancy guard.",
+        "Integer overflow/underflow: unchecked arithmetic wraps. Fix: Solidity 0.8+ reverts automatically; SafeMath before it.",
+        "tx.origin phishing: require(tx.origin == owner) is satisfied by a phishing contract. Fix: check msg.sender.",
+        "Unchecked external call: the return value of call/send is ignored. Fix: require the success flag.",
+        "Front-running: a visible pending action is copied. Fix: commit-reveal.",
+        "Timestamp dependence: block.timestamp is miner-influenceable around the margin. Fix: use block.number where possible."
+      ],
+      "terminology": [
+        ["Reentrancy", "Re-entry before state update."],
+        ["Checks-effects-interactions", "Check, update, then call."],
+        ["tx.origin", "The original EOA of the transaction."],
+        ["Commit-reveal", "Hide then reveal a value."]
+      ],
+      "examAnswer": {
+        "question": "Name the main smart-contract vulnerabilities and the fix for each.",
+        "points": [
+          "Reentrancy: external call before state update; fix with checks-effects-interactions.",
+          "Integer overflow/underflow: use checked arithmetic (0.8+ reverts).",
+          "tx.origin phishing: check msg.sender instead.",
+          "Unchecked external call: verify the returned success flag.",
+          "Front-running: commit-reveal instead of exposing the action.",
+          "Timestamp dependence: prefer block.number to block.timestamp."
+        ]
+      },
+      "traps": [
+        "Always pair the vulnerability with its fix - the marks are in the pairing.",
+        "Reentrancy is an ordering bug, not a permissions bug.",
+        "Solidity 0.8 changed the default arithmetic; say which version you mean."
+      ],
+      "revision": "Reentrancy -> CEI/guard. Overflow -> checked maths. tx.origin -> msg.sender. Unchecked call -> verify return. Front-run -> commit-reveal. Timestamp -> block.number.",
+      "recall": [
+        ["What is the fix for reentrancy?", "Update state before the external call (checks-effects-interactions), or use a guard."],
+        ["Why is tx.origin unsafe for authorisation?", "A phishing contract in the middle satisfies it; msg.sender is the immediate caller."],
+        ["How does Solidity 0.8 change overflow handling?", "It reverts on overflow by default, replacing SafeMath."],
+        ["What pattern stops front-running of a visible action?", "Commit-reveal."]
+      ]
+    },
+    {
+      "name": "Blockchain Scalability",
+      "definition": "Blockchain scalability is the trade between what the base layer can process and where execution happens, with Layer 2 moving work off-chain and posting proofs back.",
+      "problem": "The base layer can only fit so many transactions per block. Making blocks bigger raises the hardware cost of validating, which quietly centralises the network.",
+      "mechanism": [
+        "Layer 1 limits: block size and gas per block bound throughput; raising them raises node requirements.",
+        "Layer 2 moves execution off the base chain: state channels, optimistic rollups, zero-knowledge rollups.",
+        "Layer 2 posts proofs or compressed data back to Layer 1 for settlement.",
+        "Security inheritance depends on data availability: a rollup that posts data to L1 inherits L1 security.",
+        "A rollup that keeps data private inherits much less, because users cannot verify it.",
+        "Trade: throughput up, but exit and dispute paths now depend on L2 assumptions."
+      ],
+      "terminology": [
+        ["Layer 2", "Execution moved off the base chain."],
+        ["Rollup", "Batches transactions and posts a proof or data to L1."],
+        ["State channel", "Off-chain interaction with on-chain settlement."],
+        ["Data availability", "Whether L1 can verify what L2 did."]
+      ],
+      "examAnswer": {
+        "question": "Compare Layer 1 and Layer 2 scaling and state the trade-off.",
+        "points": [
+          "Layer 1 throughput is bounded by block size and gas; raising it raises node cost.",
+          "Layer 2 moves execution off-chain: channels, optimistic and zk rollups.",
+          "L2 posts proofs or data back to L1 for settlement and dispute.",
+          "It inherits L1 security only if its data is available on L1.",
+          "Private-data rollups inherit much less security, because users cannot verify.",
+          "Trade: higher throughput for extra trust assumptions and exit paths."
+        ]
+      },
+      "traps": [
+        "Bigger blocks are not free scaling - they centralise validation.",
+        "Rollups are not automatically as secure as L1; data availability decides.",
+        "Do not claim L2 removes the need for L1; it depends on it for settlement."
+      ],
+      "revision": "L1: bounded by block size/gas; bigger blocks centralise. L2: channels/rollups post proofs to L1. Security inherited only if data is on L1.",
+      "recall": [
+        ["Why is making blocks bigger not a free fix?", "It raises the hardware cost of validating, centralising the network."],
+        ["What decides whether L2 inherits L1 security?", "Whether its data is posted to L1."],
+        ["Name three Layer 2 approaches.", "State channels, optimistic rollups, zero-knowledge rollups."],
+        ["What does L1 still provide in a layered design?", "Ordering, settlement and data availability."]
+      ]
+    }
+  ]
+}

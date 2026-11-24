@@ -1,0 +1,45 @@
+{
+  "revision": {
+    "mentalMap": [
+      { "label": "Components", "sub": "contract + UI + wallet + off-chain storage + oracle" },
+      { "label": "Design method", "sub": "actors → is a chain needed → network → data → contract → govern" },
+      { "label": "Templates", "sub": "escrow · exchange · provenance · identity · registry · notary" },
+      { "label": "Clients", "sub": "Geth=Go · Besu=Java · Nethermind=C# · Erigon · pyethapp" },
+      { "label": "Geth", "sub": "init → account new → run → attach → act" },
+      { "label": "Languages", "sub": "Solidity=C-like, big · Vyper=minimal, auditable" },
+      { "label": "TestRPC/Ganache", "sub": "local chain, instant blocks" },
+      { "label": "MetaMask", "sub": "holds key, signs, relays over JSON-RPC" },
+      { "label": "Truffle", "sub": "compile → test → migrate → console" },
+      { "label": "Accounts", "sub": "EOA has a key, contract has code" },
+      { "label": "Keypairs", "sub": "private → public → keccak256 → last 20 bytes" }
+    ],
+    "topExamQuestions": [
+      "List the components of a dApp and state what each contributes.",
+      "Give a step-by-step methodology for designing a blockchain application.",
+      "Compare Ethereum clients and state which dominates.",
+      "Give the geth commands for deploying and calling a contract.",
+      "Compare Solidity and Vyper as Ethereum contract languages.",
+      "How does MetaMask authorise a transaction?",
+      "Compare EOAs and contract accounts, and explain how each is created and used.",
+      "Explain the Truffle workflow and why migrations matter."
+    ],
+    "drill": [
+      ["Which dApp component is on-chain?", "The smart contract — only that one"],
+      ["Where does identity live?", "In the wallet, as a user-held private key"],
+      ["First design decision?", "Whether a blockchain is needed at all"],
+      ["When do you design the contract?", "Last, after the data model"],
+      ["Which client is the reference?", "Geth, written in Go"],
+      ["Which client is deprecated?", "pyethapp"],
+      ["Which geth command opens a console?", "geth attach"],
+      ["Deploy vs call?", "Deploy has no `to` field; call sets `to`"],
+      ["Which read costs no gas?", "eth.call"],
+      ["Solidity vs Vyper?", "C-like with big tooling vs minimal and auditable"],
+      ["TestRPC is now called?", "Ganache"],
+      ["What does MetaMask sign with?", "The user-held private key, locally"],
+      ["Which Truffle command deploys?", "truffle migrate"],
+      ["Can a contract start a transaction?", "No — never, it only responds"],
+      ["How is an address derived?", "Last 20 bytes of keccak256 of the public key"]
+    ],
+    "covered": "16 of 16 syllabus topics — 9 must-learn"
+  }
+}

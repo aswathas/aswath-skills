@@ -1,7 +1,7 @@
 {
   "name": "aswath-skills",
   "displayName": "Aswath Skills",
-  "version": "1.11.0",
+  "version": "1.13.0",
   "description": "Atomic skills grouped by the question they answer: context tools, publishing, workflow records, orchestration, writing and utilities. Includes aswath-resume-tailor, which turns a job description into a tailored one-page ATS-safe resume, and aswath-gform-fill, which fills and submits a Google Form for any saved Google account.",
   "author": {
     "name": "Aswath S",
@@ -41,6 +41,7 @@
     "./skills/workflow/aswath-first-principles",
     "./skills/workflow/aswath-forge",
     "./skills/workflow/aswath-thevai",
+    "./skills/workflow/aswath-study-technique",
     "./skills/workflow/aswath-thinking",
     "./skills/workflow/aswath-throw",
     "./skills/writing/aswath-talk",
