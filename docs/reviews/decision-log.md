@@ -1202,3 +1202,43 @@ marketplace carry version 1.9.0.
   sync test still passes, so the two copies of the file are identical.
 - Consequence: the agent's own routing and the `router` command now give the
   same answer for the same request.
+
+## D5 - Autocompact templates: a window and a rule set per task class
+- Date: 2026-11-24
+- Prompt: "i want to keep autocomapct templates for small , medium , hard task we i need differtn diffetn autocompacting rules basic is 150k-200k , medium -250k to 300k , hard or heavy task - 400k"
+- Context: Claude Code has one auto-compact window per session, and it is
+  resolved per model, not per task difficulty. There is also no setting for
+  custom compaction instructions - the runtime bundle has no
+  `customInstructions`, no `COMPACT.md`, no `CLAUDE_CODE_COMPACT*`. So the
+  request has two halves: a window (a runtime setting) and a rule set (what
+  the summary keeps), and only one of them is a native setting.
+- Options:
+  - Ship windows only, and tell the user to type `/compact` with instructions
+    by hand each time. No rules travel with the template.
+  - Write the rules into the compaction prompt through the only hook channel
+    the runtime offers: a `PreCompact` hook whose stdout the runtime feeds
+    into the summary as instructions.
+  - Ship a custom `/compact` alias per template that pre-fills instructions.
+    Only works when the user remembers to run it, and auto-compaction never
+    runs it.
+- Chosen: both halves ship together. `presets.json` holds window + use-when
+  + rules per template. `autocompact.py apply <name>` writes the window to the
+  user settings file - both the top-level `autoCompactWindow` and every known
+  spelling of the model id in `modelSettings`, so it lands whichever id the
+  runtime canonicalises to - writes the active template to
+  `~/.claude/autocompact-template.json`, and registers a `PreCompact` hook
+  that prints that template's rules.
+- Evidence: `scripts/selftest.py` runs against a throwaway HOME and passes 24
+  of 24. It proves the window and the per-model window are written, that
+  `effortLevel` and unrelated settings survive, that the env block is left
+  alone and warned about, that the rules hook is registered without duplicating
+  itself and without disturbing another `PreCompact` hook, that the hook
+  prints the right template's rules, and that `uninstall` removes exactly
+  what it owns. A live PreCompact payload piped into the hook prints the basic
+  rules and exits 0.
+- Consequence: the rules survive auto-compaction, which is the only case that
+  matters. The window applies to the next session, not the running one. The
+  blocker found on this machine - `CLAUDE_CODE_AUTO_COMPACT_WINDOW=204800` in
+  the settings env block - outranks the settings file, so it was removed; the
+  running session keeps 204800 until Claude Code restarts. The effective
+  window is still capped by the model's own context limit.

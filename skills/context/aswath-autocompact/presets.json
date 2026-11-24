@@ -1,0 +1,40 @@
+{
+  "templates": {
+    "basic": {
+      "label": "Basic / small task",
+      "window": 200000,
+      "allowed_window": [150000, 200000],
+      "use_when": "A single focused job: one file, one question, a fix, an answer. Nothing heavy is in flight.",
+      "rules": [
+        "This is a BASIC task. Keep the summary short and actionable.",
+        "Keep: the goal in one line, files touched (exact paths), decisions already made, the immediate next step, and any error text that still blocks the work.",
+        "Drop: verbose tool output, repeated reads of the same file, exploratory chatter, and anything already decided.",
+        "Prefer a short checklist over prose. Do not restate the conversation."
+      ]
+    },
+    "medium": {
+      "label": "Medium task",
+      "window": 300000,
+      "allowed_window": [250000, 300000],
+      "use_when": "A multi-step feature or investigation: several files, a plan, tests to run, open questions.",
+      "rules": [
+        "This is a MEDIUM task. The summary must let the next turn continue without re-reading anything.",
+        "Keep: the goal, the plan split into done and remaining, each decision with a one-line reason, files changed with exact paths, test and command results including failures, and open questions with their owner.",
+        "Drop: raw tool output, full file contents, and superseded attempts. Keep file paths and error strings exact.",
+        "Keep file paths and error text verbatim; trim narrative instead."
+      ]
+    },
+    "hard": {
+      "label": "Hard / heavy task",
+      "window": 400000,
+      "allowed_window": [400000, 400000],
+      "use_when": "A long build, a hard debugging hunt, a migration, a multi-repo change. Losing context here is expensive.",
+      "rules": [
+        "This is a HARD task. Losing detail here is expensive, so the summary is deliberately thorough.",
+        "Keep: the goal and success criteria, every constraint and invariant learned, every decision with its reason and the alternatives rejected, exact file paths and symbol names touched, error text and stack fragments verbatim, the current state of the work, and the next steps in order.",
+        "Do not drop error text, file paths, symbol names, or rejected alternatives. Trim narrative prose and redundant output instead.",
+        "Record anything that was tried and failed - it stops the next turn from repeating it."
+      ]
+    }
+  }
+}

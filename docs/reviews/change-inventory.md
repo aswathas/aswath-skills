@@ -458,3 +458,18 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D4 | Contract requires every decision to be written down | Read back; the entry names the drift, the options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-24 - autocompact templates for small, medium and hard tasks
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/context/aswath-autocompact/SKILL.md` | New: the skill - the three templates, how to apply one, and the three caveats (next-session window, env var precedence, model cap) | The user asked for reusable autocompact templates; the skill is how they are invoked | `claude plugin validate .` passes; the skill is listed in the installed skill catalogue |
+| `skills/context/aswath-autocompact/presets.json` | New: the source of truth - window, allowed range, use-when and the rules for basic (200k), medium (300k) and hard (400k) | The rules are the part that has no native runtime setting, so they need a home of their own | `python scripts/selftest.py` -> the applied template's rules match the preset; the hook prints "MEDIUM task" for medium |
+| `skills/context/aswath-autocompact/scripts/autocompact.py` | New: apply / status / uninstall. Writes the window top-level and per model id, writes the state file, registers the rules hook, removes exactly what it owns | The window must be settable without the `/autocompact` slash command, which refuses to write while the env var is set | 24 assertions green, including preservation of `effortLevel`, unrelated keys, another `PreCompact` hook, and the env block |
+| `skills/context/aswath-autocompact/scripts/compaction_rules.py` | New: the `PreCompact` hook. Prints the active template's rules; silent and exit 0 when no template is active | Claude Code has no custom-compaction-instruction setting, so the hook stdout is the only channel | Piped a real PreCompact payload: rules printed, exit 0; with no state file: no output, exit 0 |
+| `skills/context/aswath-autocompact/scripts/selftest.py` | New: 24 assertions against a throwaway HOME | The script edits the real user settings file; the check must not | `python scripts/selftest.py` -> passed 24, failed 0, run twice |
+| `manifest.json` | Added the `aswath-autocompact` row; version 1.11.0 -> 1.12.0; updated 2026-11-24 | A new skill has to be in the machine index or the installer skips it | `install.ps1` -> linked 2, skipped 88; the skill resolves in the installed catalogue |
+| `README.md` | Added the context-table row and the layout line | The README lists every invocable skill | Read back; both lines present |
+| `docs/reviews/decision-log.md` | Added D5 | Contract requires every decision to be written down | Read back; the entry names the options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` for this work appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |

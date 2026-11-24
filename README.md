@@ -87,6 +87,7 @@ Two ways in, and they are the same units.
 | `aswath-token-ledger` | Raw per-session ledger: costliest tool outputs, files read twice, spend across sessions. Reads the transcript store directly. | `/aswath-token-ledger` |
 | `aswath-token-evaluator` | Per-session stats table, cause breakdown, measured vs counterfactual savings, before/after around the guard. | `/aswath-token-evaluator` |
 | `aswath-compact` | Measures what the session carries, distils it into a dense handoff, persists it so a later session resumes, and says how to actually release the window. | `/aswath-compact` |
+| `aswath-autocompact` | Auto-compact window and rule set by task class: basic 200k, medium 300k, hard 400k. The window sets when compaction fires; a PreCompact hook sets what the summary keeps. | `/aswath-autocompact` |
 | `aswath-minimax-compaction-handoff` | Automatic context compaction at 100k tokens in MiniMax Code; writes HANDOFF.md via PreCompact hook before compaction and re-injects on resume. | `/aswath-minimax-compaction-handoff` |
 
 ### publishing — get the work out
@@ -143,7 +144,7 @@ Two ways in, and they are the same units.
 
 ```
 skills/
-  context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator, aswath-minimax-compaction-handoff
+  context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator, aswath-autocompact, aswath-minimax-compaction-handoff
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
   workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking
   orchestration/    aswath-capability, aswath-manual-demo
