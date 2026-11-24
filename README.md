@@ -113,6 +113,7 @@ Two ways in, and they are the same units.
 | `aswath-improve` | The learning loop. Reads the ledger's open failures, writes the diff, opens the pull request, and merges only what the gate cleared — reverting the merge with a new commit when the check after it fails. | `/aswath-improve` |
 | `aswath-thevai` | A real person is the source of the brief. Warm, one-question-at-a-time conversation over WhatsApp → an approved brief → build, QA, deliver. Ships with the `thevai-agent`. | `/aswath-thevai` |
 | `aswath-thinking` | Deconstruct ungrounded assumptions via first principles, inversion, and adversarial verification before executing code. | `/aswath-thinking` |
+| `aswath-study-technique` | A syllabus becomes an exam-ready Obsidian vault: unit maps, a full teaching note per topic with an Excalidraw diagram, per-question files, glossary and recall cards — then a depth gate that fails thin notes. | `/aswath-study-technique` |
 
 ### orchestration — assemble the thing
 
@@ -146,7 +147,7 @@ Two ways in, and they are the same units.
 skills/
   context/          aswath-compact, aswath-token-guard, aswath-token-ledger, aswath-token-evaluator, aswath-autocompact, aswath-minimax-compaction-handoff
   publishing/       aswath-publish-github, aswath-publish-instagram, aswath-publish-linkedin
-  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking
+  workflow/         aswath-first-principles, aswath-forge, aswath-commit, aswath-commit-discipline, aswath-chronicle, aswath-delivery, aswath-record, aswath-improve, aswath-throw, aswath-thevai, aswath-thinking, aswath-study-technique
   orchestration/    aswath-capability, aswath-manual-demo
   writing/          aswath-talk, aswath-resume-tailor
   utilities/        aswath-csvjson, aswath-catalog, aswath-schedule, aswath-gform-fill

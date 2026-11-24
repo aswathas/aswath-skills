@@ -1,0 +1,32 @@
+{
+  "topics": {
+    "External Owned Account (EOAs)": {
+      "memoryTrick": "**EOA: key, no code, can start.** Contract: code, no key, can only respond.",
+      "examAnswer": {
+        "question": "Compare EOAs and contract accounts, and explain how each is created and used. (8 marks)",
+        "full": "Ethereum has two kinds of account. They share an address format but have completely different powers.\n\n**EOA — externally owned account.** It is controlled by a private key: the address is derived from the public key, so whoever holds the key controls the account. It holds a balance and a nonce but has **no code at its address**. Because it can sign, it is the only kind of account that can *originate* a transaction, and it pays gas for every transaction it sends. Its decisions are made by a person, not by logic.\n\n**Contract account.** It is created the moment a deployment transaction executes its constructor, and thereafter exists permanently with an address, bytecode and its own storage trie. It has **no private key**, so it can never start a transaction — it only acts when an EOA or another contract calls it. It can still hold and move ether, but sending value is simply a function call the contract chooses to honour.\n\n**How each is created.** An EOA is created by generating a keypair (`geth account new`). A contract account is created by sending a transaction whose data field is the compiled bytecode and which has no recipient; the address appears in the receipt. A factory contract that deploys other contracts still does so inside a transaction the factory itself was called by.\n\n**How each is used.** An EOA signs and sends transactions: transfers, deployments, calls. A contract executes its rules when called, updates its own storage and may emit events or send ether.\n\nThe distinguishing consequence: every action on the chain traces back to an EOA, because a contract cannot act first."
+      }
+    },
+    "MetaMask": {
+      "memoryTrick": "**Key in the extension, data in the node.** Signing authorises; the key never travels."
+    },
+    "Keypairs": {
+      "memoryTrick": "**private key (32B) → public key (64B) → keccak256 → last 20 bytes = address.** One-way all the way."
+    },
+    "Go-Ethereum Client (geth)": {
+      "memoryTrick": "**init → account new → run → attach → act.** Five steps, always in order."
+    },
+    "Truffle": {
+      "memoryTrick": "**compile → test → migrate → console.** Migrations are numbered, so deployment is repeatable."
+    },
+    "Design Methodology for Blockchain Applications": {
+      "examAnswer": {
+        "question": "Give a step-by-step methodology for designing a blockchain application. (8 marks)",
+        "full": "Designing a blockchain application is a sequence of decisions, and the technology is chosen fourth, not first.\n\n**1. Name the problem and the actors.** State who writes to the shared record, who reads it, and which of those parties do not trust each other. That distrust is the trust boundary, and it is the only reason a chain is ever needed.\n\n**2. Justify blockchain at all.** If a single organisation already controls the data, a shared database is simpler, faster and cheaper. 'Do not use a chain' is a legitimate design outcome and must be reachable.\n\n**3. Choose the network type.** Public if anyone may write; permissioned or consortium if only identified participants may. This follows from step 1, not from fashion.\n\n**4. Model the data.** Split it: facts that must be agreed and proved go on-chain; bulk or private data goes off-chain, referenced by hash. This split decides cost more than any other choice.\n\n**5. Design the contract as a state machine.** Declare the states and the legal transitions, then enforce them in code with modifiers and requires. Write the contract last, because it locks in every decision above it.\n\n**6. Deploy and govern.** Decide in advance who may upgrade, pause or resolve disputes. Governance cannot be retrofitted without a fork.\n\nThe methodology's value is that each step can rule out the next: the answers to 1 and 2 decide 3, and 4 decides what the contract in 5 can enforce."
+      }
+    },
+    "Blockchain Application Components": {
+      "memoryTrick": "**Contract (rules) + UI (presents) + wallet (signs) + storage (bulk) + oracle (outside facts).** Only the contract is on-chain."
+    }
+  }
+}

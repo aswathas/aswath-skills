@@ -1,0 +1,706 @@
+{
+  "unit": 2,
+  "glossary": {
+    "Gas": {
+      "definition": "The unit that prices EVM computation: every opcode costs gas, and a transaction pays gas used multiplied by the gas price.",
+      "whyItMatters": "It is the mechanism that makes a Turing-complete shared machine safe, and it is the single most calculable exam question in this course.",
+      "confusions": [
+        "Gas is not ether: gas is a count of work, gas price is what that work costs.",
+        "The gas limit is a ceiling, not a charge - unused gas is refunded.",
+        "Running out of gas reverts state but the fee is still spent."
+      ],
+      "topics": [
+        "Gas",
+        "Turing Completeness"
+      ]
+    },
+    "Event": {
+      "definition": "A named record a contract emits that is written to the transaction log rather than to storage.",
+      "whyItMatters": "It is how an off-chain interface learns that something happened without polling every block.",
+      "confusions": [
+        "An event is not state: a contract cannot read its own past events.",
+        "Indexed parameters become searchable topics; a normal event allows up to three.",
+        "Events are cheap precisely because they are not in the state trie."
+      ],
+      "topics": [
+        "Events",
+        "Logs"
+      ]
+    },
+    "Modifier": {
+      "definition": "A reusable guard declared with the modifier keyword that runs before or after a function body and can reject the call.",
+      "whyItMatters": "It puts authorisation in one place instead of repeating require checks at every function.",
+      "confusions": [
+        "A modifier is not an event and not a function; it wraps a function.",
+        "Visibility (public/external/internal/private) is separate from mutability (pure/view/payable)."
+      ],
+      "topics": [
+        "Structure of a Contract",
+        "Smart Contract Patterns"
+      ]
+    },
+    "Reentrancy": {
+      "definition": "A vulnerability where an external call is made before the contract updates its own state, letting the callee call back in and act on the stale state.",
+      "whyItMatters": "It caused the DAO loss in 2016 and remains the most examined bug in this unit.",
+      "confusions": [
+        "The fix is ordering: update state before the external call (checks-effects-interactions).",
+        "A nonReentrant mutex is a second fix, not the only one."
+      ],
+      "topics": [
+        "Smart Contract Patterns",
+        "Smart Contracts Vulnerabilities"
+      ]
+    },
+    "EOA": {
+      "definition": "An externally owned account controlled by a private key, holding no code, that can sign and originate transactions.",
+      "whyItMatters": "Only an EOA can start a transaction, so everything on the chain is ultimately reached through one.",
+      "confusions": [
+        "Same address format as a contract account, completely different powers.",
+        "An EOA has a nonce that increments with each transaction it sends."
+      ],
+      "topics": [
+        "External Owned Account (EOAs)",
+        "Contract Account"
+      ]
+    },
+    "Contract account": {
+      "definition": "An account created by a deployment transaction that holds bytecode and storage and has no private key.",
+      "whyItMatters": "It can hold and move value but can never act first; it only responds to a call.",
+      "confusions": [
+        "It cannot initiate a transaction, on a timer or otherwise.",
+        "It can send ether, but only as the effect of a function call it received."
+      ],
+      "topics": [
+        "Contract Account",
+        "External Owned Account (EOAs)"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "Structure of a Contract",
+      "definition": "A Solidity contract is a class whose instance lives permanently at one address, holding state variables, exposing functions, guarded by modifiers, and announcing changes through events.",
+      "problem": "A contract must be inspectable and auditable before it is deployed, because after deployment its code cannot be quietly changed. That requires a fixed, small set of structural elements with declared visibility and mutability.",
+      "mechanism": [
+        "Pragma: the compiler version, e.g. pragma solidity ^0.8.20; it selects the language rules.",
+        "State variables: the persistent memory, e.g. mapping(address => uint256) public balanceOf; they live in storage and cost gas to write.",
+        "Constructor: runs once at deployment, typically to set owner = msg.sender.",
+        "Modifiers: reusable guards such as onlyOwner that run before the function body and can revert the call.",
+        "Functions: the doors; each declares visibility (public, external, internal, private) and mutability (view, pure, payable).",
+        "Events: declared with the event keyword and emitted with emit; they announce state changes to off-chain listeners."
+      ],
+      "terminology": [
+        [
+          "pragma",
+          "Compiler version directive."
+        ],
+        [
+          "State variable",
+          "Persistent storage slot owned by the contract."
+        ],
+        [
+          "Visibility",
+          "Who may call: public, external, internal, private."
+        ],
+        [
+          "Mutability",
+          "Whether the function reads, writes, or accepts value."
+        ],
+        [
+          "constructor",
+          "Runs once, at deployment."
+        ],
+        [
+          "modifier",
+          "Guard applied to a function."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Annotate a Solidity contract: name each structural element and state its role.",
+        "points": [
+          "pragma: fixes the compiler version and therefore the language rules.",
+          "State variables: persistent memory; declare visibility on them too.",
+          "constructor: sets initial state once, at deployment; msg.sender is the deployer.",
+          "Functions: the callable interface; declare visibility and mutability on each.",
+          "Modifiers: reusable authorisation checks that run before the body.",
+          "Events: off-chain announcements, cheap because they are logs not storage."
+        ]
+      },
+      "traps": [
+        "Visibility is not access control in the security sense - private is not secret on-chain, it only restricts Solidity-level calls.",
+        "A function marked view cannot write state; marking it payable is what allows it to receive ether.",
+        "Constructors run once; anything you need at call time belongs in a function or modifier."
+      ],
+      "revision": "pragma -> state variables -> constructor -> functions (+ visibility/mutability) -> modifiers -> events.",
+      "recall": [
+        [
+          "What does the pragma line control?",
+          "The compiler version, and therefore the language rules in force."
+        ],
+        [
+          "Where does msg.sender point inside a constructor?",
+          "The deploying account (an EOA or a factory contract)."
+        ],
+        [
+          "What is the difference between view and payable?",
+          "view promises no state write; payable allows the function to receive ether."
+        ],
+        [
+          "Why are events cheaper than state writes?",
+          "They are written to the log, outside the state trie."
+        ]
+      ]
+    },
+    {
+      "name": "Setting up and Interacting with a Contract using Geth Client",
+      "definition": "Deploying a contract from geth means sending a transaction whose data field is the compiled bytecode and which has no recipient; the contract address is then derived from the sender and its nonce.",
+      "problem": "You need a way to put code on a chain without any privileged deployment API. Since the chain only understands transactions, deployment must be expressible as one.",
+      "mechanism": [
+        "geth init --datadir ./node: creates the chain database and keystore.",
+        "Start the node: geth --datadir ./node --networkid 1 --http --port 8545 exposes JSON-RPC on 8545.",
+        "Create an account: personal.newAccount() prints an address; personal.unlockAccount(acct, \"\", 0) unlocks it for signing.",
+        "Deploy: eth.sendTransaction({from: acct, data: bytecode}) with no to field - the receipt's contractAddress is the new address.",
+        "Call: eth.sendTransaction({from: acct, to: contractAddress, data: selector + encoded args}).",
+        "Read: eth.call({to: addr, data: selector}) executes without changing state and costs no gas."
+      ],
+      "terminology": [
+        [
+          "JSON-RPC",
+          "The HTTP/WebSocket API a client exposes."
+        ],
+        [
+          "receipt",
+          "The record returned once a transaction is mined; contains contractAddress and logs."
+        ],
+        [
+          "selector",
+          "The first 4 bytes of keccak256 of the function signature."
+        ],
+        [
+          "datadir",
+          "The folder holding chain and keys."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Give the command sequence to deploy and then call a contract from geth.",
+        "points": [
+          "geth init --datadir ./node creates the chain and keystore.",
+          "geth --datadir ./node --networkid 1 --http --port 8545 starts a node and exposes RPC.",
+          "personal.newAccount() then personal.unlockAccount(acct, \"\", 0) creates and unlocks a signing key.",
+          "Deploy with eth.sendTransaction({from, data: bytecode}) and no recipient.",
+          "Read the address from the transaction receipt's contractAddress.",
+          "Call with eth.sendTransaction({from, to: addr, data: selector}) or read free with eth.call."
+        ]
+      },
+      "traps": [
+        "Deployment has no 'to' field - if you set one, you are calling, not deploying.",
+        "eth.call is read-only and free; eth.sendTransaction is a state change and costs gas.",
+        "geth holds the chain; it is not a wallet - keys are unlocked locally, signing is still done by the key."
+      ],
+      "revision": "init -> run node -> new + unlock account -> send tx with data=bytecode (no to) -> read contractAddress from receipt -> call with to + selector.",
+      "recall": [
+        [
+          "Where does the new contract's address appear?",
+          "In the deployment transaction's receipt, as contractAddress."
+        ],
+        [
+          "How do you distinguish deploy from call in the transaction?",
+          "Deploy has no to field; call sets to the contract address."
+        ],
+        [
+          "What does geth attach do?",
+          "Opens an interactive JavaScript console against a running node."
+        ],
+        [
+          "Which call costs no gas?",
+          "eth.call - it executes without changing state."
+        ]
+      ]
+    },
+    {
+      "name": "Gas",
+      "definition": "Gas is the unit that prices EVM computation: every opcode has a fixed cost, the machine meters what your code spends, and the transaction is charged gas used multiplied by the gas price.",
+      "problem": "The EVM is a shared, replicated machine. Without a price on computation, one contract with an infinite loop would stall every node on the network forever.",
+      "mechanism": [
+        "The transaction declares a gas limit - the maximum it may spend.",
+        "Each opcode executed adds its fixed cost to the running meter (gas used).",
+        "If gas used reaches the limit, execution halts, state is reverted, and the fee is still spent.",
+        "If it completes, unused gas is refunded and the charge is gas used x gas price.",
+        "Opcode prices encode policy: storage writes are expensive, reads and pure computation are cheap, so contracts are nudged to keep little state.",
+        "Under EIP-1559 the fee is a burned base fee plus a priority tip paid to the validator."
+      ],
+      "terminology": [
+        [
+          "Gas limit",
+          "Ceiling the sender authorises."
+        ],
+        [
+          "Gas used",
+          "What execution actually consumed."
+        ],
+        [
+          "Gas price",
+          "Price per gas unit, in gwei."
+        ],
+        [
+          "Base fee",
+          "EIP-1559 protocol-set fee, burned."
+        ],
+        [
+          "Priority fee",
+          "Optional tip to the validator."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is gas and why does Ethereum charge it?",
+        "points": [
+          "Gas meters computational work, so resources are priced rather than free.",
+          "It bounds execution: an infinite loop runs out of gas and is reverted, which is what makes a Turing-complete chain safe.",
+          "Fee = gas used x gas price; the limit is a ceiling and unused gas is refunded.",
+          "Opcode prices encode policy - storage costly, computation cheap.",
+          "Running out of gas reverts state but not the fee, so it is never a free retry.",
+          "Post-1559 the fee splits into a burned base fee and a validator tip."
+        ]
+      },
+      "traps": [
+        "Gas is not the fee. Gas is work; the fee is gas x price.",
+        "Unused gas is refunded; the limit is not what you pay.",
+        "An out-of-gas revert still costs the sender - it is not a cancelled transaction."
+      ],
+      "revision": "Fee = gas used x gas price. 1 ETH = 1e9 gwei. 40,000 gas at 25 gwei = 1,000,000 gwei = 0.001 ETH.",
+      "recall": [
+        [
+          "Compute the fee for 40,000 gas at 25 gwei.",
+          "40,000 x 25 = 1,000,000 gwei = 0.001 ETH (1 ETH = 1e9 gwei)."
+        ],
+        [
+          "What happens to unused gas?",
+          "It is refunded; only gas used is charged."
+        ],
+        [
+          "Why does gas exist at all?",
+          "To bound execution so an infinite loop cannot stall the chain."
+        ],
+        [
+          "Which is dearer: a storage write or a pure computation?",
+          "A storage write, deliberately - to discourage bloated state."
+        ]
+      ]
+    },
+    {
+      "name": "Logs",
+      "definition": "Logs are records written into the transaction receipt rather than into contract storage, so they are cheap to emit but cannot be read back by the contract.",
+      "problem": "If every announcement had to be a storage write, telling the world what happened would cost as much as changing state. Most announcements are for outside observers, not for future contract logic.",
+      "mechanism": [
+        "When a contract emits an event, the node writes a log entry into the receipt.",
+        "The log lives outside the state trie, so it does not change the state root and costs far less than a storage write.",
+        "Because it is outside storage, Solidity code has no instruction to read a past log.",
+        "Outside code reads logs through receipts or the log filter (eth_getLogs), which is what block explorers do.",
+        "That makes logs a one-way channel: excellent for telling the world, useless for logic that must consult history."
+      ],
+      "terminology": [
+        [
+          "Log",
+          "A receipt entry produced by emit."
+        ],
+        [
+          "Receipt",
+          "The mined transaction's result record, containing logs and gas used."
+        ],
+        [
+          "eth_getLogs",
+          "The RPC method that filters logs by address and topic."
+        ],
+        [
+          "State trie",
+          "Where storage lives; logs are deliberately outside it."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Distinguish logs from state variables, and explain the consequence for contracts.",
+        "points": [
+          "Storage is part of the state trie; logs live in the receipt.",
+          "Storage is readable by the contract; logs are invisible to it.",
+          "Storage writes are costly and change the state root; logs are cheap and do not.",
+          "Consequence: a contract cannot make logic depend on its own past logs.",
+          "Off-chain readers use receipts and log filters to react to events.",
+          "Design rule: emit for observers, store for logic."
+        ]
+      },
+      "traps": [
+        "Do not claim a contract can read its own events - it cannot.",
+        "Logs do not change state, so they cannot be used as a counter the contract reads.",
+        "Cheap does not mean free: emitting still costs gas, just far less than storage."
+      ],
+      "revision": "Storage: in the state trie, readable by the contract, costly. Logs: in the receipt, invisible to the contract, cheap.",
+      "recall": [
+        [
+          "Why is a log cheaper than a storage write?",
+          "It is written to the receipt, outside the state trie, so it does not change the state root."
+        ],
+        [
+          "Can a contract read its own past logs?",
+          "No - logs are outside storage and invisible to Solidity code."
+        ],
+        [
+          "What reads logs then?",
+          "Off-chain clients, via receipts or eth_getLogs."
+        ],
+        [
+          "What does a log cost in terms of state?",
+          "Nothing - it does not alter the state root."
+        ]
+      ]
+    },
+    {
+      "name": "Events",
+      "definition": "An event is a named record a contract declares and emits to announce something, whose indexed parameters become searchable topics that clients can filter on.",
+      "problem": "A user interface must learn that a transaction happened without downloading and re-executing every block. It needs a cheap, addressable, filterable announcement.",
+      "mechanism": [
+        "Declare the shape: event Transfer(address indexed from, address indexed to, uint256 value);",
+        "Emit it with the payload: emit Transfer(msg.sender, to, amount);",
+        "The node writes a log whose first topic is keccak256 of the event signature.",
+        "Each indexed parameter becomes an additional topic, so up to three parameters can be searched directly.",
+        "A client filters with eth_getLogs by contract address and topics, so it can find every Transfer in history for one address.",
+        "The client then reacts: it updates the interface without polling state."
+      ],
+      "terminology": [
+        [
+          "emit",
+          "The statement that writes the log."
+        ],
+        [
+          "indexed",
+          "Marks a parameter as a searchable topic."
+        ],
+        [
+          "topic",
+          "A 32-byte log field; the first is the event signature hash."
+        ],
+        [
+          "anonymous event",
+          "An event with no name, filterable only by address."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Write an event declaration and its emit, and explain why events are not state.",
+        "points": [
+          "Declaration: event Transfer(address indexed from, address indexed to, uint256 value);",
+          "Emit: emit Transfer(msg.sender, to, amount);",
+          "The log's first topic is keccak256 of the signature, so the type is identifiable.",
+          "Indexed parameters become topics, so history is filterable by address.",
+          "Events are logs, not storage: they cost little and do not change the state root.",
+          "A contract cannot read them back, so they serve observers, not logic."
+        ]
+      },
+      "traps": [
+        "An event is a log, not a state variable - never say events are stored in the contract.",
+        "Only indexed parameters are searchable; a fourth indexed parameter is not allowed on a normal event.",
+        "Emitting does not change state, so an event cannot be used as a counter."
+      ],
+      "revision": "event Transfer(address indexed from, address indexed to, uint256 value); emit Transfer(a, b, n). Topic 1 = signature hash; indexed params = filterable.",
+      "recall": [
+        [
+          "What is the first topic of an event log?",
+          "keccak256 of the event signature, which identifies the type."
+        ],
+        [
+          "How many indexed parameters does an ordinary event allow?",
+          "Up to three."
+        ],
+        [
+          "Why is an interface built on events rather than state polling?",
+          "Events are cheap, indexed and filterable, so the client learns of changes without re-reading every account."
+        ],
+        [
+          "Can the emitting contract read the event later?",
+          "No - it is a log, outside storage."
+        ]
+      ]
+    },
+    {
+      "name": "Setting up and Interacting with a Contract using Mist Wallet",
+      "definition": "Mist was a desktop browser and wallet bundled with a light Ethereum node, letting a user call contracts without pointing at someone else's server; it is discontinued.",
+      "problem": "Early users needed a way to interact with contracts without running a full node or trusting a third-party RPC endpoint. Mist bundled a light node with the interface.",
+      "mechanism": [
+        "Mist shipped a browser plus a light Ethereum node in one desktop application.",
+        "Contracts were called through a normal web interface, but the node behind it was local.",
+        "It is discontinued, so only its historical role is examinable.",
+        "Its successor pattern is the browser extension wallet plus a remote RPC, which is what MetaMask does."
+      ],
+      "terminology": [
+        [
+          "Light node",
+          "A node that verifies headers but not all state."
+        ],
+        [
+          "Bundled wallet",
+          "A wallet shipped inside the browser application."
+        ],
+        [
+          "Discontinued",
+          "No longer maintained; history only."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What was Mist, and why is it only historically relevant?",
+        "points": [
+          "A desktop application combining a browser, a wallet and a light Ethereum node.",
+          "It let a user call contracts without configuring a separate node or trusting a public RPC.",
+          "It is discontinued, so examinable only as ecosystem history.",
+          "Its idea survives in the extension-wallet-plus-RPC pattern (MetaMask)."
+        ]
+      },
+      "traps": [
+        "Do not describe Mist as a current tool - the paper may ask for recognition only.",
+        "Do not confuse Mist with MetaMask: Mist bundled a node, MetaMask does not."
+      ],
+      "revision": "Mist = browser + wallet + light node, discontinued. Its idea survives as MetaMask + RPC.",
+      "recall": [
+        [
+          "What did Mist bundle that MetaMask does not?",
+          "A light Ethereum node inside the desktop application."
+        ],
+        [
+          "Is Mist current?",
+          "No - it is discontinued and only its historical role is examinable."
+        ]
+      ]
+    },
+    {
+      "name": "Smart Contract Examples",
+      "definition": "A token contract is a ledger of per-address balances with a supply rule; a voting contract records hidden commitments until a deadline and then reveals and counts them. Both are expressible as explicit state transitions.",
+      "problem": "An examiner wants to see that you can read a contract as a set of legal state transitions rather than as code. The examples exist to make that translation concrete.",
+      "mechanism": [
+        "Token state: balances[address] and totalSupply.",
+        "transfer(to, n): require balances[msg.sender] >= n; balances[msg.sender] -= n; balances[to] += n; emit Transfer.",
+        "mint(n): restricted to the owner; totalSupply += n; the minter's balance rises.",
+        "burn(n): totalSupply -= n; the holder's balance falls.",
+        "Voting: commit(choice, salt) stores keccak256(choice, salt, sender) before the deadline, so the choice is hidden.",
+        "After the deadline, reveal(choice, salt) is checked against the commitment and counted."
+      ],
+      "terminology": [
+        [
+          "State transition",
+          "A legal (input, old state) -> new state mapping."
+        ],
+        [
+          "totalSupply",
+          "The sum of all balances; mint and burn are the only ways it moves."
+        ],
+        [
+          "Commit-reveal",
+          "Hide a value by publishing its hash, then reveal it later."
+        ],
+        [
+          "ERC-20",
+          "The standard token interface: transfer, approve, balanceOf, totalSupply."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Trace a token contract's state transitions and explain the voting variant.",
+        "points": [
+          "State: balances per address plus totalSupply.",
+          "transfer moves balance between addresses and leaves totalSupply unchanged.",
+          "mint is owner-only and raises totalSupply, diluting every holder's share.",
+          "burn lowers totalSupply and the holder's balance.",
+          "Every transition emits an event for off-chain tracking.",
+          "Voting hides choices with commit-reveal so the outcome cannot be read early."
+        ]
+      },
+      "traps": [
+        "transfer does not change totalSupply - only mint and burn do.",
+        "A voting contract's secrecy comes from hashing, not from access control.",
+        "Do not call a token contract 'a database' without saying what the state transitions are."
+      ],
+      "revision": "transfer: A-n, B+n, supply unchanged. mint: supply +n, owner only. burn: supply -n. Voting: commit hash, reveal after deadline.",
+      "recall": [
+        [
+          "Which functions change totalSupply?",
+          "Only mint and burn; transfer leaves it unchanged."
+        ],
+        [
+          "What does a transfer of 40 from A to B do to supply?",
+          "Nothing - balances move, totalSupply stays constant."
+        ],
+        [
+          "How does a voting contract hide choices?",
+          "It stores keccak256(choice, salt, sender) and reveals after the deadline."
+        ],
+        [
+          "Who may mint?",
+          "The owner, enforced by a modifier."
+        ]
+      ]
+    },
+    {
+      "name": "Smart Contract Patterns",
+      "definition": "Patterns are the standard structural answers to recurring contract mistakes; each one reorders or guards the code so a specific attack stops working.",
+      "problem": "The same handful of bugs recur because contracts hand control to code they do not control. A pattern is cheaper than re-deriving the fix under exam pressure.",
+      "mechanism": [
+        "Checks-effects-interactions: check the condition, update your state, then make the external call - so a re-entrant call sees the new state.",
+        "Pull payment: credit a balance and let the recipient withdraw, instead of pushing funds during the call, so a malicious recipient cannot block or drain.",
+        "Owner-only modifier: replace scattered comparisons with one guard, so authorisation lives in one place.",
+        "Guard against tx.origin: check msg.sender, because tx.origin can be a phishing intermediary.",
+        "State machine: declare an enum of states and allow only legal transitions, so an attacker cannot skip a step.",
+        "Checked arithmetic: Solidity 0.8+ reverts on overflow; SafeMath was the pre-0.8 equivalent."
+      ],
+      "terminology": [
+        [
+          "Reentrancy",
+          "Calling back into a contract before it finished its state update."
+        ],
+        [
+          "CEI",
+          "Checks-effects-interactions ordering."
+        ],
+        [
+          "Pull payment",
+          "Pay by crediting a balance the recipient withdraws."
+        ],
+        [
+          "Mutex",
+          "A lock flag that rejects re-entry."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Name three smart-contract patterns and the failure each one removes.",
+        "points": [
+          "Checks-effects-interactions removes reentrancy by updating state before the external call.",
+          "Pull payment removes both reentrancy and the DoS of a recipient that reverts.",
+          "Owner-only modifier removes unauthorised calls by centralising the check.",
+          "msg.sender over tx.origin removes phishing through an intermediary contract.",
+          "State machine removes illegal transitions by construction.",
+          "Checked arithmetic removes overflow and underflow."
+        ]
+      },
+      "traps": [
+        "A pattern is justified by the attack it stops - always name the attack.",
+        "checks-effects-interactions is about order, not about adding require statements.",
+        "Pull payment is not just 'withdraw later': it is what stops a malicious recipient blocking the send."
+      ],
+      "revision": "CEI -> reentrancy. Pull payment -> reentrancy + DoS. Owner modifier -> unauthorised. msg.sender -> phishing. State machine -> illegal transitions. 0.8 math -> overflow.",
+      "recall": [
+        [
+          "What ordering does checks-effects-interactions require?",
+          "Check, then update your own state, then call out."
+        ],
+        [
+          "Which pattern replaces repeated require(msg.sender == owner)?",
+          "An owner-only modifier."
+        ],
+        [
+          "Why prefer msg.sender over tx.origin?",
+          "tx.origin is the original EOA and can be a phishing contract; msg.sender is the immediate caller."
+        ],
+        [
+          "What does pull payment prevent?",
+          "A malicious recipient blocking the payment, and reentrancy in the payout path."
+        ]
+      ]
+    }
+  ],
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "Structure",
+        "sub": "State variables · functions · modifiers · events · constructor · visibility"
+      },
+      {
+        "label": "Geth",
+        "sub": "init → account new → run node → attach → interact"
+      },
+      {
+        "label": "Gas",
+        "sub": "Work → gas used → gas price → fee"
+      },
+      {
+        "label": "Events",
+        "sub": "declare → emit → log → listen"
+      },
+      {
+        "label": "Logs",
+        "sub": "address · topics · data · receipt"
+      },
+      {
+        "label": "Examples",
+        "sub": "counter · voting · crowdfunding · token · escrow"
+      },
+      {
+        "label": "Patterns",
+        "sub": "access control · CEI · pull payment · factory · circuit breaker"
+      },
+      {
+        "label": "Mist",
+        "sub": "GUI wallet → node → sign → submit (historical)"
+      }
+    ],
+    "topExamQuestions": [
+      "Explain the structure of a smart contract with a Solidity example.",
+      "Explain setting up and interacting with a smart contract using the Geth client.",
+      "What is gas? Explain gas usage, gas limit and transaction fees with a calculation.",
+      "Explain events in Solidity with an example, and why they are not state.",
+      "Explain smart contract patterns and the failure each one removes.",
+      "Explain smart contract examples and their applications."
+    ],
+    "drill": [
+      [
+        "State variables?",
+        "Persistent contract data, stored on-chain"
+      ],
+      [
+        "Functions?",
+        "Contract actions; declare visibility and mutability"
+      ],
+      [
+        "Modifiers?",
+        "Reusable access restrictions applied before the body"
+      ],
+      [
+        "Events?",
+        "Announcements written to the transaction log"
+      ],
+      [
+        "Geth?",
+        "Go Ethereum client: node + console"
+      ],
+      [
+        "Gas?",
+        "Unit measuring computational work"
+      ],
+      [
+        "Transaction fee?",
+        "Gas used × effective gas price"
+      ],
+      [
+        "Event vs log?",
+        "Event is the declared shape; log is the recorded entry"
+      ],
+      [
+        "CEI?",
+        "Checks → Effects → Interactions"
+      ],
+      [
+        "Pull payment?",
+        "Credit a balance; the user withdraws"
+      ],
+      [
+        "Factory?",
+        "A contract that deploys other contracts"
+      ],
+      [
+        "Circuit breaker?",
+        "Emergency pause mechanism"
+      ],
+      [
+        "Reentrancy fix?",
+        "Update state before the external call"
+      ],
+      [
+        "Mist?",
+        "Historical GUI wallet, discontinued"
+      ]
+    ],
+    "covered": "8 of 8 syllabus topics — 6 must-learn, 2 skim"
+  }
+}

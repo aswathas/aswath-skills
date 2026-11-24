@@ -1,0 +1,534 @@
+{
+  "unit": 4,
+  "glossary": {
+    "Consensus": {
+      "definition": "The protocol by which nodes agree on one canonical ordering of transactions when their copies diverge.",
+      "whyItMatters": "Replication creates many histories; consensus is the only thing that turns copies into a single ledger.",
+      "confusions": [
+        "Consensus guarantees agreement on order, not truth or speed.",
+        "It decides ordering, not validity - invalid transactions are rejected first."
+      ],
+      "topics": ["Consensus on Blockchain Network", "Mining"]
+    },
+    "Nonce": {
+      "definition": "A counter a miner varies while searching for a block hash below the difficulty target.",
+      "whyItMatters": "It is the search variable of proof-of-work, and it is also an account-level transaction counter - the two are different.",
+      "confusions": [
+        "The block nonce is a mining search variable; the account nonce counts that account's transactions.",
+        "The nonce is not a secret."
+      ],
+      "topics": ["Mining", "Block Validation"]
+    },
+    "Merkle Patricia trie": {
+      "definition": "A hash-linked trie used by Ethereum to map addresses and storage keys to values, so any change produces a new root hash.",
+      "whyItMatters": "The state root in a block header commits to the whole world state, which is what lets a light client verify one account.",
+      "confusions": [
+        "A Merkle root commits to a block's transactions; the state root commits to accounts.",
+        "The trie is a structure, not a database table."
+      ],
+      "topics": ["State Storage in Ethereum"]
+    },
+    "Swarm": {
+      "definition": "A peer-to-peer, content-addressed storage network where each chunk's address is the hash of its content.",
+      "whyItMatters": "It supplies the off-chain storage component of a dApp, replacing a central server with many copies.",
+      "confusions": [
+        "Swarm needs no consensus over ordering, only agreement that a chunk matches its hash.",
+        "It is storage, not consensus and not a wallet."
+      ],
+      "topics": ["Swarm Architecture and Concepts", "Incentive Mechanisms in Swarm"]
+    },
+    "Finality": {
+      "definition": "The point after which a confirmed block cannot be reversed by the protocol.",
+      "whyItMatters": "Settlement applications need to know when a payment is irreversible, and finality depth is exactly that answer.",
+      "confusions": [
+        "PoW finality is probabilistic; PoS checkpoints can be deterministic.",
+        "Confirmation depth is the PoW mechanism for strengthening finality."
+      ],
+      "topics": ["Consensus on Blockchain Network", "Block Validation"]
+    }
+  },
+  "topics": [
+    {
+      "name": "Implementing Dapps",
+      "definition": "Implementing a dApp runs backwards from the contract: fix the rules and states, write and test the contract, then build the interface and wallet plumbing around it.",
+      "problem": "The contract is the one part that cannot be quietly changed after deployment, so any design decision left until the UI stage is effectively permanent.",
+      "mechanism": [
+        "Define the rules: states and legal transitions, written down before code.",
+        "Write the contract in Solidity, with modifiers for access control.",
+        "Test locally with Truffle against TestRPC/Ganache for the fast loop.",
+        "Deploy to a network and record the address.",
+        "Build the interface: connect a wallet, read state and logs, construct transactions.",
+        "Handle failure: show reverts and pending states honestly, because the chain is asynchronous."
+      ],
+      "terminology": [
+        ["State machine", "The contract's states and legal transitions."],
+        ["Revert", "A failed call that consumes gas but changes no state."],
+        ["Event listener", "The interface's subscription to logs."]
+      ],
+      "examAnswer": {
+        "question": "Outline the end-to-end implementation of a dApp.",
+        "points": [
+          "Define states and legal transitions first; this becomes the contract.",
+          "Write the contract with access control in modifiers.",
+          "Test locally against an instant-block chain.",
+          "Deploy and record the address.",
+          "Build the interface: wallet for signing, RPC for reading.",
+          "React to events and report reverts honestly; the chain is asynchronous."
+        ]
+      },
+      "traps": [
+        "Do not start with the UI - the model and contract come first.",
+        "A revert still costs gas; the interface must show that.",
+        "Events, not state polling, are how the interface follows the contract."
+      ],
+      "revision": "rules/states -> contract -> test locally -> deploy -> interface (wallet + RPC) -> react to events, show reverts.",
+      "recall": [
+        ["What is written first?", "The states and legal transitions - the model."],
+        ["Which part cannot be changed after launch?", "The deployed contract's code."],
+        ["How does the interface learn of changes?", "By listening to events, not by polling state."],
+        ["What must the interface do when a transaction reverts?", "Report it honestly, including that gas was spent."]
+      ]
+    },
+    {
+      "name": "Case Studies",
+      "definition": "A case study is a business scenario whose difficulty is architectural choice; a good answer names the actors, then ties each mechanism to a stated requirement.",
+      "problem": "Students answer case studies by listing technologies. The question is really about justifying choices against requirements, which is a different skill.",
+      "mechanism": [
+        "Name the actors and the trust boundary in the scenario.",
+        "Identify the recurring choices: public versus permissioned, on-chain versus off-chain data, how parties authenticate.",
+        "Tie each choice to a requirement in the case, not to fashion.",
+        "Examples: supply chain -> permissioned chain; public donation -> public chain; medical records -> off-chain data; known traders -> membership identities; token launch -> ERC-20; file storage -> IPFS or Swarm.",
+        "State the trade-off you accepted for each choice."
+      ],
+      "terminology": [
+        ["Requirement-led", "Choosing the mechanism because of a stated need."],
+        ["Permissioned", "Only identified writers."],
+        ["Off-chain data", "Bulk or private data referenced by hash."]
+      ],
+      "examAnswer": {
+        "question": "How should a blockchain case study be answered?",
+        "points": [
+          "Name the actors and where trust breaks.",
+          "State the three recurring choices: chain type, data location, authentication.",
+          "Map each to a requirement from the case, naming the requirement.",
+          "Give the standard matches: supply chain to permissioned, donations to public, records off-chain.",
+          "State the trade-off accepted for each choice.",
+          "Avoid listing technologies without a requirement behind them."
+        ]
+      },
+      "traps": [
+        "A list of technologies with no requirement behind it scores nothing.",
+        "Do not default every case to a public chain.",
+        "Name the trade-off, not just the choice."
+      ],
+      "revision": "Actors -> trust boundary -> chain type + data location + authentication -> each tied to a stated requirement.",
+      "recall": [
+        ["What makes a case-study answer good?", "Each architectural choice tied to a requirement in the case."],
+        ["Which chain type suits a supply chain with known partners?", "A permissioned chain."],
+        ["Where do medical records belong?", "Off-chain, referenced by hash, with access control."],
+        ["Which contract standard suits a token launch?", "ERC-20."]
+      ]
+    },
+    {
+      "name": "Consensus on Blockchain Network",
+      "definition": "Consensus is the rule by which independently held copies of the ledger settle on the same ordering of transactions and the same final history.",
+      "problem": "Every node keeps its own copy. Without a rule for choosing between divergent copies the network would have many histories and no authoritative one.",
+      "mechanism": [
+        "Transactions arrive at many nodes, which may propose different blocks.",
+        "The consensus rule chooses among proposals: most hashpower in PoW, most stake in PoS, quorum rounds in BFT.",
+        "The chosen block extends one chain, and competing branches are abandoned or resolved.",
+        "What it guarantees is agreement on order and on which blocks are final.",
+        "What it does not guarantee is speed, correctness of the data, or that valid transactions never fail."
+      ],
+      "terminology": [
+        ["Ordering", "The sequence of accepted transactions."],
+        ["Fork", "Two competing branches from one parent."],
+        ["Finality", "Irreversibility of an accepted block."],
+        ["Nakamoto consensus", "Longest/heaviest chain rule."]
+      ],
+      "examAnswer": {
+        "question": "Why is consensus needed and what does it guarantee?",
+        "points": [
+          "Replication alone produces many copies that can disagree.",
+          "Consensus is the rule that makes honest nodes pick one history.",
+          "PoW uses accumulated work, PoS uses stake weight, BFT uses quorum rounds.",
+          "It guarantees agreement on ordering and on finality.",
+          "It does not guarantee speed, nor that the data is true, only that all agree.",
+          "Without it the network would fork indefinitely."
+        ]
+      },
+      "traps": [
+        "Consensus does not make data true - it makes it agreed.",
+        "Consensus is not the same as validation; invalid transactions are rejected before it.",
+        "Finality depth is part of the consensus rule, not a separate feature."
+      ],
+      "revision": "Many copies -> proposals differ -> consensus rule (PoW work / PoS stake / BFT quorum) -> one chain -> finality.",
+      "recall": [
+        ["What does consensus guarantee?", "Agreement on ordering and on which blocks are final."],
+        ["What does consensus not guarantee?", "Speed, or that the data is correct."],
+        ["Name the three families of consensus rule.", "Proof of work, proof of stake, Byzantine fault tolerant quorum."],
+        ["What happens without a consensus rule?", "The network keeps forking: many histories, no truth."]
+      ]
+    },
+    {
+      "name": "Mining",
+      "definition": "Mining is the process of assembling a candidate block, computing its header, and varying the nonce until the header's hash falls below the difficulty target.",
+      "problem": "The network needs a leader each round without electing one. Making leadership expensive and random is the solution: you must burn work to earn the right to propose.",
+      "mechanism": [
+        "Collect transactions from the mempool and order them into a candidate block.",
+        "Compute the header, including the Merkle root of the transactions.",
+        "Vary the nonce and re-hash until the hash is below the difficulty target.",
+        "The search is deliberately wasteful: the work produces no useful output.",
+        "Broadcast the block; if it is accepted, earn the block subsidy plus transaction fees.",
+        "Difficulty is retargeted so blocks arrive at a steady rate."
+      ],
+      "terminology": [
+        ["Mempool", "Pending transactions held by a node."],
+        ["Difficulty target", "Threshold the block hash must beat."],
+        ["Block subsidy", "Newly issued reward for the block."],
+        ["Hashpower", "Hashes per second an operator can compute."]
+      ],
+      "examAnswer": {
+        "question": "Describe the mining workflow and the reward.",
+        "points": [
+          "Collect transactions and build a candidate block.",
+          "Compute the header and its Merkle root.",
+          "Vary the nonce until the hash falls below the target.",
+          "The work is deliberately wasteful: it buys the right to propose.",
+          "Broadcast; on acceptance receive the subsidy plus fees.",
+          "Retarget difficulty so blocks arrive at a steady rate."
+        ]
+      },
+      "traps": [
+        "The nonce search produces no useful output - that is the point, not a flaw.",
+        "Since the Merge, Ethereum slots are filled by PoS validators, not miners.",
+        "Difficulty adjusts to hold block time steady, not to pay miners more."
+      ],
+      "revision": "collect tx -> build block -> Merkle root -> vary nonce until hash < target -> broadcast -> subsidy + fees. Difficulty retargeted for steady block time.",
+      "recall": [
+        ["What does the miner vary while searching?", "The block header nonce."],
+        ["What does the search produce besides a valid block?", "Nothing useful - the work is deliberately wasteful."],
+        ["What is the reward?", "The block subsidy plus transaction fees."],
+        ["Why does difficulty retarget?", "To keep block arrival at a steady rate as hashpower changes."]
+      ]
+    },
+    {
+      "name": "Block Validation",
+      "definition": "Block validation is a checklist applied in order: cheap structural checks first, then proof of work and parent linkage, then transaction execution, and finally the state root comparison.",
+      "problem": "A node cannot afford to re-execute every transaction before discovering a block is malformed. Ordering the checks by cost makes rejection cheap and acceptance trustworthy.",
+      "mechanism": [
+        "Check header fields for well-formedness.",
+        "Check the parent hash matches the previous block - chain linkage.",
+        "Check the proof of work: the block hash meets the target.",
+        "Execute the transactions: signatures, nonces, balances, gas limits.",
+        "Compute the resulting state root.",
+        "Compare it with the state root the miner committed to; mismatch rejects the block."
+      ],
+      "terminology": [
+        ["State root", "Hash of the world state after the block."],
+        ["Well-formed", "Structurally valid, before semantic checks."],
+        ["Chain linkage", "The parent hash relationship."]
+      ],
+      "examAnswer": {
+        "question": "State the order in which a node validates a block.",
+        "points": [
+          "Header well-formedness - cheapest check first.",
+          "Parent hash matches the chain tip - linkage.",
+          "Proof of work meets the difficulty target.",
+          "Transactions valid: signature, nonce, balance, gas.",
+          "State root recomputed and compared with the committed root.",
+          "Order is by cost, so malformed blocks are rejected before execution."
+        ]
+      },
+      "traps": [
+        "The state root check is last and strongest; it is what stops a block lying about contents.",
+        "Validation order is by cost, not by importance.",
+        "Proof of work is checked before execution, not after."
+      ],
+      "revision": "header -> parent hash -> PoW -> transactions -> state root matches. Cheap checks first, execution last.",
+      "recall": [
+        ["Which check is strongest and last?", "The recomputed state root matching the committed one."],
+        ["Why check the parent hash early?", "It is cheap and immediately rejects a block on the wrong chain."],
+        ["What is validated per transaction?", "Signature, nonce, balance and gas."],
+        ["What does a state-root mismatch mean?", "The block's contents do not produce the claimed state."]
+      ]
+    },
+    {
+      "name": "Setting up Mining Node",
+      "definition": "A mining node is an ordinary node with block production switched on: install the client, init a datadir, create and fund an account, start the node, then enable mining.",
+      "problem": "Block production needs a funded identity, because the node pays for the transactions it includes and receives the reward. Skipping funding is the classic failure.",
+      "mechanism": [
+        "Install geth.",
+        "geth init --datadir ./node: create the chain.",
+        "Create an account and fund it - a miner must be able to pay and receive.",
+        "Start the node with --datadir and --networkid.",
+        "Enable block production: mining flags in the PoW era, validator deposit in the PoS era.",
+        "Since the Merge, 'mining' means running a validator: deposit stake and attest to blocks."
+      ],
+      "terminology": [
+        ["Validator", "Post-Merge block producer."],
+        ["Stake", "Locked capital backing a validator."],
+        ["Attestation", "A validator's vote on a block."]
+      ],
+      "examAnswer": {
+        "question": "Give the sequence to bring up a mining or validating node.",
+        "points": [
+          "Install geth.",
+          "geth init --datadir ./node to create the chain.",
+          "Create and fund an account - it must pay and receive.",
+          "Start the node with --datadir and --networkid.",
+          "Enable block production: mining flags pre-Merge, validator deposit after.",
+          "Post-Merge, block production is staking and attesting, not hashing."
+        ]
+      },
+      "traps": [
+        "An unfunded account is the usual failure - the miner can do nothing.",
+        "Post-Merge there is no nonce search on Ethereum; do not describe mining as current.",
+        "init creates the chain; it does not fund an account."
+      ],
+      "revision": "install -> init datadir -> create + fund account -> start node -> enable production (mining flags, or validator deposit post-Merge).",
+      "recall": [
+        ["Which setup step is most often missed?", "Funding the account."],
+        ["What replaced mining on Ethereum after the Merge?", "Proof-of-stake validators attesting to blocks."],
+        ["What two flags start a node?", "--datadir and --networkid."],
+        ["Why must a miner be funded?", "It pays for included transactions and receives the reward."]
+      ]
+    },
+    {
+      "name": "State Storage in Ethereum",
+      "definition": "Ethereum's world state is a Merkle Patricia trie mapping every address to an account, where each contract account additionally roots its own storage trie.",
+      "problem": "A node must prove one account's state without shipping the entire global state. A hashed trie structure makes a short proof possible.",
+      "mechanism": [
+        "World state: one trie mapping address -> account.",
+        "Each account holds: balance, nonce, code hash, and (for contracts) a storage root.",
+        "A contract's storage root points at its own storage trie, keeping each contract's values separate.",
+        "Everything is a Merkle Patricia trie: nodes are hashed, so any change yields a new root.",
+        "The world state root is written into the block header.",
+        "Consequence: the header commits to all state, so a light client verifies one account from a short proof."
+      ],
+      "terminology": [
+        ["World state", "The global address -> account mapping."],
+        ["Storage root", "Root of a contract's own storage trie."],
+        ["Merkle Patricia trie", "Hashed trie with deterministic structure."],
+        ["State root", "Root of the world state, in the header."]
+      ],
+      "examAnswer": {
+        "question": "How does Ethereum store state and why does the structure matter?",
+        "points": [
+          "World state is a trie: address -> account.",
+          "An account holds balance, nonce, code hash and for contracts a storage root.",
+          "Each contract's storage root points at its own storage trie.",
+          "All structures are Merkle Patricia tries, so any change gives a new root.",
+          "The world state root sits in the block header.",
+          "Consequence: compact proofs let a light client verify one account."
+        ]
+      },
+      "traps": [
+        "The state root is not the Merkle root of transactions - one is accounts, the other is a block's contents.",
+        "Storage is per contract; the account only stores the root of it.",
+        "A trie is not a flat table; say why the hash structure matters."
+      ],
+      "revision": "World state trie: address -> account (balance, nonce, code hash, storage root). Storage root -> that contract's own trie. All Merkle Patricia -> root in header.",
+      "recall": [
+        ["What does a contract account store besides balance and nonce?", "A code hash and the root of its own storage trie."],
+        ["Why is the trie hashed?", "So any change produces a new root, enabling compact proofs."],
+        ["Where does the world state root appear?", "In the block header."],
+        ["What can a light client do with it?", "Verify a single account from a short proof rather than the whole state."]
+      ]
+    },
+    {
+      "name": "Swarm Architecture and Concepts",
+      "definition": "Swarm is a peer-to-peer storage network in which a file is split into chunks, each chunk is addressed by the hash of its content, and nodes fetch missing chunks from neighbours.",
+      "problem": "A dApp needs bulk data stored without a central server and without paying on-chain prices. Content addressing lets many peers cooperate without a coordinator.",
+      "mechanism": [
+        "Upload: split the file into chunks.",
+        "Each chunk is hashed, and that hash is its address.",
+        "Chunks are stored across many peers.",
+        "A downloader fetches missing chunks from neighbours and verifies each against its hash.",
+        "Because the address derives from content, a corrupted chunk is detected immediately.",
+        "No consensus over ordering is needed - only agreement that a chunk matches its hash."
+      ],
+      "terminology": [
+        ["Chunk", "A fixed-size piece of a file."],
+        ["Content address", "The hash of a chunk, used as its name."],
+        ["Peer", "A node storing and serving chunks."],
+        ["Swarm hash", "The tree hash over all chunks of a file."]
+      ],
+      "examAnswer": {
+        "question": "Explain Swarm's architecture and why content addressing matters.",
+        "points": [
+          "A file is split into chunks.",
+          "Each chunk's address is the hash of its content.",
+          "Chunks are stored across many peers, replacing a central server.",
+          "Downloaders fetch missing chunks and verify each hash.",
+          "Identical content always has the same address, so copies are checkable.",
+          "No ordering consensus is needed, only hash agreement."
+        ]
+      },
+      "traps": [
+        "Swarm provides storage, not consensus - it does not order transactions.",
+        "Content addressing catches corruption; it does not provide privacy.",
+        "Do not confuse Swarm's chunk hash with Ethereum's state root."
+      ],
+      "revision": "file -> chunks -> hash each = address -> stored across peers -> fetch + verify hashes. No ordering consensus needed.",
+      "recall": [
+        ["How is a chunk named?", "By the hash of its content."],
+        ["What does a node verify on download?", "That each chunk's hash matches its address."],
+        ["Does Swarm need consensus on ordering?", "No - only agreement that a chunk matches its hash."],
+        ["What replaces the central server?", "Many peers each holding and serving chunks."]
+      ]
+    },
+    {
+      "name": "Incentive Mechanisms in Swarm",
+      "definition": "Swarm pays peers for useful work - storing and serving chunks - using cheque-based accounting between peers, plus prepaid postage stamps for storage duration.",
+      "problem": "Nobody stores another party's data for free. A storage network needs a payment scheme that prices availability, not ordering.",
+      "mechanism": [
+        "Peers account for bytes fetched from each other using cheques.",
+        "The reward is for storing and serving chunks - useful service - not for solving a puzzle.",
+        "Postage stamps: users prepay for a storage period.",
+        "Prepayment gives the network a way to price storage and to garbage-collect expired data.",
+        "Contrast with mining: mining pays for ordering history; Swarm pays for availability of bytes."
+      ],
+      "terminology": [
+        ["Cheque", "Peer-to-peer accounting of service."],
+        ["Postage stamp", "Prepaid allowance for storage duration."],
+        ["Garbage collection", "Dropping data whose postage expired."]
+      ],
+      "examAnswer": {
+        "question": "How does Swarm incentivise storage, and how does that differ from mining?",
+        "points": [
+          "Peers keep cheque-based accounts of bytes served to each other.",
+          "The reward is for useful work: storing and serving chunks.",
+          "Postage stamps prepay for a storage period.",
+          "Prepayment allows pricing and garbage collection of expired data.",
+          "Mining pays for ordering a shared history; Swarm pays for availability.",
+          "Hardware differs too: disk and bandwidth rather than hashpower."
+        ]
+      },
+      "traps": [
+        "Swarm's reward is not a lottery - it is payment for service.",
+        "Postage stamps are about storage duration, not transaction fees.",
+        "Do not describe Swarm incentives as mining rewards."
+      ],
+      "revision": "Cheques between peers for bytes served + postage stamps prepaid for duration. Reward = useful storage service, not puzzle-solving.",
+      "recall": [
+        ["What is the reward for in Swarm?", "Storing and serving chunks - useful service."],
+        ["What do postage stamps buy?", "A prepaid storage period for data."],
+        ["How does this differ from mining?", "Mining pays for ordering; Swarm pays for availability."],
+        ["What resource does a Swarm node need?", "Disk and bandwidth, rather than hashpower."]
+      ]
+    },
+    {
+      "name": "Swarm Setup",
+      "definition": "Setting up a Swarm node is short: install the node, give it an Ethereum address for payments, and start it - there is no mining to configure.",
+      "problem": "Because the incentive is payment for service rather than block production, a storage node needs an identity for payment but no staking or hashing configuration.",
+      "mechanism": [
+        "Install the Swarm node software.",
+        "Supply an Ethereum address for payment accounting.",
+        "Start the node.",
+        "It begins storing and serving chunks according to its configuration.",
+        "There is no consensus role, so setup is short compared with a validator."
+      ],
+      "terminology": [
+        ["Swarm node", "A peer storing and serving chunks."],
+        ["Payment address", "The Ethereum address used for accounting."]
+      ],
+      "examAnswer": {
+        "question": "What does setting up a Swarm node involve?",
+        "points": [
+          "Install the Swarm node software.",
+          "Give it an Ethereum address for payment.",
+          "Start it; it stores and serves chunks.",
+          "No mining or staking configuration is required.",
+          "Setup is short because the node has no consensus role."
+        ]
+      },
+      "traps": [
+        "A Swarm node is not a validator - it has no consensus role.",
+        "The Ethereum address is for payment accounting, not for staking."
+      ],
+      "revision": "install -> supply Ethereum payment address -> start. No mining, no stake.",
+      "recall": [
+        ["Why is Swarm setup short?", "The node has no consensus or mining role."],
+        ["What is the Ethereum address used for?", "Payment accounting for service."]
+      ]
+    },
+    {
+      "name": "Working with Swarm",
+      "definition": "Working with Swarm is content-addressed: uploading returns the content hash, and downloading takes that hash as the entire handle.",
+      "problem": "Users need a stable identifier for a file that does not depend on a server's path naming. The content hash is that identifier.",
+      "mechanism": [
+        "Upload a file; the tool returns its content hash (Swarm hash).",
+        "Share or store that hash - it is the whole reference.",
+        "Download by supplying the hash; the node fetches and verifies chunks.",
+        "Because the address is derived from content, the same command always returns the same bytes.",
+        "Any change to content produces a different hash, so versions are distinct automatically."
+      ],
+      "terminology": [
+        ["Swarm hash", "Content hash identifying a file."],
+        ["Handle", "The identifier used to retrieve."]
+      ],
+      "examAnswer": {
+        "question": "How do you upload and retrieve a file with Swarm?",
+        "points": [
+          "Upload returns the content hash.",
+          "That hash is the entire handle - no server path is involved.",
+          "Retrieve by supplying the hash.",
+          "The node fetches chunks and verifies each against its hash.",
+          "Same content always yields the same hash, so versions are naturally distinct."
+        ]
+      },
+      "traps": [
+        "There is no server path - the hash is the address.",
+        "Changing a byte changes the hash; it is not an in-place update."
+      ],
+      "revision": "upload -> returns content hash -> download by that hash -> chunks verified. Same content, same hash.",
+      "recall": [
+        ["What identifies a Swarm file?", "Its content hash."],
+        ["What happens if one byte changes?", "The hash changes completely."],
+        ["Is there a server path in Swarm?", "No - the content hash is the address."]
+      ]
+    },
+    {
+      "name": "Case Study: Stock Photos Dapp",
+      "definition": "A stock-photo marketplace keeps the images off-chain in Swarm or IPFS and keeps the licence and payment on-chain, with the contract releasing payment on a recorded purchase.",
+      "problem": "Images are too large and too expensive to store on-chain, but the licence and the payment must be provable. The case splits the data by trust requirement.",
+      "mechanism": [
+        "The photographer uploads the image to Swarm or IPFS and gets a content hash.",
+        "The contract records the hash, the price and the licence terms.",
+        "The buyer pays the contract and the purchase is recorded on-chain.",
+        "The contract releases payment to the photographer once the purchase is recorded.",
+        "The image itself is retrieved off-chain by hash.",
+        "Result: bulk off-chain, rights and money on-chain."
+      ],
+      "terminology": [
+        ["Content hash", "Off-chain address of the image."],
+        ["Licence", "On-chain record of usage rights."],
+        ["Escrow release", "Payment on recorded purchase."]
+      ],
+      "examAnswer": {
+        "question": "Explain the architecture of a stock-photo dApp.",
+        "points": [
+          "Images are stored off-chain in Swarm or IPFS and referenced by hash.",
+          "The contract records hash, price and licence terms on-chain.",
+          "The buyer pays the contract; the purchase is recorded.",
+          "Payment is released to the photographer on recorded purchase.",
+          "The split follows trust: bulk off-chain, rights and money on-chain.",
+          "This is the generic pattern for media marketplaces."
+        ]
+      },
+      "traps": [
+        "Images are not stored on-chain - only their hashes and terms are.",
+        "The contract holds payment, not the image.",
+        "This is a discussion case, not usually a written-paper question - do not over-invest."
+      ],
+      "revision": "Image -> Swarm/IPFS hash. Contract: hash + price + licence. Buyer pays -> recorded -> release to photographer.",
+      "recall": [
+        ["Where does the image live?", "Off-chain, in Swarm or IPFS, referenced by hash."],
+        ["What does the contract hold?", "The payment and the licence record."],
+        ["When is payment released?", "When the purchase is recorded on-chain."],
+        ["What is the general pattern?", "Bulk off-chain, rights and money on-chain."]
+      ]
+    }
+  ]
+}

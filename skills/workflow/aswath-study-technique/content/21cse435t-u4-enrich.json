@@ -1,0 +1,23 @@
+{
+  "topics": {
+    "Mining": {
+      "memoryTrick": "**collect → build → Merkle → nonce search → broadcast.** The work buys the right to propose.",
+      "examAnswer": {
+        "question": "Describe the mining workflow, block validation order and how Ethereum stores state. (8 marks)",
+        "full": "**Mining workflow.** A miner takes pending transactions from its mempool and orders them into a candidate block. It computes the block header, including the Merkle root of those transactions. It then varies the header's nonce and re-hashes until the resulting hash falls below the difficulty target. That search is deliberately wasteful: the work produces no useful output, it only buys the right to propose the block. On acceptance the miner receives the block subsidy plus the transaction fees, and the difficulty is retargeted so blocks arrive at a steady rate.\n\n**Validation order.** A node applies cheap checks first, because re-executing transactions to discover a malformed block would be wasteful. The order is: header fields are well formed → the parent hash matches the chain tip → the proof of work meets the target → the transactions are valid (signature, nonce, balance, gas) → and finally the recomputed state root equals the one the miner committed to. That last check is the strongest: it stops a block lying about its own contents.\n\n**State storage.** Ethereum keeps a world state, which is a Merkle Patricia trie mapping every address to an account. Each account holds a balance, a nonce, a code hash and — for contracts — the root of its own storage trie. Because every node in the trie is hashed, any change anywhere produces a new root hash, and that world state root is written into the block header. The consequence is what matters: the header alone commits to the entire state, so a light client can verify a single account from a short proof instead of downloading everything."
+      }
+    },
+    "Consensus on Blockchain Network": {
+      "memoryTrick": "**Many copies → proposals differ → one rule → one history → finality.**"
+    },
+    "State Storage in Ethereum": {
+      "memoryTrick": "**World trie → account → storage root → that contract's own trie.** All Merkle Patricia, so the root proves everything."
+    },
+    "Swarm Architecture and Concepts": {
+      "memoryTrick": "**Chunk → hash → that hash is the address → fetch and verify.** No ordering consensus needed."
+    },
+    "Block Validation": {
+      "memoryTrick": "**header → parent → PoW → transactions → state root.** Cheapest check first, execution last."
+    }
+  }
+}

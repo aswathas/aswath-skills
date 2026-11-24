@@ -1,0 +1,28 @@
+{
+  "topics": {
+    "Implementing Dapps": {
+      "memoryTrick": "**Model → contract → test → deploy → interface → events.** Contract is step two."
+    },
+    "Case Studies": {
+      "memoryTrick": "**Actors → trust boundary → chain type + data + auth.** Each choice tied to a requirement."
+    },
+    "Mining": {
+      "memoryTrick": "**collect → build → Merkle → nonce → broadcast.** Work buys the right to propose."
+    },
+    "Setting up Mining Node": {
+      "memoryTrick": "**install → init → fund → run → enable.** Funding is the step people skip."
+    },
+    "Incentive Mechanisms in Swarm": {
+      "memoryTrick": "**Cheques for bytes served + postage for duration.** Paid for service, not for puzzles."
+    },
+    "Swarm Setup": {
+      "memoryTrick": "**install → supply payment address → start.** No mining, no stake."
+    },
+    "Working with Swarm": {
+      "memoryTrick": "**Upload → hash out → download by hash.** The hash is the entire handle."
+    },
+    "Case Study: Stock Photos Dapp": {
+      "memoryTrick": "**Bytes off-chain, rights and money on-chain.**"
+    }
+  }
+}

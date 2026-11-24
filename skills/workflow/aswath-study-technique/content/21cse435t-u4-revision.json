@@ -1,0 +1,42 @@
+{
+  "revision": {
+    "mentalMap": [
+      { "label": "Implementing dApps", "sub": "rules → contract → test → deploy → interface → events" },
+      { "label": "Case studies", "sub": "actors → trust boundary → chain type + data + auth" },
+      { "label": "Consensus", "sub": "many copies → one agreed order → finality" },
+      { "label": "Mining", "sub": "collect → build → Merkle → nonce search → broadcast" },
+      { "label": "Block validation", "sub": "header → parent → PoW → transactions → state root" },
+      { "label": "Mining node", "sub": "install → init → fund → run → enable" },
+      { "label": "State storage", "sub": "world trie → account → storage root → own trie" },
+      { "label": "Swarm", "sub": "chunks → content hash → peers → verify" },
+      { "label": "Swarm incentives", "sub": "cheques + postage stamps" },
+      { "label": "Stock photos dApp", "sub": "images off-chain, rights and money on-chain" }
+    ],
+    "topExamQuestions": [
+      "Outline the end-to-end implementation of a dApp.",
+      "Why is consensus needed and what does it guarantee?",
+      "Describe the mining workflow and the reward.",
+      "State the order in which a node validates a block.",
+      "How does Ethereum store state, and why does the structure matter?",
+      "Explain Swarm's architecture and why content addressing matters.",
+      "How does Swarm incentivise storage, and how does that differ from mining?"
+    ],
+    "drill": [
+      ["What is written first in a dApp?", "The states and legal transitions"],
+      ["What cannot be changed after launch?", "The deployed contract's code"],
+      ["What does consensus guarantee?", "Agreement on order and finality — not truth"],
+      ["What does a miner vary?", "The block header nonce"],
+      ["What does the nonce search produce?", "Nothing useful — work buys the right to propose"],
+      ["What is the reward?", "The block subsidy plus transaction fees"],
+      ["Which validation check is last?", "State root matching the committed root"],
+      ["Why check the parent hash early?", "It is cheap and rejects a wrong-chain block at once"],
+      ["What does a contract account store?", "Balance, nonce, code hash, storage root"],
+      ["Why is the trie hashed?", "Any change yields a new root, enabling compact proofs"],
+      ["How is a Swarm chunk named?", "By the hash of its content"],
+      ["Does Swarm need ordering consensus?", "No — only agreement that a chunk matches its hash"],
+      ["What does Swarm pay for?", "Storing and serving chunks"],
+      ["What do postage stamps buy?", "A prepaid storage period"]
+    ],
+    "covered": "12 of 12 syllabus topics — 6 must-learn"
+  }
+}

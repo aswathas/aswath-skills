@@ -1,0 +1,39 @@
+{
+  "revision": {
+    "mentalMap": [
+      { "label": "Evolution", "sub": "central ledger → replicated copies → hash-linked blocks → consensus → smart contracts" },
+      { "label": "Structure", "sub": "header proves the body; body carries the work" },
+      { "label": "Characteristics", "sub": "each property is a mechanism, not a slogan" },
+      { "label": "Escrow", "sub": "deposit → held → objective condition → release or refund" },
+      { "label": "Stack", "sub": "application → contract → protocol → data → ledger" },
+      { "label": "Web 2.0 → Web 3.0", "sub": "platform-owned → user-held keys" },
+      { "label": "Domains", "sub": "finance→finality · supply chain→provenance · health→privacy" },
+      { "label": "Benefits & challenges", "sub": "same property, both sides" }
+    ],
+    "topExamQuestions": [
+      "Explain how a blockchain differs from a traditional distributed database.",
+      "Draw and label the structure of a block, and explain how blocks are linked.",
+      "List the characteristics of a blockchain and the mechanism behind each.",
+      "Draw and explain the blockchain stack, naming each layer and its role.",
+      "Compare Web 2.0 and Web 3.0 on ownership, identity and control.",
+      "Discuss the benefits of blockchain and the challenges each one creates."
+    ],
+    "drill": [
+      ["What makes history tamper-evident?", "Each block commits to the previous block's hash"],
+      ["What is in the block header?", "Previous hash, Merkle root, timestamp, nonce, difficulty"],
+      ["What commits to all transactions?", "The Merkle root"],
+      ["What is immutability, mechanically?", "Hash chaining — editing a block breaks every later hash"],
+      ["What does decentralisation come from?", "Replication and independent validation"],
+      ["What does traceability come from?", "Block links plus per-transaction signatures"],
+      ["Where do smart contracts sit in the stack?", "Between protocol and application layers"],
+      ["Why keep the layers separate?", "A dApp can be re-pointed at another chain without a rewrite"],
+      ["What replaces a platform login in Web 3.0?", "A user-held keypair"],
+      ["What convenience is lost in Web 3.0?", "Recoverability — a lost key is final"],
+      ["Which domain needs finality?", "Finance and settlement"],
+      ["Which domain needs provenance?", "Supply chain"],
+      ["What is the real economic saving?", "Cross-organisation reconciliation cost"],
+      ["What three challenges remain hard?", "Throughput, governance, legal status"]
+    ],
+    "covered": "8 of 8 syllabus topics — 5 must-learn, 3 learn-if-time"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "topics": {
+    "Smart Contracts Vulnerabilities": {
+      "memoryTrick": "**Every bug is an ordering or trust mistake.** Reentrancy←order, tx.origin←trust, overflow←arithmetic.",
+      "examAnswer": {
+        "question": "Name the main smart-contract vulnerabilities and the fix for each. (8 marks)",
+        "full": "A deployed contract cannot be patched quietly, so every vulnerability is permanent and publicly readable. They fall into two families: acting on a value that was not checked, and handing control to code you do not control before finishing your own work.\n\n**1. Reentrancy.** The classic. `withdraw()` sends ether before decrementing the balance, so the recipient's fallback function re-enters `withdraw` and drains the contract, because the balance is still the old one. *Fix:* checks-effects-interactions — check the condition, update your own state, then make the external call — or a reentrancy guard mutex.\n\n**2. Integer overflow / underflow.** Unchecked arithmetic wraps around. *Fix:* Solidity 0.8 and later revert automatically; before 0.8, SafeMath.\n\n**3. tx.origin phishing.** `require(tx.origin == owner)` is satisfied when the owner is tricked into calling a malicious contract, because `tx.origin` is the original EOA, not the immediate caller. *Fix:* check `msg.sender`.\n\n**4. Unchecked external call.** The success flag of `call`/`send` is ignored, so a failed transfer looks successful. *Fix:* `require(ok)`.\n\n**5. Front-running.** A visible pending action is copied by an observer. *Fix:* commit-reveal.\n\n**6. Timestamp dependence.** `block.timestamp` can be nudged by a miner within a margin. *Fix:* use `block.number` where the exact time is not essential.\n\nThe pattern behind all six: state is committed in the wrong order, or authority is taken from the wrong variable. Fixing the order and the variable fixes most of them."
+      }
+    },
+    "Proof-of-Work vs Proof-of-Stake": {
+      "memoryTrick": "**Same goal, different currency:** PoW burns electricity, PoS locks capital."
+    },
+    "Byzantine Fault Tolerance": {
+      "memoryTrick": "**n ≥ 3f + 1.** Each extra liar costs three more members. n=4→1, n=7→2, n=10→3."
+    },
+    "Double-Spending Problem": {
+      "memoryTrick": "**Order it, don't prevent it.** Confirmations add depth; depth adds cost."
+    },
+    "Consistency, Availability & Partition Tolerance (CAP)": {
+      "memoryTrick": "**Partition is given → choose consistency (chain) or availability (web).**"
+    },
+    "Sybil Attack": {
+      "memoryTrick": "**Free identity floods → price the identity.** Electricity (PoW) or stake (PoS)."
+    },
+    "Blockchain Scalability": {
+      "memoryTrick": "**L1 settles, L2 executes.** Security inherited only if the data lands on L1."
+    },
+    "Mining Pools and Centralization": {
+      "memoryTrick": "**Validation can be distributed while block production is not.**"
+    },
+    "Greedy Heaviest Observed Sub-Tree (GHOST)": {
+      "memoryTrick": "**Heaviest subtree, not longest chain.** Length ≠ work."
+    },
+    "Turing Completeness": {
+      "memoryTrick": "**Capability unlimited, execution finite** — gas is the bound."
+    }
+  }
+}
