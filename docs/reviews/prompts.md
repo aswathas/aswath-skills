@@ -165,3 +165,10 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: `scripts/precedent.py`, the SKILL.md rows for it, and the
   records above. The learning hook change that fills the store lives in
   `aswathas/skill-router`.
+
+## 2026-11-24 — one resolver
+- Prompt: "do we need to do more or how to use the router"
+- Decision it produced: D4 (the skill's resolver uses the same ranking as the
+  command) and D15 in the skill-router repo.
+- Work it caused: `rank_with_router()` in `query-registry.py`, mirrored into
+  both copies of the file, and the records above.

@@ -1177,3 +1177,28 @@ marketplace carry version 1.9.0.
 - Consequence: this is the part of the limit that can actually be solved, and it
   is not measurable on the benchmark, because the benchmark has no history. It
   works on the requests this machine has actually been asked.
+
+## D4 — The skill's resolver uses the same ranking as the command
+- Date: 2026-11-24
+- Prompt: "do we need to do more or how to use the router"
+- Context: `aswath-capability` resolves with `query-registry.py need`, and that
+  file carried its own scorer - `cap_overlap * 10 + name_hits * 3` - which is
+  not the shipped ranker in `invoke.py`. So the agent's routing missed the
+  semantic layer and the precedent, and the two answers disagreed for the
+  same request. It is the drift the sync test cannot catch, because the two
+  files have different names.
+- Options:
+  - Copy the router's scoring into the skill file - two implementations, and
+    the same drift again.
+  - Have the skill call the router's own modules, with its scorer as the
+    fallback when the semantic index or the provider is unavailable.
+- Chosen: `rank_with_router()` in `query-registry.py` imports `semantic.py`
+  and `precedent.py` from the same directory and uses them when they are
+  there. The local scorer stays as the fallback, so the skill still works on
+  a machine with no embedding index.
+- Evidence: `query-registry.py need "find the failing checks on this pr and
+  fix them"` now prints `semantic layer: on (rescued ci-delivery)` and answers
+  `fix-ci` first, where before it answered from the old scorer alone. The
+  sync test still passes, so the two copies of the file are identical.
+- Consequence: the agent's own routing and the `router` command now give the
+  same answer for the same request.

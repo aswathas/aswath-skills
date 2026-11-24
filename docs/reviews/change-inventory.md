@@ -449,3 +449,12 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D3 | Contract requires every decision to be written down, including the ones the measurements ended | Read back; the entry names the decomposition, the three rejected options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-24 — one resolver for the skill and the command
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/orchestration/aswath-capability/scripts/query-registry.py` | `rank_with_router()` uses `semantic.py` and `precedent.py` when they are available, with the old local scorer as the fallback. `need` now prints the semantic and precedent lines | The skill shipped its own scorer, so the agent's routing missed the semantic layer and the precedent, and disagreed with the `router` command | `query-registry.py need "find the failing checks on this pr and fix them"` -> `semantic layer: on (rescued ci-delivery)`, `fix-ci` first; `pytest tests` -> 62 passed, the sync test included |
+| `docs/reviews/decision-log.md` | Added D4 | Contract requires every decision to be written down | Read back; the entry names the drift, the options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
