@@ -1306,3 +1306,117 @@ marketplace carry version 1.9.0.
 - Evidence: the rebase resolved cleanly with both `manifest.json` and `README.md` carrying both the
   `aswath-study-technique` and the `aswath-questions-ask` rows, and `manifest.json` parses. The
   "Short on time" subsection is in `skills/workflow/aswath-questions-ask/SKILL.md` under The Loop.
+### D21 - the extraction decoded with the OS codec, so the authored notes carried mojibake
+- Date: 2026-11-25
+- Prompt: "lets study for blockchain bussiness models prepare first
+  /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
+- Context: `scripts/extract-subject.py` reads the TypeScript subject and shells out to the Node
+  bridge, then parses the bridge's stdout. That stdout is UTF-8, but the Python side decodes it
+  with the OS default codec, which on this machine is cp1252. Every em dash in the subject came
+  back as three bytes: `U+2014` became `U+00E2 U+20AC U+201D`, so every em dash in the subject
+  arrived as three wrong characters. The JSON export is written with `ensure_ascii`, so those three
+  characters land in the file as the escapes `\u00e2\u20ac\u201d`, and the authored content files
+  inherited them from the extracted spec.
+- Decision:
+  - Re-extract with `PYTHONUTF8=1`, which puts Python in UTF-8 mode so the bridge's stdout is
+    decoded as UTF-8 regardless of the OS default. The re-extraction returned 5 units, 45 topics,
+    20 MCQs, 5 Part B questions and 2 Part C questions.
+  - Repair the already-authored content files once rather than regenerating them. The authoring
+    work was good; only its encoding was wrong. `fix-encoding.cjs` maps the cp1252 characters back
+    to bytes, decodes those bytes as UTF-8, walks the whole JSON tree, and rewrites a file only
+    when something changed.
+  - Treat the TypeScript source as the boundary. It is clean - the subject file holds a real
+    `U+2014` - so the fix belongs to the extraction step and the authored JSON, not to the source.
+- Rejected:
+  - Regenerating all fifteen content files from the re-extracted spec. That would have thrown away
+    the authored explanations, exam answers and memory tricks that the repair preserves.
+  - Editing `extract-subject.py` to pass an explicit encoding. The script change is a separate
+    concern from this content commit and would have widened the diff beyond what the work needed.
+  - Patching the mojibake by hand. One hundred and thirty-three escapes across seven files is a
+    mechanical repair and should be run by a script.
+- Evidence: the same extraction run twice. Without `PYTHONUTF8=1` the export carries 133 `\u00e2`
+  escapes and is 152,913 bytes; with it, zero `\u00e2` and 151,293 bytes, with `\u2014` where the
+  em dashes belong. The first difference is the subject one-liner: "business models \u00e2\u20ac\u201d
+  SHA-256" becomes "business models \u2014 SHA-256". The repair run reported REPAIRED for seven
+  files - `21cse433t-u1.json`, `21cse433t-u2.json`, `21cse433t-u2-revision.json`,
+  `21cse433t-u3.json`, `21cse433t-u4-revision.json`, `21cse433t-u5.json` and
+  `21cse433t-u5-revision.json` - and the other eight already clean; all fifteen finish with 0
+  residual mojibake characters and no stderr.
+### D22 - the tree fan clipped its first child off the canvas
+- Date: 2026-11-25
+- Prompt: "lets study for blockchain bussiness models prepare first
+  /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
+- Context: `layoutTree` centres the child row on the root, so `startX = rootX + w / 2 - totalW / 2
+  + colW / 2`. With the root at `rootX = 400`, `w = 300` and `colW = 320`, a wide fan pushes the
+  first child box to a negative x and the renderer draws it off the left edge of the canvas, where
+  it is invisible. Five children put the first box at x = -240; six children put it at x = -400.
+  The bug was in the shared layout function, not in the diagram that happened to trip it.
+- Decision:
+  - Clamp the fan start so the first child box is always inside the canvas: `const startX = Math.max(
+    rootX + w / 2 - totalW / 2 + colW / 2, PAD + w / 2)`. The first child now starts at x = 40 for
+    both the five-child and six-child cases.
+  - Fix it in `layoutTree` rather than in the one diagram that showed it, so every future tree
+    benefits and the layout functions stay consistent with each other.
+- Rejected:
+  - Widening the canvas for wide trees. The extra width is dead space on every note that does not
+    need it, and the canvas size drives the exported PNG dimensions.
+  - Left-aligning the fan instead of centring it. That changes every existing tree diagram's
+    look to fix a clipping case that the clamp already covers.
+  - Leaving it to the diagram that showed it. The symptom was in one U5 picture; the cause was in
+    the layout, and it would have reappeared on the next wide tree.
+- Evidence: with the old formula the first child box for a five-child fan sits at x = -240 and for
+  a six-child fan at x = -400, both off-canvas. With the clamp both start at x = 40, which is
+  `PAD + w / 2`. The change is one line plus a two-line comment in
+  `skills/workflow/aswath-study-technique/scripts/layout.cjs`, and the rebuilt vault renders the
+  full fan.
+### D23 - the U5 business-model taxonomy became a matrix, because the tree clipped
+- Date: 2026-11-25
+- Prompt: "lets study for blockchain bussiness models prepare first
+  /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
+- Context: "Types of Blockchain Business Models" is a set of six parallel models - BaaS, platform,
+  marketplace, software, professional services and peer-to-peer. Drawn as a tree it is one root
+  with a six-child fan, which is exactly the shape D22 had to rescue, and a hierarchy is the wrong
+  claim anyway: none of the six is a child of another.
+- Decision:
+  - Change the U5 "Types of Blockchain Business Models" diagram from `tree` to `matrix`. The matrix
+    layout places six nodes on two columns of three, which fits the canvas and reads as a set of
+    peers rather than a chain.
+  - Keep the caption on the axis the six models actually vary on: "Every model is an answer to one
+    prompt: where does the money come from?"
+- Rejected:
+  - Keeping the tree and relying on the D22 clamp alone. The clamp stops the clipping but a
+    six-way fan on one row is still a wide, thin diagram that reads poorly at note width.
+  - A three-branch tree with two models hanging off each branch. That invents a grouping the
+    syllabus does not make and would mis-state the subject.
+  - Two diagrams, one tree and one matrix. The subject asks for one taxonomy; two pictures of the
+    same six items would be noise.
+- Evidence: the extracted spec for U5 reads `title: 'Six blockchain business models'`, `kind:
+  'matrix'`, with the six nodes and no edges. The rendered
+  `U5 04 Types of Blockchain Business Models.excalidraw.md` holds six rectangles at x = 60 and
+  x = 640 and y = 96, 210 and 324 - two columns by three rows. The Analyst source still describes
+  the topic as a `tree`; the change is in the course spec that ships with this skill.
+### D24 - the interview stopped halfway, so no ledger was written and the teaching path carried it
+- Date: 2026-11-25
+- Prompt: "sdont ask me questiosn lets learn"
+- Context: `aswath-questions-ask` was supposed to interview the student across the 21CSE433T
+  syllabus and write an understanding ledger to `docs/understanding/<subject>.md`, which the
+  study-technique build would then use to decide which topics got the deep treatment. The
+  interview had already started when the user cancelled it mid-way and asked to learn instead of
+  to be questioned.
+- Decision:
+  - Write no ledger. The ledger is a record of the student's own answers, and a half-finished
+    interview cannot fill one honestly.
+  - Let the teaching path carry what the interview was for: the full set of authored notes, each
+    topic with its definition, mechanism, exam answer and traps, is the deep treatment.
+  - Leave the skill alone. Cancelling one run is a decision about this course, not a change to the
+    skill's contract, so `aswath-questions-ask` keeps its ledger step and its seven-rung ladder.
+- Rejected:
+  - Writing a partial ledger from the questions already asked. Every unasked topic would be
+    recorded as unknown, which is a false document about a student who was never asked.
+  - Editing the skill to drop the ledger step because this run did not use it. That would turn one
+    cancelled session into a permanent change to the skill, on the wrong evidence.
+  - Resuming the interview later in the session anyway. The user had already answered the
+    question the interview was asking.
+- Evidence: no understanding ledger exists. A recursive search for `*understanding*.md` under
+  `C:/Users/ADMIN/Projects` returns nothing, and the repository has no `docs/understanding/`
+  directory. The 15 authored content files and the rebuilt vault are what the session produced.

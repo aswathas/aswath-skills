@@ -1,0 +1,154 @@
+{
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "The four questions",
+        "sub": "who runs it, who pays, where value lands, what is tokenised — every model in this unit is a different answer to these"
+      },
+      {
+        "label": "Why a model is needed",
+        "sub": "running costs, the payer, the free rider, the contribution incentive, governance, review"
+      },
+      {
+        "label": "The classical base",
+        "sub": "subscription, licence, marketplace, freemium, services — each breaks where the trust used to sit"
+      },
+      {
+        "label": "The taxonomy",
+        "sub": "BaaS and platform (infrastructure), marketplace (trades), software (code), services (expertise), P2P (token) — each with its own risk"
+      },
+      {
+        "label": "BaaS in detail",
+        "sub": "provider runs nodes, consensus, keys, monitoring, upgrades, SLA; customer keeps contracts, data model, integrations"
+      },
+      {
+        "label": "Token economy",
+        "sub": "classify, cap, distribute, give it a job, route the value, burn the fee, check the legal test"
+      },
+      {
+        "label": "Utility token loop",
+        "sub": "service needs token → token needs scarcity → token must pay the real cost, else the loop is open"
+      },
+      {
+        "label": "Software product",
+        "sub": "sell the brush not the painting — customer runs the chain, you collect the licence"
+      },
+      {
+        "label": "P2P",
+        "sub": "no take-rate; the coordinator is paid by the ecosystem, not by the trade"
+      },
+      {
+        "label": "Professional services",
+        "sub": "advisory, integration, managed ops — charge for the kitchen, not the wrenching"
+      },
+      {
+        "label": "Banking and settlement",
+        "sub": "correspondent chain → shared ledger; atomic DVP kills PvP risk, back office moves rather than disappears"
+      }
+    ],
+    "topExamQuestions": [
+      "Explain the types of blockchain business model (BaaS, marketplace, platform/infrastructure, software products, professional services and P2P), compare them, and identify the model a named company is running. (15 marks)",
+      "What is Blockchain as a Service? Explain what the provider actually runs and what the customer keeps, and why it is the default entry point for enterprises. (15 marks)",
+      "Explain the token economy: token classification (utility, security, commodity), supply and distribution, value accrual, and the regulatory line between utility and investment. (15 marks)",
+      "Explain how a blockchain can be applied to banking and financial transactions — settlement, PvP risk, atomic DVP, KYC/AML and the real cost model for a bank's back office. (15 marks)",
+      "Define a blockchain business model and explain it in terms of the four questions every such model must answer. (5 marks)",
+      "Explain the utility token business model and the demand loop, and the conditions under which it breaks down. (5 marks)",
+      "Why does a shared ledger need an explicit business model, and what happens to a consortium when nobody pays for the ledger? (5 marks)",
+      "Compare the traditional business models with blockchain business models and say where each breaks down. (5 marks)",
+      "Explain the blockchain-based software product model and how it differs from BaaS. (5 marks)",
+      "Explain the P2P blockchain business model and how the coordinator earns from the network rather than from the transactions. (5 marks)",
+      "Explain the three lines of blockchain professional services and the pitfall of selling hours instead of an outcome. (5 marks)"
+    ],
+    "drill": [
+      [
+        "What are the four questions of a blockchain business model?",
+        "Who runs it, who pays, where value accrues, what is tokenised"
+      ],
+      [
+        "Does a blockchain business model need a token?",
+        "No — tokenisation is a choice; software and services models tokenise nothing"
+      ],
+      [
+        "What does a BaaS provider run?",
+        "Nodes, consensus, key custody, monitoring, upgrades and the SLA"
+      ],
+      [
+        "Who holds the keys in BaaS?",
+        "The provider — that is the largest trust transfer in the arrangement"
+      ],
+      [
+        "What does the customer keep in BaaS?",
+        "Its business logic, data model and integrations"
+      ],
+      [
+        "What is the single question that classifies all blockchain business models?",
+        "Where the money comes from"
+      ],
+      [
+        "Name the six models and one risk each",
+        "BaaS=operating, platform=ecosystem, marketplace=liquidity, software=adoption, services=capacity, P2P=token"
+      ],
+      [
+        "Marketplace vs P2P — the one-line difference?",
+        "Marketplace takes a cut of the trades; the P2P coordinator takes no cut"
+      ],
+      [
+        "What are the three token types?",
+        "Utility, security, commodity-like — set by the claim the token makes"
+      ],
+      [
+        "What are the four variables of a token economy?",
+        "Total supply, distribution, utility demand, value accrual"
+      ],
+      [
+        "Where is the regulatory line drawn?",
+        "Whether buyers expect returns from the efforts of others (Howey / SEBI CIS)"
+      ],
+      [
+        "Name the four routes of value accrual",
+        "Fee burn, fee sharing to stakers, staking rewards, shrinking supply"
+      ],
+      [
+        "State the utility token demand loop",
+        "Service → token needed → token spent/burned → network grows → more users → more demand"
+      ],
+      [
+        "What breaks the utility loop?",
+        "Unlimited free utility, a fee below the node's real cost, or users routing around the token"
+      ],
+      [
+        "What is PvP risk?",
+        "One leg of a trade settles while the other does not"
+      ],
+      [
+        "How does atomic DVP remove it?",
+        "Both legs commit in the same transaction, so both succeed or both fail"
+      ],
+      [
+        "What happens to a bank's back office on a shared ledger?",
+        "It moves — reconciliation becomes on-chain verification; KYC/AML, keys and nodes are new costs"
+      ],
+      [
+        "Where does blockchain settlement fit best?",
+        "High-value multi-party cross-border flows, not small retail payments"
+      ],
+      [
+        "Three professional services lines?",
+        "Advisory, integration, managed operations"
+      ],
+      [
+        "The services trap?",
+        "Selling hours caps income at the number of billable people"
+      ],
+      [
+        "What is the free-rider problem?",
+        "Everyone values the shared record, everyone under-contributes to it"
+      ],
+      [
+        "Software product vs BaaS — one line?",
+        "In BaaS the provider runs the chain; in software the customer does"
+      ]
+    ],
+    "covered": "11 of 12 syllabus topics — 6 must-learn, 5 learn-if-time, 1 skim-only (the MetaMask case study is coursework, not written-paper marks)"
+  }
+}

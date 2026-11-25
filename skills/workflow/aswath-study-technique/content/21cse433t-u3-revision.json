@@ -1,0 +1,123 @@
+{
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "The problem",
+        "sub": "agreement + validity + termination against Byzantine nodes; every mechanism spends something scarce"
+      },
+      {
+        "label": "Proof of Work",
+        "sub": "nonce → double SHA-256 → under target; 2016-block retarget; 51% = outspend, not outrun"
+      },
+      {
+        "label": "Proof of Stake",
+        "sub": "stake-weighted selection; slashing for equivocation; nothing-at-stake; 33%/66% thresholds"
+      },
+      {
+        "label": "Proof of Burn",
+        "sub": "send to an unspendable address; receipt is the proof; supply falls forever"
+      },
+      {
+        "label": "Proof of Activity",
+        "sub": "PoW mine → stake reward → confirm; not Proof of Authority"
+      },
+      {
+        "label": "Proof of Elapsed Time",
+        "sub": "random wait in a TEE, shortest wait wins; permissioned; trust the chip vendor"
+      },
+      {
+        "label": "SBFT",
+        "sub": "pre-prepare → prepare → commit → execute; 3f+1 nodes, 2f+1 quorum, deterministic finality"
+      },
+      {
+        "label": "Mining",
+        "sub": "double SHA-256 nonce sweep; subsidy 50/2^n every 210,000 blocks; then fees fund security"
+      }
+    ],
+    "topExamQuestions": [
+      "What is a consensus mechanism, what properties must it deliver, and what does each mechanism spend? (5 marks)",
+      "Explain Proof of Work with the target/difficulty rule, the nonce search, the 51% attack and the cost of attacking. (15 marks)",
+      "Explain Proof of Stake: selection by stake, slashing, nothing-at-stake and long-range attacks, deterministic finality. (15 marks)",
+      "Explain SBFT: the leader-based voting rounds, quorum sizes, the 3f+1 bound with a computation, and the finality guarantee. (15 marks)",
+      "What is Proof of Burn, what does a participant actually do, and why does it bootstrap a new chain? (5 marks)",
+      "Explain Proof of Activity as a PoW-plus-PoS hybrid and distinguish it from pure PoW, pure PoS and Proof of Authority. (5 marks)",
+      "Explain Proof of Elapsed Time and the trust assumption behind its TEE. (5 marks)",
+      "Explain mining: the double-SHA-256 nonce search, the subsidy halving schedule and the move to fee-funded security. (5 marks)"
+    ],
+    "drill": [
+      [
+        "Three properties of a consensus protocol?",
+        "Agreement, validity, termination"
+      ],
+      [
+        "What does PoW spend?",
+        "Electricity and hardware — the target is the rule, difficulty is its inverse"
+      ],
+      [
+        "How often is PoW difficulty retargeted?",
+        "Every 2016 blocks, to hold 10-minute blocks"
+      ],
+      [
+        "What can a 51% attacker do and not do?",
+        "Double-spend and censor; cannot change tx contents or steal keys; must outspend the honest network"
+      ],
+      [
+        "Hashes needed against a 64-bit target?",
+        "About 2^64 per block"
+      ],
+      [
+        "PoS validator minimum stake?",
+        "32 ETH"
+      ],
+      [
+        "What triggers slashing?",
+        "Provable double-signing of conflicting blocks — part of the stake is burned"
+      ],
+      [
+        "Nothing-at-stake?",
+        "Validator could back both forks for free; slashing is the fix"
+      ],
+      [
+        "PoS attack thresholds?",
+        "~33% to reorganise a weakly finalised chain, ~66% to break finality"
+      ],
+      [
+        "PoB: what does the participant do?",
+        "Send tokens to a provably unspendable address — the receipt is the proof"
+      ],
+      [
+        "PoA in this syllabus is what?",
+        "The PoW+PoS hybrid: mine, stake the reward, confirm by stake — NOT Proof of Authority"
+      ],
+      [
+        "PoET signature in one phrase?",
+        "A TEE-signed certificate over a random wait; the shortest wait wins"
+      ],
+      [
+        "SBFT node count for f faulty nodes?",
+        "3f+1 total (f=1→4, f=10→31, f=33→100); quorum is 2f+1"
+      ],
+      [
+        "SBFT rounds in order?",
+        "Pre-prepare → prepare (2f+1) → commit (2f+1) → execute"
+      ],
+      [
+        "Mining hash?",
+        "SHA-256 applied twice to the 80-byte header, nonce varied until under target"
+      ],
+      [
+        "Subsidy after n halvings?",
+        "50 / 2^n BTC, halving every 210,000 blocks (~4 years)"
+      ],
+      [
+        "Total supply cap?",
+        "21 million BTC"
+      ],
+      [
+        "What replaces the subsidy?",
+        "Transaction fees must fund security"
+      ]
+    ],
+    "covered": "8 of 9 syllabus topics — 7 must-learn, 1 learn-if-time (the consensus comparison case study is coursework and carries no written-paper marks)"
+  }
+}

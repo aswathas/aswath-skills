@@ -278,7 +278,9 @@ function layoutTree(d) {
   const kids = d.nodes.slice(1);
   const colW = 320;
   const totalW = Math.max(kids.length * colW, 700);
-  const startX = rootX + w / 2 - totalW / 2 + colW / 2;
+  // Keep the first child box inside the canvas: a wide fan centred on the root
+  // would otherwise start at a negative x and get clipped off the left edge.
+  const startX = Math.max(rootX + w / 2 - totalW / 2 + colW / 2, PAD + w / 2);
   kids.forEach((k, i) => {
     const kx = Math.round(startX + i * colW - w / 2);
     const ky = rootY + 210;

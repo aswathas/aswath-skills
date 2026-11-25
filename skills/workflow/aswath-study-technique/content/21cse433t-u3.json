@@ -1,0 +1,859 @@
+{
+  "unit": 3,
+  "glossary": {
+    "Consensus Mechanism": {
+      "definition": "The rule by which a network of independent nodes agrees on one ordered history of transactions without any central authority telling them what to accept.",
+      "whyItMatters": "Every mechanism in this unit is a different answer to one question: what scarce thing do participants spend to buy agreement, and what is the cost when they cheat?",
+      "confusions": [
+        "Consensus is not the same as a consensus algorithm in one host; it is a protocol across hosts that may be Byzantine.",
+        "A consensus mechanism does not decide transaction truth; it decides the order in which transactions are recorded.",
+        "Agreement, validity and termination are three separate properties - a protocol can have one and not the others."
+      ],
+      "topics": [
+        "Introduction to Consensus Methods",
+        "Proof of Work (PoW)",
+        "Proof of Stake (PoS)"
+      ]
+    },
+    "Difficulty and Target": {
+      "definition": "The 256-bit number a block hash must be below for the block to be valid; nBits in the header encodes it compactly, and difficulty is the ratio between the maximum target and the current one.",
+      "whyItMatters": "The target is the entire rule of PoW: no target check is passed by luck, it is passed by spending hashes.",
+      "confusions": [
+        "Difficulty is not a random number - it is a deterministic function of the previous 2016 blocks' timestamps.",
+        "The target lowers and the difficulty rises as hardware improves; they move in opposite directions.",
+        "A hash below the target must also start with the right number of zero bits - both statements describe the same condition."
+      ],
+      "topics": [
+        "Proof of Work (PoW)",
+        "Mining"
+      ]
+    },
+    "Nonce": {
+      "definition": "A 32-bit field in the Bitcoin block header that the miner is free to change, giving a fresh header to hash without altering the transactions.",
+      "whyItMatters": "The nonce is the only thing the miner really controls, and the number of nonce values it must sweep is the direct measure of the work done.",
+      "confusions": [
+        "The nonce is not part of the transaction Merkle root - changing it does not change the transactions.",
+        "When the 2^32 nonce space is exhausted the miner changes extraNonce in the coinbase and starts again.",
+        "The nonce has nothing to do with proof of stake selection randomness."
+      ],
+      "topics": [
+        "Proof of Work (PoW)",
+        "Mining"
+      ]
+    },
+    "51% Attack": {
+      "definition": "An attack in which an entity controls more than half the network's total hash power (PoW) or staked value (PoS), letting it write a conflicting history faster than the honest network.",
+      "whyItMatters": "It is the standard failure mode asked about in every consensus question, and the price of running it is the exam's point.",
+      "confusions": [
+        "It does not let the attacker steal coins directly; it lets them double-spend or censor.",
+        "51% of hash power is enough to attack PoW; in PoS the critical thresholds are roughly 33% for a chain reorganisation and 66% for finality-breaking.",
+        "Cost is what defeats it - the attacker must outspend the honest network, not merely outrun it."
+      ],
+      "topics": [
+        "Proof of Work (PoW)",
+        "Proof of Stake (PoS)"
+      ]
+    },
+    "Slashing": {
+      "definition": "The protocol's punishment for provable validator misconduct - typically double-signing two conflicting blocks - which burns part of the validator's locked stake.",
+      "whyItMatters": "Slashing is the mechanism that makes PoS dishonest behaviour expensive; without it PoS has no security at all.",
+      "confusions": [
+        "Slashing is for provable offences only - being offline is penalised by a small reward loss, not by slashing.",
+        "Slashing destroys stake; it does not confiscate it into another account.",
+        "Slashing has no counterpart in PoW - a miner that breaks the rules simply earns no blocks."
+      ],
+      "topics": [
+        "Proof of Stake (PoS)"
+      ]
+    },
+    "Nothing-at-Stake": {
+      "definition": "The weakness of PoS in which a validator can sign two competing blocks at no extra cost, because a losing signature earns nothing while costs nothing.",
+      "whyItMatters": "Solving it is the whole reason slashing exists, and it is the classic 5-marker contrast question against PoW.",
+      "confusions": [
+        "It is a problem of unpunished equivocation, not of an attacker stealing funds.",
+        "In PoW the analogous double work is priced automatically - the attacker's second chain costs real electricity.",
+        "Long-range attacks are a separate weakness: they need the stake to be slashed or the chain to be socially re-validated."
+      ],
+      "topics": [
+        "Proof of Stake (PoS)"
+      ]
+    },
+    "Byzantine Fault Tolerance and the 3f+1 Bound": {
+      "definition": "The property of tolerating arbitrary malicious behaviour from up to f nodes, guaranteed when the network has at least 3f+1 nodes and quorums of 2f+1, so that any two quorums overlap in at least one honest node.",
+      "whyItMatters": "3f+1 is the number to remember and compute with - f = 1 needs 4 nodes, f = 10 needs 31, f = 33 needs 100.",
+      "confusions": [
+        "3f+1 is the total node count, 2f+1 is the quorum size - they are not the same number.",
+        "Crash fault tolerance only needs 2f+1 nodes; Byzantine fault tolerance needs 3f+1.",
+        "The bound is about the number of nodes, not about the number of transactions."
+      ],
+      "topics": [
+        "Simplified Byzantine Fault Tolerance",
+        "Introduction to Consensus Methods"
+      ]
+    },
+    "Trusted Execution Environment": {
+      "definition": "A hardware-isolated execution region such as Intel SGX whose code and memory are hidden from the host and which can attest its own state and sign results.",
+      "whyItMatters": "It is the trust assumption that Proof of Elapsed Time rests on - the mechanism is fast because it delegates randomness to the chip vendor.",
+      "confusions": [
+        "A TEE certificate proves the wait was random and unobserved; it does not prove the block is correct.",
+        "Trust in SGX is trust in the hardware vendor and its attestation service, not trust in the validators.",
+        "PoET is a permissioned mechanism; it is not designed for open participation."
+      ],
+      "topics": [
+        "Proof of Elapsed Time (PoET)"
+      ]
+    },
+    "Deterministic Finality": {
+      "definition": "A guarantee that once a block is confirmed by a supermajority it can never be reversed, even by an attacker controlling a large fraction of the network's resources.",
+      "whyItMatters": "It is the property an enterprise or financial user is buying, and it is why SBFT and permissioned PoET are chosen over permissionless PoW.",
+      "confusions": [
+        "Deterministic finality is not the same as probabilistic finality - the latter is a growing probability that a block will not be reversed.",
+        "Finality is per-block; confirmations are the PoW-style waiting game for increasing confidence.",
+        "It does not mean instant - SBFT reaches it in seconds, PoW in hours."
+      ],
+      "topics": [
+        "Simplified Byzantine Fault Tolerance",
+        "Proof of Stake (PoS)",
+        "Proof of Elapsed Time (PoET)"
+      ]
+    },
+    "Block Subsidy and Halving": {
+      "definition": "The fixed reward a miner receives for creating a block, which starts at 50 BTC and halves every 210,000 blocks, so after n halvings the subsidy is 50 / 2^n BTC.",
+      "whyItMatters": "It is the clock that counts down to fee-funded security, and it is the computation the MCQ asks for.",
+      "confusions": [
+        "The halving interval is 210,000 blocks, not 210,000 minutes - at 10 minutes per block it is about 1,458 days, roughly four years.",
+        "The subsidy is a creation reward; transaction fees are separate and are paid to the miner as well.",
+        "Total supply converges on 21 million BTC; the halving never increases the subsidy."
+      ],
+      "topics": [
+        "Mining",
+        "Proof of Work (PoW)"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "Introduction to Consensus Methods",
+      "definition": "A consensus mechanism is the rule by which a network of independent, mutually distrusting nodes agrees on a single ordered history of transactions without any central authority telling them what to accept.",
+      "problem": "A single server keeps one ledger because it is in one place. A blockchain splits that ledger across thousands of machines, so it faces the classic distributed-systems failure: a node may crash, be slow, or actively lie, and yet every honest node must end up with the same transaction order - otherwise there is no ledger, only thousands of contradictory claims.",
+      "mechanism": [
+        "State the three properties any consensus protocol must deliver: agreement (no two honest nodes decide differently), validity (only genuinely valid blocks are accepted) and termination (the protocol keeps making progress).",
+        "Assign the fault model: crash faults (a node stops), omission faults (a node stays silent) or Byzantine faults (a node lies, forges or colludes); only Byzantine tolerance gives a ledger useful against an attacker.",
+        "Choose the scarce resource the participants must spend to buy agreement - electricity (PoW), locked capital (PoS), destroyed tokens (PoB), hardware trust (PoET) or a known small membership (SBFT).",
+        "Define the round structure: how a node is picked to propose, what evidence it presents, and how other nodes vote or attest to it.",
+        "Define the quorum threshold that makes a decision binding, and the penalty for nodes that break the rules or simply fail to show up.",
+        "Fix the finality guarantee: probabilistic (a block is increasingly unlikely to be reversed) or deterministic (a committed block can never be reversed)."
+      ],
+      "terminology": [
+        [
+          "Agreement",
+          "No two honest nodes decide differently on the same block."
+        ],
+        [
+          "Validity",
+          "Only blocks whose transactions satisfy the protocol rules are accepted."
+        ],
+        [
+          "Termination",
+          "The protocol always makes progress; it does not deadlock."
+        ],
+        [
+          "Byzantine fault",
+          "A node that lies, forges or colludes with others."
+        ],
+        [
+          "Quorum",
+          "The minimum number of agreeing nodes needed to make a decision binding."
+        ],
+        [
+          "Finality",
+          "The guarantee that an accepted block will not be reversed."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is a consensus mechanism, what properties must it deliver, and what does each mechanism in this unit spend? (5 marks)",
+        "points": [
+          "1 mark for the definition: the rule by which independent nodes agree on one ordered history of transactions with no central authority.",
+          "1 mark for the three properties: agreement, validity and termination.",
+          "1 mark for the fault model: Byzantine behaviour (lying or colluding), and why crash-only tolerance is not enough for an open network.",
+          "1 mark for the scarcity principle: every mechanism spends something scarce - electricity, locked capital, burned tokens, hardware trust or a known membership.",
+          "1 mark for the business consequence: that scarce resource is the real running cost of the ledger, and it decides who can join and what the failure mode is."
+        ]
+      },
+      "traps": [
+        "Do not describe consensus as 'the algorithm that validates transactions' - validation is a different job; consensus decides the order and the shared history.",
+        "Do not list only agreement. Termination and validity are separately marked.",
+        "Do not claim a mechanism is 'decentralised and free' - each one buys its security with a specific scarce resource.",
+        "Do not confuse deterministic finality with instant finality; SBFT is final in seconds, PoW probabilistic in hours."
+      ],
+      "recall": [
+        [
+          "Name the three properties a consensus protocol must provide.",
+          "Agreement - no two honest nodes decide differently; validity - only valid blocks are accepted; termination - the protocol always progresses."
+        ],
+        [
+          "What is a Byzantine fault?",
+          "A node that lies, forges messages or colludes with others, as opposed to a crash fault where a node simply stops."
+        ],
+        [
+          "What does each mechanism in this unit spend?",
+          "PoW spends electricity and hardware; PoS spends locked capital at risk of slashing; PoB spends destroyed tokens; PoA spends both work and stake; PoET spends trust in the TEE vendor; SBFT spends the overhead of a known, small membership running several voting rounds."
+        ],
+        [
+          "Why is 'a single server keeps one ledger' a false starting point?",
+          "A blockchain has no single server; the ledger is replicated across thousands of mutually distrusting machines, so the classic distributed-systems failures must be tolerated by design."
+        ],
+        [
+          "What is the difference between probabilistic and deterministic finality?",
+          "Probabilistic finality means a block becomes increasingly unlikely to be reversed and needs many confirmations; deterministic finality means a committed block can never be reversed."
+        ]
+      ]
+    },
+    {
+      "name": "Proof of Work (PoW)",
+      "definition": "Proof of Work is a consensus mechanism in which a miner repeatedly varies a nonce in the block header and hashes until the resulting hash falls below a shared target, so the right to produce the next block is bought with electricity and hardware.",
+      "problem": "Bitcoin needed to create a ledger without a trusted server, and any scheme based only on software statements would be trivially attacked by whoever wrote the most nodes. PoW made forgery expensive by making computation itself the scarce resource: rewriting history means redoing all the work, so an attacker must outspend the honest network rather than merely outpace it.",
+      "mechanism": [
+        "Block assembly: the miner collects pending transactions into a candidate block and builds the header, which carries the previous block hash, the Merkle root of the transactions, a timestamp, the compact target nBits and a 32-bit nonce field.",
+        "Target and validity rule: every node shares one target value encoded in nBits; a block is valid only if the hash of its header is numerically less than that target, which is equivalent to the hash having the right number of leading zero bits.",
+        "Nonce search: the miner sets the nonce, computes double SHA-256 of the 80-byte header, and if the digest is above the target increments the nonce and hashes again; it repeats until the hash lands under the target.",
+        "Difficulty retarget: after every 2016 blocks the network recomputes the target from the actual timestamps of those blocks so that the average block time stays near 10 minutes, which automatically raises difficulty as hardware improves.",
+        "Broadcast and verification: the winning header plus the block is broadcast; every receiving node recomputes the double hash and checks it against nBits, the target and the PoW limit, and rejects the block if any check fails.",
+        "Chain extension and reward: the valid block is appended to the chain that has the most accumulated work, and the miner collects the block subsidy plus transaction fees."
+      ],
+      "terminology": [
+        [
+          "Target",
+          "The 256-bit number a valid block hash must be below."
+        ],
+        [
+          "Difficulty",
+          "The ratio of the easiest possible target to the current target; it rises as hardware improves."
+        ],
+        [
+          "Nonce",
+          "The 32-bit header field the miner varies to get a new hash."
+        ],
+        [
+          "Double SHA-256",
+          "SHA-256 applied twice to the header, a legacy quirk of the original Bitcoin client."
+        ],
+        [
+          "Hash rate",
+          "The number of hashes per second the network performs, used as the measure of total work."
+        ],
+        [
+          "Orphan / stale block",
+          "A valid block that loses the race to extend the longest chain."
+        ],
+        [
+          "Retargeting",
+          "The 2016-block difficulty adjustment that holds block time near 10 minutes."
+        ],
+        [
+          "Accumulated work",
+          "The chain with the most total work wins, measured in expected hashes."
+        ],
+        [
+          "Selfish mining",
+          "A strategy that withholds found blocks to gain a share of revenue above its honest hash fraction."
+        ],
+        [
+          "51% attack",
+          "Control of over half the hash power, allowing conflicting history to be written at a cost exceeding the honest network's spend."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain Proof of Work with the target/difficulty rule, the nonce search, the 51% attack and the cost of mounting it. (15 marks)",
+        "points": [
+          "1 mark for the definition: producing the next block requires winning a probabilistic lottery whose tickets are hashes, paid for in electricity.",
+          "2 marks for the target and difficulty rule: one shared 256-bit target encoded in nBits, a valid hash must be below it, difficulty is the ratio to the easiest target, and it is recomputed every 2016 blocks to hold 10-minute blocks.",
+          "3 marks for the nonce search: set nonce, compute double SHA-256 of the header, compare to target, increment and repeat; roughly 2^64 hashes on average against a 64-bit target; the nonce space is 2^32 so extraNonce in the coinbase is used when it is exhausted.",
+          "2 marks for chain selection: the longest-accumulated-work chain is the real chain, and stale blocks are wasted.",
+          "3 marks for the 51% attack: an attacker with over half the hash rate could mine a conflicting chain faster, double-spending or censoring, but cannot steal keys or alter transaction contents.",
+          "3 marks for the cost of attacking: it must buy hash power and keep buying it for every block of the fork, and the honest network's expected work per block is 2^64 hashes, so the attacker's cost strictly exceeds the value of the chain it is trying to replace.",
+          "1 mark for the consequence: the security budget of the whole network is the total electricity spent per block, which is why the block subsidy and fees exist."
+        ]
+      },
+      "traps": [
+        "Do not say the miner solves a puzzle with a unique answer - it is a brute-force lottery with no solution, only a lucky hash.",
+        "Do not say the target changes every block; it changes every 2016 blocks, and the rule is deterministic from the previous 2016 blocks.",
+        "Do not say a 51% attacker steals coins or changes transaction contents; it enables double-spending and censorship, and it must spend more than the honest network.",
+        "Do not say PoW is decentralized because of many miners - it is decentralized because the cost of majority control is set by total network hash power.",
+        "Do not confuse difficulty with the target: the target goes down, the difficulty goes up.",
+        "Do not claim a 51% attack is impossible; it is priced, and on chains with low hash power it has happened."
+      ],
+      "recall": [
+        [
+          "How is a valid block defined in PoW?",
+          "The double SHA-256 of its 80-byte header must be numerically below the shared target encoded in nBits."
+        ],
+        [
+          "What exactly does the miner vary, and how often is the target reset?",
+          "The 32-bit nonce in the header, with the target recomputed every 2016 blocks to hold block time near 10 minutes."
+        ],
+        [
+          "Why is difficulty adjusted automatically?",
+          "So that the average block time stays near 10 minutes as hash power grows; otherwise blocks would get faster and the currency would inflate."
+        ],
+        [
+          "What can an attacker with 51% of the hash rate actually do?",
+          "Write a conflicting chain faster than the honest one, enabling double-spends and censorship - but not change the contents of transactions or steal keys."
+        ],
+        [
+          "What makes the 51% attack expensive?",
+          "It must buy and keep burning hash power for every block of the fork, so the attacker outlays more than the honest network's expected 2^64 hashes per block."
+        ],
+        [
+          "How many hashes are needed on average against a 64-bit target?",
+          "About 2^64, which is the security budget per block."
+        ],
+        [
+          "What is the difference between an orphan block and a fork?",
+          "An orphan is a valid block that simply lost the race; a fork is the divergence itself, resolved by accumulated work."
+        ]
+      ]
+    },
+    {
+      "name": "Proof of Stake (PoS)",
+      "definition": "Proof of Stake is a consensus mechanism in which validators lock capital as stake and are selected to propose and attest blocks roughly in proportion to that stake, so control of the network is bought with locked, slashable capital rather than burned electricity.",
+      "problem": "PoW proves a miner spent electricity, which is verifiable but wasteful and inaccessible to anyone without mining hardware. PoS replaces the burnt resource with something that already exists and is meaningful to the network - the coin itself - so that control is proportional to economic commitment, energy use collapses, and dishonest behaviour can be punished directly.",
+      "mechanism": [
+        "Staking and bonding: a validator locks at least 32 ETH as stake (more validators with more stake get proportionally more influence); the deposit is collateral that the protocol can burn.",
+        "Slot and committee selection: the protocol splits time into 12-second slots; for each slot it selects one proposer and an attestation committee, with selection weighted by effective stake.",
+        "Block proposal: the proposer gathers transactions, builds and broadcasts a candidate block and a proposal for it to the committee.",
+        "Attestation and checkpoint finality: committee members sign an attestation for the block; when attestations carrying at least two thirds of the staked ETH are collected for a checkpoint, that checkpoint is finalised and can never be reversed.",
+        "Slashing for equivocation: if a validator is provably caught signing two conflicting blocks (double-signing) or surrounding itself with contradictory votes, a portion of its 32 ETH is burned and it is ejected from the validator set.",
+        "Rewards and downtime penalties: honest and online attestation earns a small reward; being offline loses part of the reward and repeated downtime is penalised, so availability has a price too."
+      ],
+      "terminology": [
+        [
+          "Stake",
+          "The capital locked by a validator, at risk of slashing."
+        ],
+        [
+          "Validator",
+          "A node with a bonded stake that proposes and attests to blocks."
+        ],
+        [
+          "Equivocation",
+          "Signing two conflicting blocks - the offence that triggers slashing."
+        ],
+        [
+          "Slashing",
+          "Burning part of a validator's stake as punishment for provable misbehaviour."
+        ],
+        [
+          "Nothing-at-stake",
+          "The weakness where a validator could vote for both forks at no cost if there were no slashing."
+        ],
+        [
+          "Checkpoint",
+          "A slot whose votes decide finality."
+        ],
+        [
+          "Attestation",
+          "A validator's signed vote for a block."
+        ],
+        [
+          "Long-range attack",
+          "An attack on a weakly finalised chain that re-uses old stake to build an alternative history and forces a social fork."
+        ],
+        [
+          "Deterministic finality",
+          "Finality from a supermajority of stake, after which reversal is impossible."
+        ],
+        [
+          "Finality threshold",
+          "Roughly 33% of stake can reorganise a weakly finalised chain; 66% is needed to break finality outright."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain Proof of Stake: validator selection by stake, slashing, the nothing-at-stake and long-range attacks, and deterministic finality. (15 marks)",
+        "points": [
+          "1 mark for the definition: validators lock capital and are chosen in proportion to that stake, so network control is bought rather than burned.",
+          "3 marks for selection by stake: bonding (32 ETH minimum), slots of 12 seconds, one proposer plus an attestation committee per slot, selection weighted by effective stake so influence equals economic commitment.",
+          "3 marks for slashing: equivocation - signing two conflicting blocks - is provable, so the stake is partially burned and the validator ejected; this is what prices dishonesty.",
+          "3 marks for nothing-at-stake: without slashing a validator could back both forks at zero cost, so PoS security depends entirely on making the dishonest path expensive; long-range attacks extend the idea by replaying old stake on a weakly finalised chain, requiring slashing conditions or social recovery.",
+          "3 marks for deterministic finality: attestations from two thirds of staked ETH finalise a checkpoint, after which the block cannot be reversed even by a large amount of stake.",
+          "2 marks for the trade-off: capital at risk replaces electricity, energy use collapses, but the security is now concentrated in a measurable stake pool and requires careful slashing and finality rules."
+        ]
+      },
+      "traps": [
+        "Do not say PoS selects validators randomly and ignores stake - selection is weighted by stake.",
+        "Do not say slashing punishes downtime; slashing is for provable offences such as double-signing, while offline penalties are separate.",
+        "Do not present nothing-at-stake as a solved problem - it is the unsolved risk that slashing is designed to fix.",
+        "Do not confuse the two thresholds: about 33% of stake can reorganise a weakly finalised chain, while 66% is needed to break finality outright.",
+        "Do not say PoS validators get the block reward in full - the reward is a small issuance plus fees, and the stake is locked and return-bearing.",
+        "Do not claim PoS removes the need for consensus rules; it changes what is at risk, not the need for agreement."
+      ],
+      "recall": [
+        [
+          "How is a proposer chosen in PoS?",
+          "Randomly per slot but weighted by effective stake, so a validator with more stake is chosen more often."
+        ],
+        [
+          "What triggers slashing and what happens to the stake?",
+          "Provable equivocation - signing two conflicting blocks - causes part of the validator's 32 ETH stake to be burned and the validator to be ejected."
+        ],
+        [
+          "What is the nothing-at-stake problem?",
+          "That a validator could vote for two competing forks without cost, so if misbehaviour is free the honest chain is not safe; slashing is the fix."
+        ],
+        [
+          "How does a block become final in modern PoS?",
+          "When attestations carrying about two thirds of the staked ETH are collected for a checkpoint, that checkpoint is finalised and cannot be reversed."
+        ],
+        [
+          "What stake share is needed to reorganise a weakly finalised chain, and to break finality?",
+          "Roughly 33% for a reorganisation; about 66% to break finality outright."
+        ],
+        [
+          "What is a long-range attack?",
+          "An attacker re-uses stake that is already unbonded to build an alternative history of a weakly finalised chain, so it cannot be stopped by slashing the old stake alone."
+        ],
+        [
+          "How does PoS differ from PoW in the resource it spends?",
+          "PoS spends capital locked and at risk of slashing; PoW spends electricity and hardware."
+        ]
+      ]
+    },
+    {
+      "name": "Proof of Burn (PoB)",
+      "definition": "Proof of Burn is a consensus mechanism in which a participant demonstrates commitment by sending tokens to an address that provably cannot spend them, so the cost of participation is permanently destroyed rather than rented as locked capital or burnt electricity.",
+      "problem": "A new chain has no history, no mining hardware and no pre-existing stake to secure it, so any bootstrap mechanism needs a starting supply of scarce value that a newcomer can acquire and consume. PoB answers this by making the participant destroy value outright - the burnt tokens are removed from total supply and can never be redeemed, so the commitment is final rather than temporary.",
+      "mechanism": [
+        "Burn transaction: the participant sends tokens to a burn address whose private key is provably absent, or to an unspendable output script, so the tokens can never move again.",
+        "Supply destruction: the burnt tokens leave circulation immediately and total supply falls; the destruction is unrecoverable, not a lock-up with an unlock date.",
+        "Receipt as proof: the burn transaction itself is the proof of commitment - there is no separate certificate, because the transaction chain records the destruction.",
+        "Burning more to weigh more: a participant who burns to several addresses increases the probability of being selected to produce blocks, so competition is priced by the quantity destroyed.",
+        "Competing for the right to produce: after burning, the participant competes exactly like a PoW miner or PoS validator and receives the block reward if it wins.",
+        "Ongoing participation: the mechanism can be layered under another consensus rule, so burning buys membership of a network whose actual block production is done by another algorithm."
+      ],
+      "terminology": [
+        [
+          "Burn address",
+          "An address that provably cannot spend, used to destroy tokens permanently."
+        ],
+        [
+          "Proof of Burn receipt",
+          "The burn transaction that evidences the destruction."
+        ],
+        [
+          "Unspendable output",
+          "A script or address with no known spend path, making the destruction irreversible."
+        ],
+        [
+          "Commitment",
+          "Proof that a participant has invested value and cannot cheaply take it back."
+        ],
+        [
+          "Bootstrapping",
+          "Starting a chain's security from nothing, which PoB is designed for."
+        ],
+        [
+          "Hybrid consensus",
+          "Burning used for membership while another mechanism handles block production."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is Proof of Burn, what does a participant actually do, and why is it useful for bootstrapping a new chain? (5 marks)",
+        "points": [
+          "1 mark for the definition: commitment is bought by destroying tokens, not by burning electricity or locking capital.",
+          "1 mark for the action: send tokens to an address that provably cannot spend them, so the tokens are permanently destroyed.",
+          "1 mark for the receipt: the burn transaction is the proof, verifiable by everyone from the chain itself.",
+          "1 mark for the bootstrap advantage: no mining hardware and no pre-existing stake are needed, so a new chain can bootstrap security from nothing.",
+          "1 mark for the side effect and trade-off: total supply is permanently reduced, giving a deflationary effect, but the burnt value is unrecoverable and the mechanism does not on its own determine who produces blocks."
+        ]
+      },
+      "traps": [
+        "Do not say the tokens are locked - locking is PoS; in PoB they are destroyed and can never be recovered.",
+        "Do not say the participant burns electricity - that is PoW.",
+        "Do not confuse Proof of Burn with Proof of Authority; Authority means a named, trusted validator set.",
+        "Do not say the burn is merely a transaction to a normal wallet - the address must be provably unspendable, otherwise nothing is actually destroyed.",
+        "Do not claim PoB secures a chain on its own; it is usually an access or weighting layer above another consensus rule."
+      ],
+      "recall": [
+        [
+          "What does a participant actually do in Proof of Burn?",
+          "Sends tokens to an address that provably cannot spend them, permanently destroying them."
+        ],
+        [
+          "What serves as the proof of commitment?",
+          "The burn transaction itself, recorded on chain and verifiable by all nodes."
+        ],
+        [
+          "How does PoB differ from PoS in what happens to the value?",
+          "PoB destroys the value permanently and reduces supply; PoS locks it temporarily and can burn it only as a slashing penalty."
+        ],
+        [
+          "Why is PoB useful for a brand-new chain?",
+          "It needs no mining hardware and no pre-existing stake, so security can be bootstrapped from a supply anyone can acquire and burn."
+        ],
+        [
+          "What happens to total supply under PoB?",
+          "It falls permanently, since the burnt tokens are removed from circulation with no supply path back."
+        ]
+      ]
+    },
+    {
+      "name": "Proof of Activity (PoA)",
+      "definition": "Proof of Activity is a hybrid consensus mechanism in which a block is mined by proof of work but only becomes active once its miner stakes the block reward and that stake is confirmed by the other miners.",
+      "problem": "Pure PoW inherits PoW's cheap-and-unbalanced finality and its waste; pure PoS inherits PoS's risks around stake concentration and the long-range and weak-subjectivity attacks. PoA keeps the PoW mining step as a lottery against cheap majority attacks, and adds a stake-confirmation step so that the chain with real economic commitment wins, not merely the chain with the most burnt electricity.",
+      "mechanism": [
+        "Mine by proof of work: miners still run the full PoW nonce search to produce a candidate block - the work step is not removed, only supplemented.",
+        "Stake the reward: to make the block active, the miner must additionally send or lock the block reward as stake, so producing a block is a two-step commitment rather than one.",
+        "Confirmation vote: miners then vote on which stake-bearing chain is valid, comparing the accumulated work and the staked value of the competing chains.",
+        "Activation and finality: once a block is staked and confirmed by a supermajority of stake it becomes active and final; work alone is not enough to finalise anything.",
+        "Fork attrition: a fork that stops being staked loses the network's confidence and its stakers lose their stake, so hash power alone cannot win a fork.",
+        "Inherited properties: the chain keeps PoW's resistance to a cheap 51% hash attack and gains PoS's cheap, near-instant finality without being purely either."
+      ],
+      "terminology": [
+        [
+          "Proof of Activity",
+          "The PoW plus PoS hybrid in which a block must be staked to become active."
+        ],
+        [
+          "Staking window",
+          "The period in which the miner stakes the reward and others confirm."
+        ],
+        [
+          "Active block",
+          "A block that has been staked and confirmed; only active blocks count."
+        ],
+        [
+          "Inactive / orphaned block",
+          "A block whose stake was never committed, so it never activates."
+        ],
+        [
+          "Stake confirmation",
+          "The vote by which holders of stake attest that a chain is the valid one."
+        ],
+        [
+          "Proof of Authority",
+          "A different, permissioned mechanism where named validators hold fixed voting weight - not what this syllabus means by PoA."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain Proof of Activity as a PoW-plus-PoS hybrid, including the stake-confirmation step and what happens when the stake is not confirmed, and distinguish it from pure PoW and pure PoS. (5 marks)",
+        "points": [
+          "1 mark for the definition: a hybrid - the PoW mining step is kept and a PoS stake-confirmation step is added.",
+          "1 mark for the stake-confirmation window: the miner must stake the block reward, and other miners vote on which stake-bearing chain is valid.",
+          "1 mark for the unconfirmed case: if the reward is not staked, the block never becomes active and is effectively orphaned; on a fork, a chain that stops being staked loses the network even if it holds more accumulated work.",
+          "1 mark for the contrast with pure PoW: work alone can no longer finalise anything, and hash power alone cannot win a fork.",
+          "1 mark for the contrast with pure PoS: the work step keeps the resistance to a cheap 51% hash attack and the grinding of the hash lottery, so it is not purely stake-based.",
+          "1 mark for the inherited result: PoW's resistance plus PoS's cheap, near-instant finality."
+        ]
+      },
+      "traps": [
+        "CRITICAL: in this course Proof of Activity is the PoW-plus-PoS hybrid - mine, then stake-confirm. It is NOT Proof of Authority, which means a permissioned set of named validators with fixed voting weight.",
+        "Do not say PoA removes the PoW step - the mining step is kept deliberately.",
+        "Do not say work alone finalises a block; without the stake the block never becomes active.",
+        "Do not say a fork with more accumulated work necessarily wins - the chain that stops being staked loses.",
+        "Do not present PoA as either purely PoW or purely PoS; the exam wants the hybrid named as such."
+      ],
+      "recall": [
+        [
+          "In this syllabus, what exactly is Proof of Activity?",
+          "The PoW-plus-PoS hybrid: mine the block by proof of work, then stake the reward and have it confirmed by other stakers before it becomes active."
+        ],
+        [
+          "What happens to a block whose reward is never staked?",
+          "It never becomes active and is effectively orphaned - the work is wasted."
+        ],
+        [
+          "Which mechanism is Proof of Activity easily confused with, and how do they differ?",
+          "Proof of Authority, where a permissioned set of named validators holds fixed voting weight; PoA in this syllabus is a PoW-plus-PoS hybrid, not a permissioned authority list."
+        ],
+        [
+          "Why keep the PoW mining step in a hybrid with PoS?",
+          "It preserves resistance to a cheap 51% hash attack and the anti-grinding properties of the hash lottery."
+        ],
+        [
+          "On a fork, can hash power alone win?",
+          "No - a chain that stops being staked loses the network's confidence even if it has more accumulated work."
+        ]
+      ]
+    },
+    {
+      "name": "Proof of Elapsed Time (PoET)",
+      "definition": "Proof of Elapsed Time is a permissioned consensus mechanism in which each participant waits a randomly chosen period inside a trusted execution environment and the participant whose wait expires first wins the right to produce the next block.",
+      "problem": "In a small permissioned network there is no need for the enormous waste of PoW, but there is still a need to choose one leader per round without any central party assigning the role. PoET replaces computational search with pure waiting, but waiting alone is worthless unless the random wait is genuinely unpredictable, so it delegates that randomness to a trusted execution environment that signs a certificate the others verify.",
+      "mechanism": [
+        "Random wait generation: each participant asks the trusted execution environment for a random wait time that the other participants cannot see or predict in advance.",
+        "TEE attestation: the TEE runs inside hardware isolation such as Intel SGX and signs the wait value together with a certificate proving the wait was genuinely random and unobserved.",
+        "Certificate verification: the other nodes verify the TEE's signature and the certificate's validity before accepting that participant's wait.",
+        "Shortest wait wins: when waits expire, the participant with the lowest wait value - the one whose timer ran out first - is granted the right to produce the next block.",
+        "Proposal and finality: the winner proposes the block; in a small known validator set the block is confirmed almost immediately, giving near-instant finality.",
+        "Round repetition: the next round starts immediately with fresh waits from every participant, so no participant can monopolise the leader role."
+      ],
+      "terminology": [
+        [
+          "Trusted Execution Environment (TEE)",
+          "Hardware-isolated execution such as Intel SGX that can attest its own behaviour."
+        ],
+        [
+          "Certificate",
+          "The TEE's signed proof that the wait was random and was not observed."
+        ],
+        [
+          "Wait time",
+          "The random period a participant must let pass before it may produce a block."
+        ],
+        [
+          "Permissioned network",
+          "A closed set of known, admitted participants."
+        ],
+        [
+          "Trust assumption",
+          "Trust in the TEE vendor and its attestation infrastructure."
+        ],
+        [
+          "Near-instant finality",
+          "A decided block cannot be reversed, reached in seconds."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain Proof of Elapsed Time, its trusted-execution-environment basis and the trust assumption it makes. (5 marks)",
+        "points": [
+          "1 mark for the definition: a lottery where each participant waits a randomly chosen period and the shortest wait wins the right to produce the block.",
+          "2 marks for the TEE mechanism: the wait is generated inside a trusted execution environment such as Intel SGX, which publishes a signed certificate that the other nodes verify.",
+          "1 mark for the design intent: it is a permissioned mechanism for a known small set of nodes, where trading a hardware-vendor trust assumption for near-instant finality is a reasonable deal.",
+          "1 mark for the trust assumption and its limits: security depends on the TEE vendor and its attestation service, and a compromised or backdoored TEE breaks the randomness; the mechanism is not suitable for open participation."
+        ]
+      },
+      "traps": [
+        "Do not describe PoET as a computational puzzle - the winning condition is waiting, not computing.",
+        "Do not omit the TEE certificate; without it the random wait is just a claim and any node could claim the shortest wait.",
+        "Do not present PoET as a permissionless mechanism for open networks - it assumes a known, admitted set of participants.",
+        "Do not hide the trust assumption: PoET replaces computational trust with hardware-vendor trust.",
+        "Do not confuse PoET with Proof of Authority - the leader is chosen by lottery, not by a fixed list of authorities."
+      ],
+      "recall": [
+        [
+          "What is the winning condition in PoET?",
+          "The participant whose randomly chosen wait expires first is allowed to produce the next block."
+        ],
+        [
+          "What role does the TEE play?",
+          "It generates the unpredictable random wait and signs a certificate proving the wait was random and unobserved, which other nodes verify."
+        ],
+        [
+          "What trust assumption does PoET make?",
+          "Trust in the TEE hardware vendor and its attestation infrastructure - a backdoored or compromised TEE breaks the randomness."
+        ],
+        [
+          "Is PoET usable on a permissionless network?",
+          "No - it is designed for a permissioned network with a known, small set of participants."
+        ],
+        [
+          "Why is PoET fast?",
+          "Because there is no searching - the block producer is decided by a timer, so finality arrives in seconds rather than probabilistic waits."
+        ]
+      ]
+    },
+    {
+      "name": "Simplified Byzantine Fault Tolerance",
+      "definition": "Simplified Byzantine Fault Tolerance is a leader-based voting protocol in which a leader proposes an ordered request, the replicas broadcast prepare and commit votes, and a decision is final once 2f+1 commit votes are collected, with at least 3f+1 replicas required to tolerate f Byzantine nodes.",
+      "problem": "Permissioned networks cannot rely on the probabilistic finality of PoW, because a business cannot run on a block that might be reversed tomorrow. SBFT replaces the probabilistic race with an explicit voting protocol: the honest majority of a known membership signs off, the decision is binding by rule rather than by accumulated work, and the node count needed for that guarantee is fixed in advance by the 3f+1 bound.",
+      "mechanism": [
+        "Client request: the client sends its transaction to the leader of the current view.",
+        "Pre-prepare: the leader orders the requests it received into a total order and broadcasts a pre-prepare message carrying the sequence number and the request digest.",
+        "Prepare round: every replica broadcasts a prepare vote for that sequence number, and each replica waits until it holds 2f+1 prepare votes for the same proposal before moving on.",
+        "Commit round: on collecting 2f+1 matching prepares, each replica broadcasts a commit vote; a replica executes the request only after it holds 2f+1 commit votes.",
+        "Execute and reply: the request is executed in the agreed order and the reply is sent to the client; the decision is final and cannot be rolled back.",
+        "View change: if the leader is faulty or silent, a timeout causes a new view with a different leader, so the protocol still terminates despite a Byzantine leader.",
+        "Node-count bound: the deployment must have at least 3f+1 replicas in total, so that any two quorums of 2f+1 overlap in at least one honest replica and two conflicting blocks can never both be committed."
+      ],
+      "terminology": [
+        [
+          "Replica",
+          "A node holding a copy of the ledger and voting in the protocol."
+        ],
+        [
+          "Leader",
+          "The replica responsible for ordering requests in the current view."
+        ],
+        [
+          "View",
+          "The current epoch of the protocol, identified by a number that changes on a leader failure."
+        ],
+        [
+          "Pre-prepare",
+          "The leader's proposal for the order of a request."
+        ],
+        [
+          "Prepare",
+          "The first voting round, whose 2f+1 votes show agreement on the proposal."
+        ],
+        [
+          "Commit",
+          "The second voting round, whose 2f+1 votes make the decision binding."
+        ],
+        [
+          "Quorum",
+          "2f+1 replicas - the threshold needed in each round."
+        ],
+        [
+          "3f+1 bound",
+          "The minimum total replicas needed to tolerate f Byzantine nodes."
+        ],
+        [
+          "Deterministic finality",
+          "A committed decision can never be reversed."
+        ],
+        [
+          "View change",
+          "The timeout-driven mechanism that replaces a faulty leader."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain SBFT: the leader-based voting rounds, the quorum sizes, the 3f+1 bound with a worked computation, and the finality guarantee. (15 marks)",
+        "points": [
+          "1 mark for the definition: a leader-based voting protocol over a known membership in which a proposal passes through prepare and commit rounds.",
+          "4 marks for the rounds in order: client request to leader; leader broadcasts pre-prepare with the sequence number; all replicas broadcast prepare votes and wait for 2f+1 matching prepares; on that, replicas broadcast commit votes and wait for 2f+1 commits; the request is executed in the agreed order and the reply is returned.",
+          "3 marks for the 3f+1 bound and why it holds: at least 3f+1 replicas in total, and a quorum of 2f+1, so any two quorums intersect in at least one honest replica and two conflicting blocks cannot both reach 2f+1 commits.",
+          "3 marks for the worked computation: to tolerate f faulty nodes you need 3f+1 replicas - f = 1 needs 4 replicas, f = 10 needs 31, f = 33 needs 100 - and the quorum is 2f+1, so with 4 replicas a commit needs 3 agreeing votes and one liar cannot reach quorum alone.",
+          "2 marks for the finality guarantee: once committed the decision is final and cannot be rolled back, giving a permissioned chain deterministic finality in seconds rather than probabilistic finality in minutes.",
+          "2 marks for the view change: a faulty or silent leader is replaced by a timeout-driven new view, so the protocol terminates and safety is preserved."
+        ]
+      },
+      "traps": [
+        "Do not say the leader's proposal alone is final - it must pass 2f+1 prepare votes and 2f+1 commit votes.",
+        "Do not swap the numbers: 3f+1 is the total node count, 2f+1 is the quorum.",
+        "Do not apply crash-fault tolerance figures (2f+1 nodes) to a Byzantine setting; Byzantine tolerance needs 3f+1.",
+        "Do not say SBFT gives probabilistic finality - it gives deterministic finality, and that is the reason enterprises pick it.",
+        "Do not forget the view change; without it a Byzantine leader can stall the protocol and termination is lost."
+      ],
+      "recall": [
+        [
+          "How many nodes are needed to tolerate f Byzantine nodes, and what is the quorum?",
+          "At least 3f+1 nodes in total, with a quorum of 2f+1 in each voting round."
+        ],
+        [
+          "Compute the node count for f = 10 and for f = 33.",
+          "f = 10 needs 3(10)+1 = 31 nodes; f = 33 needs 3(33)+1 = 100 nodes."
+        ],
+        [
+          "With 4 nodes, how many agreeing votes are needed to commit?",
+          "2f+1 = 3 votes, so one liar alone cannot reach quorum."
+        ],
+        [
+          "What are the two voting rounds called and what does each prove?",
+          "Prepare (2f+1 votes that the replicas agree on the proposal) and commit (2f+1 votes that the proposal is final and can be executed)."
+        ],
+        [
+          "What happens if the leader is faulty or silent?",
+          "A timeout triggers a view change and a new leader is elected, so the protocol keeps terminating."
+        ],
+        [
+          "Why must any two quorums of 2f+1 overlap in an honest node?",
+          "That overlap is what makes it impossible for two conflicting blocks both to gather 2f+1 commits, which is the safety property."
+        ]
+      ]
+    },
+    {
+      "name": "Mining",
+      "definition": "Mining is the activity of repeatedly hashing candidate Bitcoin block headers with varying nonces until the double SHA-256 digest falls below the network target, earning the block subsidy and fees for the block that extends the chain.",
+      "problem": "Someone has to pay for the security of the ledger. Mining is the mechanism that both produces blocks and funds the network: the subsidy it earns is the budget that pays honest miners to keep validating and hashing, and once the subsidy is exhausted, transaction fees must take over that role.",
+      "mechanism": [
+        "Header construction: the miner assembles the transactions into a block and writes the 80-byte header, including the previous block hash, the transaction Merkle root, the timestamp, the compact target nBits and a 32-bit nonce field it is free to set.",
+        "Double hashing: the mining hash is SHA-256 applied twice to the header - a legacy quirk inherited from Satoshi Nakamoto's original client that is kept for compatibility.",
+        "Nonce sweep: the miner sets the nonce, hashes, and compares the digest with the target; if it is above the target the nonce is incremented and the header hashed again, repeated until the digest is under the target.",
+        "Nonce exhaustion and extraNonce: the nonce space is only 2^32 values, so once it is exhausted the miner changes the extraNonce in the coinbase transaction and starts a fresh sweep.",
+        "Difficulty and retargeting: the target is reset every 2016 blocks from the actual block times so the average stays near 10 minutes per block; against a 64-bit target a miner needs roughly 2^64 hashes on average.",
+        "Subsidy halving: the block reward starts at 50 BTC and halves every 210,000 blocks, so after n halvings the subsidy is 50 / 2^n BTC, and total supply converges on 21 million BTC.",
+        "Fee-funded security: when the subsidy reaches zero, security must be paid entirely by transaction fees, and 210,000 blocks at 10 minutes each is about 1,458 days - roughly four years - per halving."
+      ],
+      "terminology": [
+        [
+          "Mining",
+          "The repeated search for a header hash below the target."
+        ],
+        [
+          "Block header",
+          "The 80-byte structure hashed by miners."
+        ],
+        [
+          "Double SHA-256",
+          "SHA-256 applied twice, the legacy Bitcoin hashing quirk."
+        ],
+        [
+          "Nonce",
+          "The 32-bit field the miner varies to obtain a new hash."
+        ],
+        [
+          "Target / difficulty",
+          "The threshold a hash must beat and its derived difficulty measure."
+        ],
+        [
+          "Block subsidy",
+          "The newly created coinbase reward, 50 BTC initially and halving every 210,000 blocks."
+        ],
+        [
+          "Halving",
+          "The scheduled halving of the subsidy every 210,000 blocks."
+        ],
+        [
+          "Coinbase transaction",
+          "The first transaction of a block, which pays the miner and carries extraNonce."
+        ],
+        [
+          "Fee market",
+          "The transaction fees that must replace the subsidy as the security budget."
+        ],
+        [
+          "21 million cap",
+          "The asymptotic total supply reached by the halving schedule."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain mining: the double-SHA-256 nonce search, the block subsidy halving schedule and the transition to fee-funded security. (5 marks)",
+        "points": [
+          "1 mark for the nonce search: the miner assembles the header, sets the nonce, computes SHA-256(SHA-256(header)) and compares it to the target, incrementing the nonce and re-hashing until it falls below - about 2^64 hashes on average against a 64-bit target, with the 2^32 nonce space exhausted and restarted via extraNonce.",
+          "2 marks for the halving schedule: the subsidy starts at 50 BTC and halves every 210,000 blocks - 50 BTC at block 0, 25 BTC from 210,000, 12.5 BTC from 420,000, 6.25 BTC from 630,000, 3.125 BTC from 840,000 - so after n halvings the subsidy is 50 / 2^n BTC and total supply converges on 21 million BTC.",
+          "1 mark for the timing: 210,000 blocks at 10 minutes each is about 1,458 days, roughly four years per halving.",
+          "1 mark for the transition: when the subsidy reaches zero the security budget must be funded entirely by transaction fees, which is the structural pressure every public chain faces."
+        ]
+      },
+      "traps": [
+        "Do not say mining solves a puzzle; it is a brute-force search with no solution, only a lucky hash.",
+        "Do not compute the subsidy as 50 - n BTC; it is 50 / 2^n after n halvings.",
+        "Do not give the halving interval in blocks and days interchangeably - 210,000 blocks is about four years at 10 minutes per block.",
+        "Do not say the subsidy is 50 BTC today; the current subsidy has halved many times and the count from block 0 is what the exam wants.",
+        "Do not forget the double hashing - a single SHA-256 answer loses the mark.",
+        "Do not claim fees already pay for all of Bitcoin's security; the subsidy still dominates today and the fee-funded endgame is a future problem."
+      ],
+      "recall": [
+        [
+          "What exactly is hashed during mining, and how many times?",
+          "The 80-byte block header, hashed twice with SHA-256 - a legacy quirk of the original client."
+        ],
+        [
+          "What is the subsidy after n halvings?",
+          "50 / 2^n BTC, halving every 210,000 blocks."
+        ],
+        [
+          "List the subsidy at four halving points.",
+          "50 BTC at block 0, 25 BTC from 210,000, 12.5 BTC from 420,000, 6.25 BTC from 630,000."
+        ],
+        [
+          "How long is one halving period in time?",
+          "About 1,458 days - roughly four years - since 210,000 blocks at 10 minutes each."
+        ],
+        [
+          "What is the total supply limit and why?",
+          "21 million BTC, because the subsidy halves geometrically and never becomes negative."
+        ],
+        [
+          "What has to happen when the subsidy reaches zero?",
+          "Transaction fees must become the entire security budget of the network."
+        ],
+        [
+          "What happens when the 32-bit nonce space is exhausted?",
+          "The miner changes extraNonce in the coinbase transaction and starts a fresh nonce sweep."
+        ]
+      ]
+    }
+  ]
+}

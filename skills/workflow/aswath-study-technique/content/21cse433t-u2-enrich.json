@@ -1,0 +1,144 @@
+{
+  "unit": 2,
+  "topics": {
+    "Introduction to cryptography": {
+      "scenario": "Two companies need to exchange a purchase order over an internet link where a third party could read it, alter it, or impersonate one of them — and later deny having sent it.",
+      "advantages": [
+        "Each of the four security goals maps to a specific, provable mechanism rather than to hope.",
+        "Asymmetric key pairs solve the key-distribution problem that made symmetric-only cryptography impractical over public networks.",
+        "Hashing and signatures are cheap to verify, so a whole network can audit a claim without any shared secret."
+      ],
+      "limitations": [
+        "Symmetric encryption alone gives confidentiality only — it can neither authenticate the sender nor stop repudiation.",
+        "A public ledger cannot be confidential by design, so blockchain confidentiality has to be layered on from outside.",
+        "Security is only as good as the key handling; a leaked key destroys every guarantee regardless of the algorithm."
+      ],
+      "memoryTrick": "**Four goals: Secret, Unchanged, Proven, Undeniable — and only a signature delivers the last two.**",
+      "examAnswer": {
+        "question": "State the objectives of cryptography and the three families of schemes that deliver them. (5 marks)",
+        "full": "Cryptography provides four guarantees over an untrusted channel.\n\n**1. Confidentiality** — only the intended reader learns the message. Supplied by encryption: plaintext plus a key becomes ciphertext, and without the key the ciphertext reveals nothing.\n\n**2. Integrity** — no undetected modification. Supplied by hashing: any change to the data changes the digest, and a collision-resistant digest cannot be forged deliberately.\n\n**3. Authentication** — the sender is who they claim to be. Supplied by a MAC (shared secret, symmetric) or by a digital signature (key pair, asymmetric).\n\n**4. Non-repudiation** — the sender cannot later deny the message. Supplied only by a digital signature, because a shared symmetric key is held by both parties, so either could produce it.\n\n**Three families of scheme deliver them.**\n\n- *Symmetric* (one shared secret): fast and strong, but each pair of users needs its own key, which creates the key-distribution problem.\n- *Asymmetric* (a linked public/private pair): slower, but the public half can be published freely, which solves key distribution and also gives signatures.\n- *Hashing* (unkeyed, fixed length): gives integrity and a fingerprint, but never confidentiality.\n\n**For a blockchain specifically**, the ledger is public by definition, so it deliberately relies on hashing and signatures and leaves confidentiality to encryption layers and off-chain storage. Hashing is used instead of signing for the chain itself because it is cheap and verifiable by everyone, whereas signing every block would need a key for every producer and would prove authorship rather than integrity."
+      }
+    },
+    "Encryption and Decryption": {
+      "scenario": "A node must encrypt a 10 MB file for a specific recipient who has never met it and whose private key the sender does not have.",
+      "advantages": [
+        "Confidentiality by construction: without the key the interceptor learns nothing, and the algorithm itself can be published.",
+        "Asymmetric cryptography removes the need to ever transmit a shared secret over the channel.",
+        "Hybrid use gets both: one slow asymmetric exchange, then a fast symmetric session key for the bulk of the data.",
+        "In blockchain the same key pair doubles as the address and the proof of authority for a spend."
+      ],
+      "limitations": [
+        "Symmetric encryption requires a secure key-distribution channel, which is exactly what it cannot provide on its own.",
+        "Asymmetric operations are orders of magnitude slower, so they cannot encrypt bulk data directly.",
+        "Plain encryption gives confidentiality only — it does not detect tampering or prove the sender's identity.",
+        "Asymmetric security relies on a hard mathematical problem, while symmetric security relies purely on key length."
+      ],
+      "memoryTrick": "**Public key locks, private key opens; symmetric is one key that does both — so real systems do a public handshake then a symmetric conversation.**",
+      "examAnswer": {
+        "question": "Explain encryption and decryption, and distinguish symmetric from asymmetric encryption with an example of each. (5 marks)",
+        "full": "**Encryption** is the keyed transformation of plaintext into ciphertext; **decryption** is its inverse under the matching key. The requirement is that the ciphertext reveals nothing about the plaintext without the key, and by Kerckhoffs's principle only the key is secret — the algorithm may be published.\n\n**Symmetric encryption.** One shared secret key is used for both directions. It is fast and strong, so it protects bulk data, and AES-256-GCM is the modern standard. Its weakness is not strength but distribution: before any message can be exchanged, the two parties must already share a secret, and in a network of n users that means n(n-1)/2 keys.\n\n**Asymmetric encryption.** A mathematically linked key pair is used: the recipient's public key encrypts and only the matching private key decrypts. The public key can be published freely, which removes the distribution problem entirely; RSA and secp256k1 (used for ECDSA and Ethereum addresses) are the standard examples. Its cost is speed — public-key operations are far slower than bulk symmetric ones.\n\n**How real systems combine them.** Generate a random symmetric session key, encrypt the bulk data with it, and encrypt that session key with the recipient's public key. Only the recipient's private key can recover the session key. This is the standard TLS and PGP hybrid.\n\n**For a blockchain**, the same key pair does a second job: the public key is hashed into the account address, and the private key signs transactions, so it is the proof of authority that authorises a spend."
+      }
+    },
+    "Ciphers": {
+      "scenario": "A payment platform encrypts card details on disk (fixed-size records) and streams live telemetry to an analytics endpoint (unknown length, no hardware AES).",
+      "advantages": [
+        "Block ciphers with a strong mode such as GCM give confidentiality and integrity in one primitive, with an authentication tag that catches tampering.",
+        "Stream ciphers need no padding and work at any length, so they suit streaming and constrained devices without AES hardware.",
+        "AES's 128-bit block and 10/12/14-round structure give a large security margin against brute force with modern hardware.",
+        "Separating cipher from key lets a single published standard serve everyone while each user holds a different key."
+      ],
+      "limitations": [
+        "A block cipher used without a mode leaks the equality of plaintext blocks, and ECB mode leaks structure outright.",
+        "CBC is malleable: an attacker can flip bits in the ciphertext to flip the corresponding plaintext, so it needs a separate MAC.",
+        "Stream ciphers are only safe if the keystream is never reused with the same key, which is easy to get wrong in practice.",
+        "Neither family gives confidentiality to a public blockchain ledger, because the ledger content is published."
+      ],
+      "memoryTrick": "**Block = cookie cutter (fixed shapes, needs a mode); stream = ribbon of stamps (any length, no padding).**",
+      "examAnswer": {
+        "question": "What is a cipher? Explain block ciphers and stream ciphers with an example and a use of each. (5 marks)",
+        "full": "A **cipher** is the algorithm that performs encryption and decryption; the **key** is the secret that varies it. Separating the two is what allows a cipher to be a published standard while the message stays secret — security comes from the key, not from hiding the algorithm.\n\n**Block cipher.** Encrypts fixed-size blocks of data independently. Each block goes through a key schedule that expands the master key into round keys, and each round applies substitution through the S-box, a shift row, a mix column and a key addition. **AES** is the standard example: it always operates on a **128-bit (16-byte) block**, with a 128-bit key and 10 rounds, a 192-bit key and 12 rounds, or a 256-bit key and 14 rounds. It suits bulk data — files, databases, encrypted disk.\n\n**Stream cipher.** Generates a pseudorandom keystream from a shorter key and XORs it with the plaintext, so the ciphertext is exactly as long as the plaintext and the data need not be aligned to any block. **ChaCha20** is the standard example; it is very fast in software and is the default on mobile and low-power hardware that lack AES instructions. It suits data whose length is unknown in advance — a live feed, a video stream, TLS-style traffic.\n\n**Two details examiners look for.** First, in practice a block cipher is used *inside a mode of operation* — GCM, CTR, CBC — and the mode is what stops two identical plaintext blocks producing two identical ciphertext blocks; GCM additionally produces an authentication tag, so the ciphertext is checked and not merely decrypted. Second, a block cipher needs **padding** (PKCS#7 appends n bytes of value n, n being the number of bytes needed), while a stream cipher needs none."
+      }
+    },
+    "Cryptography using arithmetic modulo primes": {
+      "scenario": "Two servers that have never met and can only reach each other over the open internet need a shared AES session key, and a third party is watching every packet.",
+      "advantages": [
+        "The shared secret is never transmitted — each side computes it independently — so a passive eavesdropper sees only A and B.",
+        "The security reduces to a single well-studied assumption, the discrete logarithm problem, rather than to many separate mechanisms.",
+        "Fermat's little theorem makes exponent reduction possible, which is why modular exponentiation stays tractable for 2048-bit moduli.",
+        "Elliptic-curve variants (secp256k1) give the same guarantee with far smaller keys, which matters for blockchain transactions."
+      ],
+      "limitations": [
+        "Plain Diffie-Hellman provides no authentication, so a man-in-the-middle can substitute their own public values unless the keys are verified out of band or signed.",
+        "The scheme is only as strong as the prime: small toy moduli such as p = 23 are broken instantly, and p-1 must not be smooth.",
+        "It is only key agreement — it does not encrypt the traffic and does not prove who spoke.",
+        "Naive implementations leak through timing, and a poor generator choice lets an attacker recover the exponents."
+      ],
+      "memoryTrick": "**p and g are public, a and b stay private, A and g^(ab) are what you compute — the secret is raised, never sent.**",
+      "examAnswer": {
+        "question": "Explain Diffie-Hellman key exchange using arithmetic modulo a prime p. Derive modular exponentiation and Fermat's little theorem, and compute the shared secret for a given p and g. (15 marks)",
+        "full": "**1. Modular arithmetic.** All computation is done in the ring of integers modulo p, Z_p: every operation takes the remainder on division by p. Modular exponentiation computes a^b mod p by repeated squaring rather than by building a^b, e.g. 5^6 mod 23 = (5^3)^2 mod 23 = 125^2 mod 23 = 10^2 mod 23 = 100 mod 23 = 8, instead of 5^6 = 15625.\n\n**2. Fermat's little theorem.** If p is prime and a is not divisible by p, then a^(p-1) ≡ 1 (mod p). Reason: the p-1 non-zero residues a, 2a, 3a, ..., (p-1)a are a permutation of 1, 2, ..., p-1 modulo p, so multiplying them gives (p-1)! ≡ (p-1)!·(p-1)! (mod p), and cancelling (p-1)! (which is invertible mod p) leaves a^(p-1) ≡ 1. Consequence: the multiplicative group mod p has order p-1, is cyclic, and has a generator g.\n\n**3. The Diffie-Hellman scheme.**\n\n- Public parameters: a large prime p and a generator g, both published.\n- Alice picks a private exponent a ∈ {1,...,p-2}; Bob picks b. Neither is ever transmitted.\n- Alice publishes A = g^a mod p; Bob publishes B = g^b mod p.\n- Alice computes B^a mod p = (g^b)^a = g^(ab) mod p. Bob computes A^b mod p = (g^a)^b = g^(ab) mod p.\n- Both arrive at the same value; the secret is computed twice and never transmitted.\n\n**4. Worked example (p = 23, g = 5, a = 6, b = 15).**\n\n- A = 5^6 mod 23 = 15625 mod 23 = 8 (Alice publishes 8).\n- B = 5^15 mod 23: 5^2 = 2, 5^4 = 4, 5^8 = 16, so 5^15 = 5^8·5^4·5^2·5 = 16·4·2·5 = 640, and 640 mod 23 = 19 (Bob publishes 19).\n- Alice's secret: B^a = 19^6 mod 23; 19^2 = 16, 19^4 = 3, so 19^6 = 3·16 = 48, and 48 mod 23 = 2.\n- Bob's secret: A^b = 8^15 mod 23; 8^2 = 18, 8^4 = 2, 8^8 = 4, so 8^15 = 4·2·18·8 = 1152, and 1152 mod 23 = 2.\n- Both sides hold 2. Note A·B mod 23 = 8·19 mod 23 = 14, which is NOT the secret: the exponents combine multiplicatively, not the public values additively.\n\n**5. Security.** It rests on the **discrete logarithm problem**: given A = g^a mod p, recovering a is assumed infeasible when p is large (2048 bits or more in practice) and g genuinely generates the group. The toy value p = 23 is for teaching only and is broken instantly.\n\n**6. Limitation.** Plain Diffie-Hellman authenticates nobody; a man-in-the-middle can substitute their own public values, so the public keys must be verified out of band or signed."
+      }
+    },
+    "Hashing algorithms": {
+      "scenario": "A consortium needs to detect that a 2 GB dataset downloaded from a partner has not been altered — and the partner is an adversary who wants to slip a change past them.",
+      "advantages": [
+        "Any single-bit change anywhere produces a completely different digest, so an alteration cannot hide.",
+        "Fixed-length output means the digest can be stored in a fixed-size field no matter how large the data is.",
+        "Collision resistance makes the digest a usable identity for the data, which is exactly what a block identifier and an address need.",
+        "Hashing is cheap and keyless, so every node can verify it without any coordination or shared secret."
+      ],
+      "limitations": [
+        "A hash gives integrity and identity but no confidentiality — the digest is public and the data is not hidden.",
+        "There is no key, so there is nothing to revoke and no way to prove authorship; a signature is required for that.",
+        "Weak hashes such as MD5 and SHA-1 have practical collisions and must not be used for new systems.",
+        "The birthday bound means a 256-bit digest gives roughly 2^128 collision resistance, which is a limit to state honestly rather than an infinite guarantee."
+      ],
+      "memoryTrick": "**Fingerprint, not a lock: one cut changes the whole print, and no key can open it.**",
+      "examAnswer": {
+        "question": "What is a hashing algorithm? State the properties that make a hash cryptographic and explain how a hash differs from a checksum. (5 marks)",
+        "full": "A **hash function** maps an input of any length to a **fixed-length digest**. SHA-256 always returns 256 bits = 32 bytes = 64 hexadecimal characters, whatever the input size.\n\n**The properties that make it cryptographic.**\n\n1. **Determinism** — the same input always gives the same digest, so every node computes the value independently and compares it without any communication.\n2. **Fixed length** — the output size is independent of the input size.\n3. **One-wayness** — there is no practical inverse that recovers the input from the digest. This is what separates a hash from encryption, which is deliberately reversible.\n4. **Avalanche effect** — changing one input bit flips about half the output bits, so similar inputs give completely unrelated digests.\n5. **Collision resistance** — finding two different inputs with the same digest is computationally infeasible. This is the property that makes the digest usable as an identity, and the one that fails expensively if broken.\n\n**Hash versus checksum.** A CRC or checksum such as CRC-32 is also a fixed-length mapping, but it is built to detect **accidental** corruption: bit noise on a cable, a bad sector. It is linear and short, so an attacker can deliberately craft two different files with the same checksum in seconds, and it is therefore unsafe as a block identifier. A cryptographic hash is engineered against a **deliberate** attacker: the avalanche effect and collision resistance are what an adversary must defeat.\n\n**For reference**, the SHA-256 of the empty string is e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+      }
+    },
+    "SHA-256 algorithm": {
+      "scenario": "A question setter gives you a 100-byte message and asks how many 512-bit blocks SHA-256 will process, and what the digest of 'abc' is.",
+      "advantages": [
+        "Fixed 512-bit block and 64-round structure give a simple, fully specified algorithm that anyone can reimplement and check.",
+        "The length field in the padding prevents an attacker from appending data to a message without changing the digest.",
+        "The state is chained across blocks, so an edit in an early block changes every later digest — the property blockchains rely on.",
+        "It is fast enough to run on every node for every transaction and every block header."
+      ],
+      "limitations": [
+        "SHA-256 is a design from 2001 and is not a keyed primitive; it gives integrity but not authentication, so it cannot prove authorship.",
+        "The Merkle-Damgard construction is not collision-resistant against an adversary with enough compute (SHA-1 is already broken; SHA-256 is not, but the family is ageing).",
+        "Padding forces an extra block whenever the message is within 9 bytes of a block boundary, so worst-case storage and work are up to nearly double.",
+        "Block size and word arithmetic make it slower than specialised hardware-accelerated alternatives such as BLAKE3 for bulk work."
+      ],
+      "memoryTrick": "**Pad 1-zeros-64-bit-length, count blocks with n = ceil((L+9)/64), run 64 rounds, output 64 hex characters.**",
+      "examAnswer": {
+        "question": "Explain the SHA-256 algorithm, stating the padding rule and computing the number of 512-bit blocks required for a given message length. (8 marks)",
+        "full": "SHA-256 is a **Merkle-Damgard** iterated hash function producing a **256-bit = 32-byte = 64-hex-character** digest from an input of any length.\n\n**Step 1 — Pre-processing and padding.** Append a **single 1 bit** to the message; then append the minimum number of **0 bits** so that the length becomes congruent to **448 modulo 512**; then append the **original message length L as a 64-bit big-endian integer**. The total padded length is therefore a multiple of 512 bits. Equivalently: the padding byte holding the 1 bit is followed by zeros, and the 8-byte length field always sits in the last 64 bits of the final block.\n\n**Step 2 — Block splitting.** The padded message is cut into **512-bit (64-byte) blocks**. The number of blocks for a message of L bytes is **n = ceil((L + 9) / 64)** — the +9 accounts for the 1 padding byte and the 8-byte length field, and the ceiling handles the case where the zeros must round up to a whole block.\n\n**Step 3 — Message schedule.** Each block is expanded into **64 32-bit words**. W[0]..W[15] are the block's own 16 words; for t = 16..63, W[t] = σ1(W[t-2]) + W[t-7] + σ0(W[t-15]) + W[t-16], where σ0 and σ1 are built from rotate-right and shift-right operations and all additions are mod 2^32.\n\n**Step 4 — Compression function.** **64 rounds** run over eight 32-bit working variables a..h initialised from the current state. Each round computes T1 = h + Σ1(e) + Ch(e,f,g) + K[t] + W[t] and T2 = Σ0(a) + Maj(a,b,c), then updates a..h, where Ch is the choose function and Maj the majority function, and K[t] is a fixed round constant.\n\n**Step 5 — State update.** After the block, the eight working variables are added into the eight state words (H0 = H0 + a, H1 = H1 + b, ...), so this block's result is folded into the running value before the next block is processed. That chaining is what makes the algorithm tamper-evident.\n\n**Step 6 — Output.** After the last block the eight state words are serialised big-endian into the 256-bit digest.\n\n**Worked block counts.** L = 100 bytes → n = ceil(109/64) = ceil(1.703) = **2 blocks**. L = 55 bytes → n = ceil(64/64) = **1 block**, because 55 + 1 + 8 = 64 exactly fills one block (this is the boundary case). L = 56 bytes → n = ceil(65/64) = **2 blocks**. L = 64 bytes → n = ceil(73/64) = **2 blocks**.\n\n**Test vector.** SHA-256(\"abc\") = **ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad**. For \"abc\", L = 3 bytes so n = ceil(12/64) = 1 block: 3 message bytes + 1 byte holding the 1 bit + 52 zero bytes + 8 length bytes = 64 bytes."
+      },
+      "modernNote": "SHA-256 remains the reference answer for this syllabus and is still the block hash used by Bitcoin. In production, SHA-256 is normally used through HMAC or inside a hash-based signature scheme such as Ed25519/HMAC-SHA256, since a bare digest proves integrity but not who produced it. SHA-3 (Keccak) is the NIST alternative with a different padding rule, and BLAKE3 is faster for bulk data — but neither changes the block-count formula asked here."
+    },
+    "Application of SHA algorithm": {
+      "scenario": "An auditor suspects someone edited a transaction two years ago in a public chain and asks how that could be detected from any copy of the ledger.",
+      "advantages": [
+        "Tamper-evidence without any trusted third party: any node can recompute the hashes and the Merkle root and check the links.",
+        "The Merkle root compresses an arbitrary number of transactions into one 32-byte value in the header.",
+        "Hashing is free to verify, so the whole network audits the chain rather than trusting a single validator.",
+        "Hashing is the same primitive everywhere, so one implementation serves transactions, headers, proof of work and addresses."
+      ],
+      "limitations": [
+        "Integrity is not authority: the chain proves a transaction was not altered, not that it was authorised — that needs a signature.",
+        "Hashing gives no confidentiality; every transaction on a public chain is visible to everyone.",
+        "Proof of work makes blocks expensive to produce, so throughput and finality remain poor compared with off-chain databases.",
+        "Reorganisation and reorg attacks mean a short chain history is still provisional, and the chain only remembers one version at a time."
+      ],
+      "memoryTrick": "**Transaction hash → Merkle root → header hash → next header's link: edit one transaction and every later hash breaks.**",
+      "examAnswer": {
+        "question": "Where is SHA-256 used inside a blockchain, and why is hashing used for every block instead of signing? (5 marks)",
+        "full": "SHA-256 supplies a **fixed 32-byte (64 hex character) fingerprint of variable-length data** in four places.\n\n**1. Transaction identifiers.** Each transaction is serialised and hashed with SHA-256 to give its 32-byte identifier.\n\n**2. The Merkle root.** Transaction hashes are paired, each pair is hashed, and the process repeats up a binary tree until a single root hash remains. The header commits to the whole transaction list with that one 32-byte value instead of the list itself.\n\n**3. The block header hash.** The header carries the Merkle root, the previous block's 32-byte hash, a timestamp, a nonce and the difficulty target; the block's identifier is SHA-256 of that header. In proof of work the miner varies the **nonce** until this header hash falls below the target.\n\n**4. The chain link.** The resulting 32-byte block hash is embedded in the next block's header, so the chain carries 32 bytes of link per block on top of the transactions. This is also how an address is derived: the public key is hashed (SHA-256, twice in Bitcoin) and encoded.\n\n**How tampering is detected.** Change one transaction → its hash changes → the **Merkle root** changes → the **header hash** changes → every subsequent block's stored previous-hash no longer matches → the chain fails verification in **any copy** of the ledger, and the change is detectable without cooperation from the party that made it.\n\n**Why hashing rather than signing for each block.** Hashing is cheap and universally verifiable with no key at all, so every node can check it. Signing every block would require a key for every block producer, would prove **authorship** rather than **integrity**, would add the signature bytes to every header, and would only move the trust from the editor to the key holder. Signatures are used where authorship matters — transactions and authority — while the chain's own structure is protected by hashes."
+      }
+    }
+  }
+}

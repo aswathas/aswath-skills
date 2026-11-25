@@ -1,0 +1,127 @@
+{
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "Data structures",
+        "sub": "linked list of blocks + Merkle tree inside → two levels of hashing, one level of linking"
+      },
+      {
+        "label": "Merkle trees",
+        "sub": "pair up → hash up → root in header; proof = one sibling hash per level"
+      },
+      {
+        "label": "Shared data",
+        "sub": "public on-chain / permissioned on-chain / private off-chain + hash anchor"
+      },
+      {
+        "label": "Protocols",
+        "sub": "application (what) → consensus (which order) → gossip (how it travels)"
+      },
+      {
+        "label": "Fat protocols",
+        "sub": "thin carries messages, fat carries rules + state; smart contracts are the hinge"
+      },
+      {
+        "label": "Platforms",
+        "sub": "who may write / how they agree / when it is final"
+      },
+      {
+        "label": "DApps",
+        "sub": "front end, wallet, node, contract, oracle — the wallet must not belong to the operator"
+      },
+      {
+        "label": "Smart contracts",
+        "sub": "deploy → address → call → gas-metered execute → event; code frozen, state moves"
+      }
+    ],
+    "topExamQuestions": [
+      "Explain the main data structures of a blockchain and why a linked list of hashes beats a flat table. (5 marks)",
+      "Build a Merkle tree level by level and prove inclusion of one transaction using sibling hashes, with the number of hash nodes per level and the proof length. (15 marks)",
+      "Distinguish public, permissioned and private shared data and explain how private data keeps tamper-evidence. (5 marks)",
+      "Explain the three protocol layers in a blockchain and what each is responsible for. (5 marks)",
+      "Distinguish thin and fat protocols and explain why smart contracts make a protocol fat. (5 marks)",
+      "Compare Ethereum, Hyperledger Fabric, Corda and Quorum by identity model, consensus and finality. (5 marks)",
+      "Describe the anatomy of a decentralised application and how each part maps onto a business model. (5 marks)",
+      "Explain deploy-and-execute semantics of smart contracts, immutable code versus mutable state, gas, events and access control. (15 marks)"
+    ],
+    "drill": [
+      [
+        "What links blocks and what links transactions?",
+        "The previous block hash links blocks; the Merkle root links the transactions inside a block."
+      ],
+      [
+        "Why not a flat table?",
+        "A row can be edited in place with no visible consequence; the hash chain turns any edit into a cascade of mismatches to the tip."
+      ],
+      [
+        "How many internal nodes for n leaves?",
+        "n-1. Four leaves → 3 internal nodes."
+      ],
+      [
+        "How many hashing levels for 1,024 leaves?",
+        "ceil(log2 1024) = 10."
+      ],
+      [
+        "What is in a Merkle proof for leaf A of a 4-leaf tree?",
+        "H(B) and H(C|D) — the sibling hash at each level, nothing else."
+      ],
+      [
+        "Where does the Merkle root live?",
+        "In the block header."
+      ],
+      [
+        "Where does private data live?",
+        "Off-chain; only its hash is anchored on-chain."
+      ],
+      [
+        "Name the three protocol layers.",
+        "Application, consensus, gossip — over TCP/IP."
+      ],
+      [
+        "Thin vs fat: where do the rules live?",
+        "Thin: in the application. Fat: in the protocol, inside contracts."
+      ],
+      [
+        "What makes a protocol fat?",
+        "Smart contracts putting rules and state into the protocol."
+      ],
+      [
+        "What are the three platform questions?",
+        "Who may write, how nodes agree, when finality arrives."
+      ],
+      [
+        "Corda's model?",
+        "Permissioned with a notary model for bilateral contracts."
+      ],
+      [
+        "Name the five dApp parts.",
+        "Front end, wallet, node/provider, smart contract, oracle."
+      ],
+      [
+        "Which dApp part must the operator not control?",
+        "The wallet — the user signs with their own key, so no custody."
+      ],
+      [
+        "Immutable vs mutable in a contract?",
+        "The deployed code is immutable; the state it manages is mutable."
+      ],
+      [
+        "What does a revert do to gas?",
+        "Burns the gas used; only the unused remainder is refunded."
+      ],
+      [
+        "Cost of a plain ETH transfer?",
+        "21,000 gas — about 0.00042 ETH at 20 gwei, ~1,400 per 30M-gas block."
+      ],
+      [
+        "Why do events exist?",
+        "So apps follow state changes from logs without reading the whole ledger."
+      ],
+      [
+        "Where is access control enforced?",
+        "In the contract's own code — owner and role checks, usually modifiers."
+      ]
+    ],
+    "covered": "8 of 9 syllabus topics — 4 must-learn, 4 learn-if-time (1 case study skipped: Solidity identity contract, coursework only)"
+  }
+}

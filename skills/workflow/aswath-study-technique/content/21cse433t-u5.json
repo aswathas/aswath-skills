@@ -1,0 +1,1000 @@
+{
+  "unit": 5,
+  "glossary": {
+    "Blockchain Business Model": {
+      "definition": "The arrangement that answers who runs the network, who pays for running it, where the value it creates accrues, and what exactly is tokenised.",
+      "whyItMatters": "It is the frame the whole unit is built on: every model in Unit 5 is a different answer to those four questions.",
+      "confusions": [
+        "It is not the same as the blockchain protocol or the smart-contract code.",
+        "A business model can exist with no token at all - software and services models tokenise nothing."
+      ],
+      "topics": [
+        "Introduction to Blockchain Business Models",
+        "Types of Blockchain Business Models"
+      ]
+    },
+    "Blockchain as a Service (BaaS)": {
+      "definition": "A managed-service model in which the provider runs the network - nodes, consensus, key custody, monitoring, upgrades, SLA - and the customer keeps its business logic and data.",
+      "whyItMatters": "It is the default enterprise entry point, and the single most common question in this unit's question bank.",
+      "confusions": [
+        "BaaS is not the same as a blockchain-based software product: the difference is exactly who runs the chain.",
+        "In BaaS the provider holds the keys and the customer does not."
+      ],
+      "topics": [
+        "Blockchain as a Service (BaaS)",
+        "Types of Blockchain Business Models"
+      ]
+    },
+    "Token Economy": {
+      "definition": "The design of a token's total supply, its distribution, the utility that creates demand for it, and the mechanism by which value it generates is captured by its holders.",
+      "whyItMatters": "It decides whether a network can fund itself and whether the token is legally a utility, a security or a commodity.",
+      "confusions": [
+        "Supply alone does not create value - utility demand does.",
+        "A token's name or its blockchain does not decide its legal classification; the buyer's expectation of profit does."
+      ],
+      "topics": [
+        "Token Economy",
+        "Utility Token Business Model"
+      ]
+    },
+    "Utility Token": {
+      "definition": "A token whose value comes from the right to use a network service, such as bandwidth, storage, compute or transaction rights.",
+      "whyItMatters": "It is the only token type whose value does not depend on the issuer's promise or on speculative demand.",
+      "confusions": [
+        "Utility does not mean unregulated - a utility token with an investment promise can be a security in substance.",
+        "A token that pays no real cost is a speculation, not a utility."
+      ],
+      "topics": [
+        "Utility Token Business Model",
+        "Token Economy"
+      ]
+    },
+    "Value Accrual": {
+      "definition": "The mechanism by which the value a network creates ends up with the people who hold its token.",
+      "whyItMatters": "Without value accrual, network growth enriches the operator and leaves token holders with nothing - the classic 2022 failure.",
+      "confusions": [
+        "Value accrual to the network is not the same as value accrual to the token.",
+        "Transaction fees prove usage, not that holders are paid."
+      ],
+      "topics": [
+        "Token Economy",
+        "Utility Token Business Model"
+      ]
+    },
+    "P2P Business Model": {
+      "definition": "A model in which participants transact directly with one another over a shared ledger and the coordinator earns from the network's growth rather than from a cut of the trades.",
+      "whyItMatters": "It removes the platform take-rate that classical marketplaces rely on, so the coordinator must find another revenue source.",
+      "confusions": [
+        "P2P here does not mean there is no coordinator - there is one, but it is paid by the network, not by the trades.",
+        "It is not the same as the marketplace model."
+      ],
+      "topics": [
+        "P2P Blockchain Business Model",
+        "Types of Blockchain Business Models"
+      ]
+    },
+    "Atomic DVP": {
+      "definition": "Delivery versus payment in which the asset transfer and the payment instruction settle in the same transaction, so both succeed or both fail.",
+      "whyItMatters": "It is the single technical change that removes principal-versus-payment risk from settlement.",
+      "confusions": [
+        "It removes principal risk; it does not remove KYC/AML, liquidity or node-operating cost.",
+        "It is a property of the settlement design, not of the blockchain alone."
+      ],
+      "topics": [
+        "Blockchain for banking and financial transactions"
+      ]
+    },
+    "PvP Risk": {
+      "definition": "Principal-versus-payment risk: the risk that the buyer pays and the seller never delivers the asset, or delivers and never gets paid.",
+      "whyItMatters": "It is the risk that makes real-time gross settlement (RTGS) expensive and is the main thing a shared ledger removes in finance.",
+      "confusions": [
+        "It is not counterparty credit risk in general - it is the timing mismatch between the two legs.",
+        "Removing it does not remove the need for liquidity pre-funding in every design."
+      ],
+      "topics": [
+        "Blockchain for banking and financial transactions"
+      ]
+    },
+    "Professional Services Model": {
+      "definition": "Revenue from selling advisory, integration and managed-operations expertise for a project fee or a retainer, rather than selling a product or running infrastructure.",
+      "whyItMatters": "It is the fastest route to revenue in this field and the easiest to sell hours instead of outcomes.",
+      "confusions": [
+        "Selling hours is a trap: income is capped at the number of billable people.",
+        "It is a service model, so the margin does not scale like a software licence."
+      ],
+      "topics": [
+        "Blockchain Professional Services",
+        "Types of Blockchain Business Models"
+      ]
+    },
+    "Free Rider": {
+      "definition": "A participant who consumes the value of a shared resource without contributing to its upkeep or cost.",
+      "whyItMatters": "Every consortium chain dies of free riders, and the membership-fee and incentive design is the business model's answer to them.",
+      "confusions": [
+        "It is not the Sybil attack - a free rider is honest but non-contributing.",
+        "It is not fixed by technology; it is fixed by pricing and incentives."
+      ],
+      "topics": [
+        "Need for blockchain business models",
+        "P2P Blockchain Business Model"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "Introduction to Blockchain Business Models",
+      "definition": "A blockchain business model specifies who runs the network, who pays to run it, where the value the network creates accrues, and what exactly gets tokenised on the ledger.",
+      "problem": "A working distributed ledger says nothing about who pays for its hosting, governance and security. Technically sound projects die commercially, and commercially attractive ideas die technically, because nobody wrote down the commercial arrangement before building the network.",
+      "mechanism": [
+        "First question - the operator: decide who runs the network. A provider (BaaS or platform), a consortium of members, or a decentralised set of independent node operators each carry different cost and liability profiles.",
+        "Second question - the payer: decide who funds the running costs of hosting, security audits, upgrades and key custody. The payer is often not the user and not the operator, and that gap is where consortium governance fights happen.",
+        "Third question - the value accrual: decide where the value the network creates ends up - the operator's fee, the marketplace take-rate, the software licence, the professional-services invoice, or the token holder's balance.",
+        "Fourth question - the tokenisation: decide what is tokenised. Nothing (a software product), a right to use the network (a utility token), or a claim on an issuer (a security token). Tokenisation is a choice, not a requirement.",
+        "Fifth step - test the arrangement: write the four answers down, then ask whether the revenue that arrives is enough to cover the cost that the answer to question 1 creates. If the payer and the value-accrual holder are the same party, the model is coherent; if they differ, an explicit transfer of money between them must exist."
+      ],
+      "terminology": [
+        [
+          "Operator",
+          "The party that runs the nodes, consensus and upgrades of the network."
+        ],
+        [
+          "Payer",
+          "The party that funds the network's running costs."
+        ],
+        [
+          "Value accrual",
+          "Where the value created by the network ends up."
+        ],
+        [
+          "Tokenisation",
+          "Whether, and what, is represented as a token on the ledger."
+        ],
+        [
+          "Managed service",
+          "The BaaS pattern where the provider operates the infrastructure for a fee."
+        ],
+        [
+          "Marketplace take-rate",
+          "The percentage a platform keeps from each transaction between its users."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Define a blockchain business model and explain it using the four questions that every such model must answer.",
+        "points": [
+          "1 mark - define: the commercial arrangement governing who runs the network, who pays, where value accrues and what is tokenised.",
+          "1 mark - the technology decides what is possible; the model decides whether the project survives, because it turns a working ledger into revenue.",
+          "1 mark - operator question: who runs the nodes, consensus, upgrades and key custody - provider, consortium or independent nodes.",
+          "1 mark - payer and value-accrual question: who funds the running costs, and which party captures the value created (operator fee, take-rate, licence, invoice or token balance).",
+          "1 mark - tokenisation question: nothing, a utility right to use the network, or a claim on an issuer - a choice, not a necessity.",
+          "1 mark - the coherence test: the payer and the value-accrual holder are often different parties; where they differ an explicit transfer of money between them must be designed, otherwise the network is underfunded."
+        ]
+      },
+      "traps": [
+        "Do not define a blockchain business model as 'a way of making money with blockchain'. The marker wants the four questions, not a synonym.",
+        "Do not say tokenisation is required - software-product and professional-services models tokenise nothing and still are blockchain business models.",
+        "Do not treat 'consensus' as the operator answer; consensus is the mechanism, the operator is the party that runs it.",
+        "Do not confuse the payer with the user. In most consortium chains the payer is the consortium's sponsoring members."
+      ],
+      "recall": [
+        [
+          "What are the four questions every blockchain business model answers?",
+          "Who runs the network, who pays to run it, where the value accrues, and what is tokenised."
+        ],
+        [
+          "Is a token mandatory for a blockchain business model?",
+          "No. Software-product and professional-services models tokenise nothing; tokenisation is a design choice, not a requirement."
+        ],
+        [
+          "What does value accrual mean?",
+          "The mechanism by which the value the network creates ends up with the token holder - separate from the network actually creating value."
+        ],
+        [
+          "Why do the four questions have to be answered together?",
+          "Because each fixes the others: the operator creates the cost, the payer covers it, and the value-accrual holder must be able to cover it too or the model is incoherent."
+        ],
+        [
+          "Give a one-line example of the same engine under two business models.",
+          "A consortium permissioned chain run by a bank and sold as a service to its members is BaaS; the same chain sold as software the bank installs itself is a software product."
+        ]
+      ]
+    },
+    {
+      "name": "Need for blockchain business models",
+      "definition": "A blockchain business model is the explicit revenue and incentive arrangement that funds the operation of a shared ledger and makes it rational for each member to contribute data to it.",
+      "problem": "A shared ledger carries continuous running costs - hosting, security, key custody, upgrades, governance - and if nobody is explicitly billed for them they are quietly underfunded and quality decays. Worse, every member values the shared record while every member under-contributes to it: the free-rider problem.",
+      "mechanism": [
+        "Step 1 - name the running costs: hosting and node operation, security audits and patching, key management, protocol upgrades and governance, node onboarding, and the people who answer incidents. These are the items that must be paid for every year the chain exists.",
+        "Step 2 - assign the payer: choose between a membership fee per consortium member, a usage fee per transaction, a subscription per seat, or a funded treasury. The choice determines who has a stake in the chain's health.",
+        "Step 3 - price the free-rider problem: set membership fees high enough that non-contribution is visible to all, and link fee level to the member's actual use of the shared record, so hoarding data is more expensive than contributing it.",
+        "Step 4 - build the contribution incentive: give a member something for contributing - priority transaction ordering, lower fees, access to shared data, governance weight, or a share of treasury rewards. If contributing data earns nothing, everyone hoards.",
+        "Step 5 - set the governance and exit rules: who votes on upgrades, how a member leaves and what happens to its data, what happens if the sponsoring member leaves. Consortium failure is usually a governance failure, not a technical one.",
+        "Step 6 - review the model annually against actual usage: if collected fees do not cover running costs the chain is subsidised and fragile; if fees exceed the value members get, they will exit."
+      ],
+      "terminology": [
+        [
+          "Running cost",
+          "The recurring cost of hosting, securing, upgrading and governing the ledger."
+        ],
+        [
+          "Free rider",
+          "A member who consumes the shared record but does not contribute to it or its cost."
+        ],
+        [
+          "Membership fee",
+          "The annual per-member charge that funds the shared chain."
+        ],
+        [
+          "Contribution incentive",
+          "The reward a member receives for supplying data to the shared record."
+        ],
+        [
+          "Governance",
+          "The rules by which members decide on protocol changes, spending and membership."
+        ],
+        [
+          "Underfunded",
+          "A chain whose recurring costs exceed the revenue collected from its members."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Why does a shared ledger need an explicit business model? What happens in a consortium when nobody pays for the ledger?",
+        "points": [
+          "1 mark - a shared ledger has recurring running costs: hosting, security, upgrades, key custody, node operations and governance.",
+          "1 mark - if nobody is explicitly billed, those costs are quietly underfunded and the quality of the shared record decays.",
+          "1 mark - the free-rider problem: every member values the shared record, every member under-contributes to it.",
+          "1 mark - the answer is a business-model choice - membership fees, per-transaction fees, or a funded treasury - plus a contribution incentive.",
+          "1 mark - incentives must reward contributing data over hoarding it, because the network is only useful when everyone contributes.",
+          "1 mark - the model must also settle governance and exit, since a consortium normally dies of governance failure rather than of a technical one."
+        ]
+      },
+      "traps": [
+        "Do not answer 'to make money'. The question asks why a technical architecture needs a commercial and incentive model, so lead with the underfunding and the free rider.",
+        "Do not confuse the free rider with the Sybil attack - a free rider is honest but non-contributing.",
+        "Do not claim technology can solve the free-rider problem; it is fixed by pricing and incentives, never by code alone."
+      ],
+      "recall": [
+        [
+          "List four recurring costs of running a shared ledger.",
+          "Hosting and node operation, security audits and patching, key management, protocol upgrades and governance, plus incident response and onboarding."
+        ],
+        [
+          "What is the free-rider problem?",
+          "Every member values the shared record but every member under-contributes to it, so the shared good is underfunded."
+        ],
+        [
+          "How does the business model fix free riders?",
+          "Membership or usage fees that make non-contribution visible, plus incentives that reward contributing data."
+        ],
+        [
+          "What usually kills a consortium blockchain first - technical or governance failure?",
+          "Governance failure: unclear upgrade rules, unclear exit rights, and a sponsoring member who leaves."
+        ]
+      ]
+    },
+    {
+      "name": "Traditional business models",
+      "definition": "The classical revenue models - subscription, licence, marketplace, freemium and professional services - that blockchain models adapt by replacing the trusted intermediary with a shared ledger and cutting the middleman out.",
+      "problem": "Every classical model earns from a specific role, and blockchain attacks exactly that role. If you remove the trusted intermediary you remove both the cost and the revenue that funded it, so the model has to be rebuilt rather than copied.",
+      "mechanism": [
+        "Subscription sells continued access over time: the customer pays a recurring fee for the right to keep using the service. On a chain, the recurring fee buys guaranteed node uptime and SLA - and if there is no token, there is no recurring payment at all.",
+        "Licence sells a permanent right to a copy: the customer buys the code once. On a chain, the customer buys the client software and smart contracts and then runs the nodes and pays the gas itself.",
+        "Marketplace takes a cut of transactions between strangers: the platform supplies trust and matching and takes a percentage. On a chain the ledger supplies the trust record, so the take-rate has to shrink or be replaced by a subscription.",
+        "Freemium gives a basic tier free and charges for premium features: on a chain, 'free' must still be paid for by someone - usually the premium tier's fees subsidise it - and the free tier consumes real node resources.",
+        "Professional services sells expertise: advisory, integration and managed operations, billed per project or per retainer. On a chain this becomes a consulting firm that operates the network for its clients.",
+        "The common break: each classical model earned from being trusted, and that trust is exactly what the shared ledger commoditises - so in every case the cost falls but the revenue must be rebuilt somewhere else."
+      ],
+      "terminology": [
+        [
+          "Subscription",
+          "Recurring payment for continued access to a service."
+        ],
+        [
+          "Licence",
+          "One-time payment for a permanent right to use a copy of software."
+        ],
+        [
+          "Marketplace",
+          "A platform matching strangers and taking a percentage of their trades."
+        ],
+        [
+          "Freemium",
+          "A free basic tier funded by paying premium users."
+        ],
+        [
+          "Intermediary",
+          "The party whose trust made the transaction possible and whose removal is the point of the blockchain."
+        ],
+        [
+          "Take-rate",
+          "The percentage the platform keeps from each transaction."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Compare the traditional business models with blockchain business models. Where does each traditional model break down?",
+        "points": [
+          "1 mark - blockchain models are not invented from scratch; they are classical models with the counterparty replaced by a shared ledger and the middleman cut out.",
+          "1 mark - subscription: continued access over time; on a chain it must buy guaranteed uptime and SLA, and without a token there is no recurring payment.",
+          "1 mark - licence: a permanent right to a copy; on a chain the customer buys code and runs the nodes and gas itself.",
+          "1 mark - marketplace: a cut of transactions between strangers; the ledger replaces the trust the platform was paid for.",
+          "1 mark - freemium and professional services: free tiers must still be funded, and expertise is sold per project or retainer.",
+          "1 mark - the common break: the intermediary earned from being trusted, so removing it removes the cost AND the revenue that funded it - the model must be rebuilt, not copied."
+        ]
+      },
+      "traps": [
+        "Do not treat this as a list to memorise - the mark is in the shared pattern: the intermediary's trust was both the cost removed and the revenue lost.",
+        "Do not say blockchain 'replaces' subscription pricing - most enterprise chains have no token and still bill a subscription or a managed-service fee.",
+        "Do not call a licence model recurring; a licence is a one-time right to a copy."
+      ],
+      "recall": [
+        [
+          "Which classical model earns from a percentage of trades between strangers?",
+          "The marketplace model, and blockchain attacks it because the ledger supplies the trust record."
+        ],
+        [
+          "Why do classical models break on a chain?",
+          "They earned from being trusted, and removing the trusted intermediary removes both the cost and the revenue that funded it."
+        ],
+        [
+          "How does subscription survive on a chain with no token?",
+          "The chain is sold as a managed service with an SLA and a recurring fee, not as a token-native network."
+        ],
+        [
+          "Name the five classical models covered here.",
+          "Subscription, licence, marketplace, freemium and professional services."
+        ]
+      ]
+    },
+    {
+      "name": "Types of Blockchain Business Models",
+      "definition": "Blockchain business models are classified by where the money comes from: from running infrastructure (BaaS and platform), from brokering trades (marketplace), from selling software, from selling expertise, or from the network's own token value (P2P).",
+      "problem": "Projects describe themselves with technology words - 'we built a consortium chain' - which says nothing about who earns. Without a revenue-source classification, an exam answer on a named company has nothing to classify, and an investor cannot compare two models with different risk profiles.",
+      "mechanism": [
+        "Step 1 - the classifying question: ask where the money comes from. The revenue source determines the model, the risk profile and who the customer is; the technology does not.",
+        "Step 2 - infrastructure models: BaaS sells the running of a managed chain (price per transaction, per tier or per seat); the platform/infrastructure model sells the protocol, tooling and developer platform that others build on. Risk: operating and uptime liability.",
+        "Step 3 - transaction models: the marketplace brokers trades between members and takes a cut, so revenue scales with transaction volume. Risk: liquidity risk - a thin market means thin revenue.",
+        "Step 4 - product models: the software-product model sells a licence or subscription for code; the customer runs the nodes and pays the gas. Risk: adoption risk - open-source equivalents compete, and there is no network effect.",
+        "Step 5 - service models: professional services sells advisory, integration and managed operations for a fee or retainer. Risk: the firm's capacity is its number of billable people.",
+        "Step 6 - network-token models: the P2P model lets participants deal directly with each other and pays the coordinator from the network's token value - issuance, holdings, routing, liquidity or oracle services. Risk: the whole model rests on the token gaining value.",
+        "Step 7 - in practice, run several at once: most firms combine them - a BaaS platform with a marketplace on top and a services arm - so when asked to identify the model, name the DOMINANT revenue flow first and then the supporting ones."
+      ],
+      "terminology": [
+        [
+          "BaaS model",
+          "Revenue from running a managed network for a customer under an SLA."
+        ],
+        [
+          "Platform / infrastructure model",
+          "Revenue from selling the protocol and developer tooling that others build on."
+        ],
+        [
+          "Marketplace model",
+          "Revenue from a cut of the transactions brokered between members."
+        ],
+        [
+          "Software-product model",
+          "Revenue from a licence or subscription for code the customer runs."
+        ],
+        [
+          "Professional-services model",
+          "Revenue from advisory, integration and managed operations for a fee or retainer."
+        ],
+        [
+          "P2P model",
+          "Revenue from the network's own token value rather than from a cut of the trades."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the types of blockchain business model (BaaS, marketplace, platform/infrastructure, software products, professional services and P2P). Compare them and identify which model a named company is running.",
+        "points": [
+          "1 mark - the taxonomy splits on where the money comes from: running infrastructure, brokering trades, selling software, selling expertise, or the network's own token value.",
+          "1 mark - BaaS: the provider runs nodes, consensus, key custody, monitoring and SLA; revenue is a managed-service fee; risk is operational and uptime liability.",
+          "1 mark - platform/infrastructure: sells the protocol, tooling and developer platform; revenue grows with the ecosystem it enables.",
+          "1 mark - marketplace: takes a cut of member transactions; revenue scales with volume; risk is liquidity.",
+          "1 mark - software products: sells a licence or subscription for code; the customer runs nodes and gas; margin is high, operational load is low; risk is adoption and open-source competition.",
+          "1 mark - professional services: advisory, integration and managed operations, billed per project or retainer; risk is capacity of billable people.",
+          "1 mark - P2P: participants trade directly and the coordinator earns from the network's token value; risk is that the token never gains value.",
+          "1 mark - each model carries a different risk profile: operating risk (BaaS), liquidity risk (marketplace), adoption risk (software), token risk (P2P).",
+          "1 mark - most firms run several models at once, so identify the DOMINANT revenue flow first and then name the supporting models.",
+          "1 mark - worked identification: a company charging a monthly SLA to run a permissioned chain for a bank is BaaS; a company taking 2% of trades on its exchange is a marketplace; a company paid 40% of a bank's integration project is professional services."
+        ]
+      },
+      "traps": [
+        "Do not classify by technology - 'consortium chain' is not a business model, and permissioned chains run under BaaS, marketplace and professional-services models alike.",
+        "Do not merge BaaS and platform/infrastructure: BaaS runs a chain FOR you, a platform sells the tooling others build ON.",
+        "Do not merge marketplace and P2P: the marketplace takes a cut of the trades, the P2P coordinator does not.",
+        "Do not forget the risk column - comparing models without comparing their risk profiles loses the 'compare' half of a comparison question.",
+        "When asked to identify a named company's model, quote the revenue flow first ('it charges a per-transaction fee'), then name the model."
+      ],
+      "recall": [
+        [
+          "What single question classifies all blockchain business models?",
+          "Where the money comes from - infrastructure, transaction brokerage, software, expertise, or the network's own token."
+        ],
+        [
+          "What is the risk profile of the marketplace model?",
+          "Liquidity risk - revenue scales with transaction volume, so a thin market produces thin revenue."
+        ],
+        [
+          "Give the six models in the taxonomy and their revenue source.",
+          "BaaS (running a managed chain), platform/infrastructure (selling tooling), marketplace (cut of trades), software products (licence/subscription for code), professional services (fee/retainer for expertise), P2P (the network's token value)."
+        ],
+        [
+          "What is the risk profile of the P2P model?",
+          "The whole model depends on the token gaining value; if it does not, the coordinator has no revenue."
+        ],
+        [
+          "A company charges a bank an SLA fee to run a permissioned chain for it. Which model?",
+          "BaaS - the provider runs the nodes, consensus, keys and monitoring, and carries the uptime obligation."
+        ],
+        [
+          "How do you answer 'which model is company X running'?",
+          "State the revenue flow in one sentence, name the dominant model, then note which supporting models it also runs."
+        ]
+      ]
+    },
+    {
+      "name": "Blockchain as a Service (BaaS)",
+      "definition": "Blockchain as a Service is a managed-service model in which the provider runs the network - nodes, consensus, key custody, monitoring, upgrades and SLA - while the customer keeps its business logic and its data model.",
+      "problem": "An enterprise that wants a blockchain capability would otherwise have to hire blockchain operations staff, procure and secure infrastructure, run key management, respond to node incidents and handle protocol upgrades itself. Most firms want the capability, not the operational burden, and most enterprise chains have no token at all - so the revenue cannot come from token issuance.",
+      "mechanism": [
+        "Step 1 - the provider provisions the network: creates the chain, selects the consensus and the permissioning model, and sizes the node set across cloud or on-premise infrastructure to meet the customer's availability target.",
+        "Step 2 - the provider runs the nodes: keeps them patched and upgraded, watches block times, peer counts, node health and disk space, and fails over between regions and providers.",
+        "Step 3 - the provider runs consensus and governance: operates the consensus client, the validator or ordering set, and the upgrade path, including emergency patches and protocol version transitions.",
+        "Step 4 - the provider holds the keys: manages key generation, rotation, escrow, revocation and the signing policy - HSM or cloud KMS backed. The provider, not the customer, is the custody boundary; this is the single largest trust transfer in the arrangement.",
+        "Step 5 - the provider monitors and guarantees: watches alerting, transaction failure rates, latency and cost, and enforces the SLA - availability, throughput, support response and incident severity targets, with credits for misses.",
+        "Step 6 - the customer keeps its own layer: the business logic in smart contracts, the data model, the integration to its ERP, core banking and identity systems, and the decision of what data to place on the ledger at all.",
+        "Step 7 - the commercial terms: the customer buys a guaranteed service priced per transaction, per seat, per tier or as a committed-spend contract, instead of employing blockchain operations staff and owning the infrastructure."
+      ],
+      "terminology": [
+        [
+          "BaaS",
+          "Blockchain as a Service - the provider operates the network, the customer operates its business logic."
+        ],
+        [
+          "SLA",
+          "The service-level agreement carrying availability, throughput, support and incident commitments with credits for misses."
+        ],
+        [
+          "Key custody",
+          "Who holds the keys that authorise transactions - the provider in BaaS."
+        ],
+        [
+          "Managed node operations",
+          "Patching, upgrading, monitoring, scaling and failover of the node set by the provider."
+        ],
+        [
+          "Permissioning model",
+          "How identities are admitted to the network and what each identity may do."
+        ],
+        [
+          "Per-transaction or per-tier pricing",
+          "The two common BaaS pricing bases - pay as you transact, or buy a committed capacity tier."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is Blockchain as a Service? Explain what the BaaS provider actually runs, what the customer keeps, and why it is the default entry point for enterprises.",
+        "points": [
+          "1 mark - define: BaaS means the provider runs the ledger as a managed service while the customer keeps its business logic and its data model.",
+          "1 mark - provider runs the nodes: provisioning, patching, upgrades, failover, capacity and monitoring of the node set.",
+          "1 mark - provider runs consensus and governance, including the upgrade path and emergency patches.",
+          "1 mark - provider holds key custody: generation, rotation, escrow and revocation in an HSM or cloud KMS; the provider is the trust boundary.",
+          "1 mark - provider enforces the SLA - availability, throughput, support response and incident severity - with credits for misses.",
+          "1 mark - the customer keeps: business logic in smart contracts, its own data model, integration with its ERP, core and identity systems, and the choice of what to put on the ledger.",
+          "1 mark - the commercial exchange: the customer buys a guaranteed service at a price per transaction, per seat or per tier instead of hiring blockchain operations staff and running infrastructure itself.",
+          "1 mark - why it is the default entry point: most enterprise chains have no token, so there is no token revenue; the provider absorbs the operational and security burden, and the customer buys certainty.",
+          "1 mark - the trade-off stated honestly: the customer gives up custody of keys and infrastructure control, which is exactly what it bought certainty over."
+        ]
+      },
+      "traps": [
+        "Do not describe BaaS as 'blockchain software the customer installs'. The whole point is that the customer does NOT run the chain; that is the software-product model.",
+        "Do not put key custody on the customer's side of the line. In BaaS the provider holds the keys - this is the most commonly reversed item in answers.",
+        "Do not claim the customer keeps 'its data'. The customer keeps its data MODEL and business logic; the ledger state and the operational custody belong to the provider's service.",
+        "Do not say BaaS is token-based. Enterprise BaaS chains are typically permissioned and tokenless; token revenue belongs to the P2P model.",
+        "Do not leave out the SLA - it is the contractual instrument that converts 'we run it' into a product the customer can buy."
+      ],
+      "recall": [
+        [
+          "What does the BaaS provider run?",
+          "Nodes, consensus, key custody, monitoring, upgrades, governance and the SLA."
+        ],
+        [
+          "What does the customer keep in a BaaS arrangement?",
+          "Its business logic in smart contracts, its data model, and its integration with its own systems."
+        ],
+        [
+          "Who holds the keys in BaaS and why does it matter?",
+          "The provider does; it is the largest trust transfer in the arrangement and the price of the SLA."
+        ],
+        [
+          "How is BaaS usually priced?",
+          "Per transaction, per seat, or a committed tier with an SLA and credits."
+        ],
+        [
+          "Why is BaaS the default entry point for enterprises?",
+          "Most enterprise chains have no token, so there is no token revenue; the provider absorbs the operational and security burden and the customer buys guaranteed service."
+        ],
+        [
+          "How does BaaS differ from a blockchain-based software product?",
+          "In BaaS the provider runs the chain; in a software product the customer runs the nodes, hosts the contracts and pays the gas."
+        ]
+      ]
+    },
+    {
+      "name": "Token Economy",
+      "definition": "A token economy is the design of a token's total supply, its distribution, the utility that creates demand for it, and the mechanism by which the value the network creates accrues to its holders, together with the regulatory classification that determines how it may be sold and traded.",
+      "problem": "A token with no designed supply, no distribution, no utility and no accrual path is a printed promise. Every failure in this unit's market case - the tokens that traded at a fraction of their listing price by 2023 - was a token-economy failure: supply was fixed without utility to absorb it, or utility existed but the value went to the operator instead of the holder.",
+      "mechanism": [
+        "Step 1 - classify the token by the claim it makes, not by its label: utility (access to a network service), security (a claim on an issuer such as equity, debt or profit share), or commodity-like (a store of value and means of exchange).",
+        "Step 2 - fix the total supply and its release schedule: hard cap versus inflation, the percentage issued at genesis, the vesting and cliff schedule for team and investors, and the reserve for ecosystem grants. An uncapped inflationary token dilutes every holder who does not run a node.",
+        "Step 3 - distribute: decide who receives tokens at genesis and how - community allocation, private and public sale, airdrops, rewards for early users, and the treasury for ongoing grants.",
+        "Step 4 - create the utility that creates demand: name the scarce resource the token buys - bandwidth, storage, compute, transaction or query rights, staking to run a node, or governance weight. Unlimited free utility means the token has no job and no value.",
+        "Step 5 - design value accrual: decide how the value the network creates reaches the holder. The routes are transaction fees that are burned or distributed to stakers, staking rewards, fee-share mechanisms, or a shrinking supply. Value accrual to the network is not the same as value accrual to the token.",
+        "Step 6 - set the fee economics and the burn: transaction fee per unit of work, what fraction is burned, the inflation rate offset by the burn, and the treasury runway measured in months at the current burn rate.",
+        "Step 7 - place the regulatory line: the test is whether buyers expect returns from the efforts of others. If they do, the token behaves like a security and is treated like one - in the US under Howey, in India under SEBI's collective investment scheme test - no matter what the whitepaper calls it."
+      ],
+      "terminology": [
+        [
+          "Utility token",
+          "A token giving access to a network service; value comes from use, not from an issuer's promise."
+        ],
+        [
+          "Security token",
+          "A token representing a claim on an issuer - equity, debt or profit participation."
+        ],
+        [
+          "Commodity-like token",
+          "A token treated as a store of value and means of exchange."
+        ],
+        [
+          "Value accrual",
+          "The route by which network-created value reaches the token holder."
+        ],
+        [
+          "Fee burn",
+          "Destroying a fraction of every transaction fee, tightening supply as usage grows."
+        ],
+        [
+          "Vesting and cliff",
+          "The schedule that prevents team and investor tokens from being dumped on the market."
+        ],
+        [
+          "Howey test",
+          "The US test asking whether money was invested in a common enterprise with the expectation of profit from others' efforts."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the token economy: the classification of tokens, supply and distribution, value accrual, and where the regulatory line between a utility token and an investment token lies.",
+        "points": [
+          "1 mark - a token is a unit of value recorded on a ledger; its type is set by the claim it makes - utility access to a network, a security-like claim on an issuer, or a commodity-like store of value.",
+          "1 mark - the four economic variables: total supply, distribution, the demand created by utility, and where the value created ends up.",
+          "1 mark - supply: hard cap or inflation, genesis allocation, vesting and cliff, treasury reserve - inflation dilutes non-node holders.",
+          "1 mark - distribution: genesis split among community, sale, airdrops and rewards; an airdrop with no subsequent utility is a one-off sale that dumps on the market.",
+          "1 mark - value accrual: fees burned or distributed to stakers, staking rewards, or shrinking supply; the network creating value is not the same as the token capturing it.",
+          "1 mark - worked example: a network taking a 0.1% transaction fee and burning 50% of it is a real accrual mechanism - 1000 daily transactions at $10 each burns $5 a day against supply; a token with a 5% inflation rate and no burn is a pure dilution machine.",
+          "1 mark - the regulatory line is drawn by whether buyers expect returns from the efforts of others; if they do, it behaves like a security and is regulated like one (Howey in the US, SEBI's CIS test in India).",
+          "1 mark - the modern correction: post-2023 SEC settlements and the EU MiCA regime treat most tradable tokens as financial instruments, so the 'utility' label no longer buys an exemption - only genuinely network-functional tokens keep it."
+        ]
+      },
+      "traps": [
+        "Do not define token value as 'what people pay for it on the exchange'. A token's price is an output of the economy, not its design.",
+        "Do not say the regulatory classification is a matter of the issuer's marketing. The test is the buyer's expectation of profit from others' efforts.",
+        "Do not confuse token value with the network's valuation - a large network with a token nobody needs is still a dead token.",
+        "Do not treat inflation as automatically good or bad; state the effect: a 5% annual inflation with no offsetting burn means the holder's claim is diluted every year.",
+        "Do not leave out the supply-and-demand arithmetic on a 15-marker - give at least one worked number."
+      ],
+      "recall": [
+        [
+          "What are the four variables that set a token economy?",
+          "Total supply, distribution, the demand created by utility, and where the value created accrues."
+        ],
+        [
+          "What is the test that decides if a token is a security?",
+          "Whether buyers expect returns from the efforts of others - Howey in the US, SEBI's CIS test in India."
+        ],
+        [
+          "Give one route of value accrual to a token holder.",
+          "Burn a fraction of transaction fees; distribute fees to stakers; staking rewards; a shrinking supply."
+        ],
+        [
+          "Why does 'the network creates value' not automatically mean 'the token captures value'?",
+          "Because the value can accrue to the operator's fee or to the users, while the holder's claim on the network stays unpriced."
+        ],
+        [
+          "What does a vesting cliff do?",
+          "It locks team and investor tokens for a period so they cannot be dumped, then releases them gradually."
+        ],
+        [
+          "What is wrong with an airdrop that hands out tokens but leaves the utility free?",
+          "The tokens are sold by their recipients into the market with no offsetting demand, and the token never becomes a cost of using the service."
+        ]
+      ]
+    },
+    {
+      "name": "Utility Token Business Model",
+      "definition": "A utility token business model creates demand for a token by making the token the required payment or key for using a scarce network service, so demand for the service automatically becomes demand for the token.",
+      "problem": "A network funded only by a bet on its token price has no business model: it needs speculation to survive, and when the price falls the network loses its funding exactly when it needs it most. A utility model replaces the price bet with an operating cost, which is stable and recurring.",
+      "mechanism": [
+        "Step 1 - name the scarce resource: the token must buy something that is genuinely limited - bandwidth, storage, compute, priority transaction space, node participation rights, or a capped number of transactions per period.",
+        "Step 2 - make holding or spending the token mandatory to use the service: fees are paid in the token, or the token is staked to qualify for a service, so service usage is token demand.",
+        "Step 3 - tie the price to real work: the fee should scale with the work the network performs - per byte stored, per second of compute, per transaction - so the token behaves like an operating cost rather than a lottery ticket.",
+        "Step 4 - create the demand loop: users pay fees in the token, the token is spent to the network and distributed to validators or burned; the network grows, the service improves, more users arrive, and each new user's need for the service pulls more demand for the token.",
+        "Step 5 - check the loop is closed by real scarcity: if the utility is unlimited and free, or if the capacity is never actually constrained, the token has no job and the loop is open.",
+        "Step 6 - verify the token pays a real cost: the fee must be high enough to cover the node's operating cost, otherwise the network runs at a loss funded by emissions, which is a subsidy dressed as a model.",
+        "Step 7 - watch the failure mode: if the utility is thin, users route around the token (free tiers, off-chain settlement, forks), and if the token price collapses the fee revenue in fiat terms collapses with it, because fees are paid in a volatile asset."
+      ],
+      "terminology": [
+        [
+          "Demand loop",
+          "Service usage -> token demand -> value to the network -> better service -> more users."
+        ],
+        [
+          "Scarce utility",
+          "A genuinely limited resource the token is needed to access."
+        ],
+        [
+          "Fee in token",
+          "Payment for network work denominated in the token itself."
+        ],
+        [
+          "Staking",
+          "Locking tokens to qualify for a service or to run a node."
+        ],
+        [
+          "Routing around the token",
+          "Users avoiding the payment requirement, which breaks the loop."
+        ],
+        [
+          "Emissions-funded network",
+          "A network whose node rewards exceed real fees, i.e. subsidised by dilution."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the utility token business model. Describe the demand loop and the conditions under which the model breaks down.",
+        "points": [
+          "1 mark - the model works when holding or spending the token is required to use the network, so demand for the service creates demand for the token automatically.",
+          "1 mark - name the scarce resource: bandwidth, storage, compute, transactions, node participation or priority.",
+          "1 mark - the loop in order: users pay fees in the token -> the token is spent to the network and burned or distributed to validators -> the network grows and the service improves -> more users arrive -> each new user needs the service and pulls more token demand.",
+          "1 mark - the token must pay a real cost proportional to the work done, so holding it is an operating expense and not a pure bet on the price rising.",
+          "1 mark - the loop closes only if the utility is genuinely scarce; unlimited free utility means the token has no job and no value.",
+          "1 mark - the breakdown case: thin utility leads users to route around the token (free tiers, off-chain settlement, forks), and a token price collapse cuts the fiat value of fee revenue.",
+          "1 mark - worked example: a storage network charging 1 token per GB-month, with a hard cap of 100,000 tokens and 60% of fees burned, has a real utility, a real cost and a real accrual path; a social network whose only 'utility' is a name registration on an unlimited ledger does not."
+        ]
+      },
+      "traps": [
+        "Do not answer with 'the token goes up in price' as the demand loop - the loop must be service -> token, not expectation -> price.",
+        "Do not assume a token must be scarce in absolute terms; what matters is that the utility it buys is scarce and that the token is required to buy it.",
+        "Do not omit the failure mode - a 5-marker that only describes the happy path usually loses the final mark.",
+        "Do not confuse utility with utility plus speculation; the difference is whether the fee covers the real cost of the node."
+      ],
+      "recall": [
+        [
+          "What is the utility token demand loop in order?",
+          "Service demand -> token needed -> token spent and burned or distributed -> network grows and improves -> more users -> more token demand."
+        ],
+        [
+          "What breaks the loop?",
+          "Unlimited or free utility (no scarcity), or a fee too low to cover the node's real operating cost, so the network runs on emissions."
+        ],
+        [
+          "Why must the utility be scarce?",
+          "If the capacity is never constrained, users do not need the token to get the service, so service demand creates no token demand."
+        ],
+        [
+          "Why is a utility token still risky?",
+          "Fees are paid in a volatile asset, so a price collapse cuts the fiat value of the network's revenue at the moment it is weakest."
+        ]
+      ]
+    },
+    {
+      "name": "Blockchain-Based Software Products",
+      "definition": "A blockchain-based software product business model sells code - a licence or a subscription - while the customer runs the nodes, hosts the smart contracts and pays the gas.",
+      "problem": "The software-product model solves the opposite problem from BaaS: it lets a vendor serve many customers at high margin without carrying any operational burden, no uptime liability and no key custody risk, at the price of depending on the customer to run the thing.",
+      "mechanism": [
+        "Step 1 - the vendor builds the product once: client libraries, indexers, explorers, contract templates, testing and deployment tooling, the smart-contract suite the customer will use, and documentation.",
+        "Step 2 - the vendor licenses it: either a perpetual licence with annual support, or an annual subscription covering updates, security patches and support. The customer hosts the software in its own environment.",
+        "Step 3 - the customer runs the infrastructure: it operates the nodes, hosts the contracts, holds its own keys and pays the gas for every transaction it submits.",
+        "Step 4 - the vendor keeps the economics: high gross margin because there is no hosting cost per customer, no 24x7 operations team and no SLA obligation; the only recurring cost is shipping updates.",
+        "Step 5 - the vendor carries the adoption risk: open-source equivalents compete on price, so the vendor must keep shipping and must differentiate on support, integration quality and the managed upgrade path rather than on features alone.",
+        "Step 6 - the model needs no token and no network effect: this is its attraction to enterprises that cannot use tokens, and its weakness because the vendor captures none of the value created on the chain the customer runs."
+      ],
+      "terminology": [
+        [
+          "Software product model",
+          "Selling code the customer runs, rather than running infrastructure for the customer."
+        ],
+        [
+          "Perpetual licence",
+          "A one-time right to a copy, with support bought separately."
+        ],
+        [
+          "Subscription",
+          "A recurring fee for the right to use and update the product."
+        ],
+        [
+          "Gross margin",
+          "High in this model because there is no per-customer hosting cost."
+        ],
+        [
+          "Open-source competition",
+          "Free or near-free alternatives that cap the price the vendor can charge."
+        ],
+        [
+          "Zero operational load",
+          "The defining advantage: no nodes to run, no keys to hold, no SLA to honour."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the blockchain-based software product business model and how it differs from BaaS.",
+        "points": [
+          "1 mark - a software product sells code, not infrastructure: the customer runs the nodes, hosts the contracts and pays the gas, and the vendor collects a licence or a subscription.",
+          "1 mark - the margin is high and the operational load is low, because there is no per-customer hosting, no operations team and no uptime obligation.",
+          "1 mark - the vendor's recurring obligation is shipping: updates, security patches and support, against open-source equivalents that cap the price.",
+          "1 mark - it differs from BaaS in exactly who runs the chain - the customer runs it here; the provider runs it in BaaS.",
+          "1 mark - it differs from P2P in that nothing is tokenised and no network effect is required.",
+          "1 mark - the trade-off: the vendor captures none of the value created on the chain it enabled, so it must keep winning customers on product and support quality alone."
+        ]
+      },
+      "traps": [
+        "Do not say the vendor hosts the customer's nodes - that is BaaS, and reversing this is the standard error.",
+        "Do not claim the software model needs a token - it is the standard choice for tokenless, permissioned enterprise deployments.",
+        "Do not describe the high margin without the matching cost: the vendor must keep shipping and support, and competes with open source."
+      ],
+      "recall": [
+        [
+          "In a software-product model, who runs the nodes and pays the gas?",
+          "The customer does. The vendor only ships code."
+        ],
+        [
+          "What are the two economic advantages of the software-product model?",
+          "High gross margin (no per-customer hosting) and near-zero operational load (no SLA, no key custody)."
+        ],
+        [
+          "How does it differ from BaaS in one sentence?",
+          "In BaaS the provider runs the chain; in a software product the customer runs it."
+        ],
+        [
+          "What is the vendor's main risk in this model?",
+          "Adoption risk against open-source equivalents, so the vendor must keep shipping and differentiate on support and integration."
+        ]
+      ]
+    },
+    {
+      "name": "P2P Blockchain Business Model",
+      "definition": "In a peer-to-peer blockchain business model participants transact directly with each other over a shared ledger, and the coordinator earns from the network itself rather than from a cut of the transactions.",
+      "problem": "The marketplace model earns by taking a percentage of the trades it brokers. A P2P model removes the platform from the trade - there is no central counterparty matching or taking the spread - so the coordinator has no transaction to tax and must find a revenue source that is decoupled from the volume of trades.",
+      "mechanism": [
+        "Step 1 - the participants trade directly: buyer and seller transact with each other over the shared ledger; the ledger supplies the shared record of what was agreed and what was delivered, replacing the trusted intermediary's role.",
+        "Step 2 - the coordinator takes no transaction fee: no take-rate, no per-trade spread, because there is no platform transaction to charge for. This is the structural difference from the marketplace model.",
+        "Step 3 - the coordinator earns from the network instead: by holding or issuing the network token and benefiting from its value, or by charging for the infrastructure services the network needs - routing, liquidity provision, oracle feeds, node or staking services.",
+        "Step 4 - the alignment this creates: the coordinator's revenue grows with the health and size of the whole network rather than with its own transactions, so it has an interest in keeping the rules fair and the participants solvent - it is paid by the ecosystem, not by the trade.",
+        "Step 5 - the trade-off the model accepts: no transaction revenue means no guaranteed cash flow, so the coordinator's income is as volatile as the token, and it must keep issuing or holding value to stay solvent.",
+        "Step 6 - the risk the model carries: if the token never gains value, the coordinator's only revenue disappears while the free-rider problem returns, because participants have little reason to pay for the shared infrastructure.",
+        "Step 7 - how it is examined in practice: name the revenue source first - token-related income or infrastructure fees paid by network participants - and only then classify the model as P2P."
+      ],
+      "terminology": [
+        [
+          "Coordinator",
+          "The party that runs the protocol and the shared rules, paid by the network rather than by the trades."
+        ],
+        [
+          "Take-rate",
+          "The marketplace cut the P2P model deliberately does not take."
+        ],
+        [
+          "Network-aligned revenue",
+          "Income that scales with the size and health of the whole network."
+        ],
+        [
+          "Oracle",
+          "A service that brings external data onto the chain, a common P2P revenue line."
+        ],
+        [
+          "Liquidity provision",
+          "Supplying assets or capital to the network's pools, paid a fee."
+        ],
+        [
+          "Token dependency",
+          "The structural risk that the coordinator's revenue rests on the token's value."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the P2P blockchain business model and how the coordinator earns from the network rather than from the transactions.",
+        "points": [
+          "1 mark - participants deal directly with one another over the shared ledger; there is no platform in the middle taking a transaction fee.",
+          "1 mark - the coordinator earns from the network rather than from the trades - typically from holding or issuing the network token, or from providing routing, liquidity, oracle or staking services.",
+          "1 mark - its revenue therefore grows with the whole network rather than with its own transactions, aligning it with the health of the system it coordinates.",
+          "1 mark - the structural trade-off: no transaction revenue means no guaranteed cash flow, so income is as volatile as the token.",
+          "1 mark - the model breaks if the token never gains value, because the coordinator's revenue disappears and the free-rider problem returns.",
+          "1 mark - the contrast to remember: a marketplace takes a cut of the trades it brokers; the P2P coordinator takes no cut and is paid by the ecosystem."
+        ]
+      },
+      "traps": [
+        "Do not say a P2P model has no coordinator - there is one; it simply is not paid per trade.",
+        "Do not confuse P2P with the marketplace model - the take-rate is the distinguishing feature, and confusing them loses the whole question.",
+        "Do not claim P2P removes the need for trust; it replaces institutional trust with protocol and cryptographic trust."
+      ],
+      "recall": [
+        [
+          "Where does a P2P coordinator's revenue come from?",
+          "From the network itself - token holdings or issuance, and routing, liquidity, oracle or staking services - not from a cut of the trades."
+        ],
+        [
+          "How is the P2P model structurally different from the marketplace model?",
+          "The marketplace takes a transaction cut; the P2P coordinator takes none and is paid by the ecosystem."
+        ],
+        [
+          "What is the coordinator's structural downside?",
+          "No guaranteed cash flow - its income is as volatile as the token it depends on."
+        ],
+        [
+          "Why does the P2P model still need incentives?",
+          "Participants value the shared record but under-contribute to it, so fees or token incentives must fund the infrastructure."
+        ]
+      ]
+    },
+    {
+      "name": "Blockchain Professional Services",
+      "definition": "Blockchain professional services is a revenue model that sells advisory, integration and managed operations for a project fee or a retainer, rather than selling infrastructure or software.",
+      "problem": "A firm that enters blockchain without a product faces the classic services trap: it is paid for effort, so income is capped by the number of billable people, and it cannot price a recurring relationship because the client is buying hours rather than an outcome.",
+      "mechanism": [
+        "Step 1 - advisory: architecture and governance advice - whether a chain is needed at all, which model fits (BaaS, software or P2P), permissioning and identity, token design, and the governance rules that will decide who can change what.",
+        "Step 2 - integration: wiring the chain into the client's existing estate - ERP, core banking, identity and KYC, data feeds, wallet and key infrastructure, and the smart contracts that encode the business rules.",
+        "Step 3 - managed operations: running and upgrading the network for the client under a retainer - node operations, monitoring, key rotation, incident response, protocol upgrades and the SLA.",
+        "Step 4 - price it: project fee for advisory and integration, retainer for managed operations. The revenue is project-based or retainer-based, so the firm is paid for effort and expertise rather than for network usage.",
+        "Step 5 - avoid the trap: selling hours caps income at the number of billable people and creates no lock-in; selling a defined outcome - a working settlement, a compliant integration, a run network under SLA - or a recurring managed-service retainer breaks that ceiling.",
+        "Step 6 - the honest limit: the margin does not scale like a software licence, so the firm's growth is hiring-driven, and it must convert relationships into products or platforms or it stays a consultancy."
+      ],
+      "terminology": [
+        [
+          "Advisory",
+          "Architecture, governance and strategy consulting."
+        ],
+        [
+          "Integration",
+          "Wiring the chain into the client's existing systems."
+        ],
+        [
+          "Managed operations",
+          "Running, monitoring and upgrading the network for the client."
+        ],
+        [
+          "Retainer",
+          "A recurring fee for an ongoing service rather than a one-off project."
+        ],
+        [
+          "Outcome pricing",
+          "Charging for a defined result instead of for hours."
+        ],
+        [
+          "Services trap",
+          "Income capped by the number of billable people."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the three service lines in the blockchain professional services model, and the pitfall of selling hours instead of an outcome.",
+        "points": [
+          "1 mark - three service lines: advisory on architecture and governance, integration that wires the chain into existing systems, and managed operations that run and upgrade it.",
+          "1 mark - revenue is project-based or retainer-based, so the firm is paid for effort and expertise rather than for network usage.",
+          "1 mark - the trap: selling hours caps income at the number of billable people and creates no lock-in with the client.",
+          "1 mark - the fix: sell a defined outcome (a working settlement, a compliant integration, a network running under SLA) or a recurring managed-service retainer.",
+          "1 mark - the honest limit: the margin does not scale like software, so growth is hiring-driven and the firm must convert engagements into products or platforms.",
+          "1 mark - worked example: a bank paying a consultancy USD 40% of a USD 1m integration project is project revenue; the same firm retained at USD 20,000 a month to run the chain and renew the SLA is managed-operations revenue, and the second is the business that scales."
+        ]
+      },
+      "traps": [
+        "Do not merge professional services with managed operations into one line - advisory, integration and managed operations are three distinct revenue lines with different buyers.",
+        "Do not present professional services as scalable - it is the fastest revenue and the least scalable, and the marker wants both.",
+        "Do not say services revenue is usage-based; it is effort- and retainer-based."
+      ],
+      "recall": [
+        [
+          "Name the three professional services lines.",
+          "Advisory on architecture and governance, integration into existing systems, and managed operations that run and upgrade the network."
+        ],
+        [
+          "Why is selling hours a trap?",
+          "It caps income at the number of billable people and gives the client no reason to stay beyond the project."
+        ],
+        [
+          "What breaks the hours ceiling?",
+          "Pricing a defined outcome, or a recurring managed-service retainer."
+        ],
+        [
+          "Is the services model scalable like a software licence?",
+          "No - growth is hiring-driven, so services firms must convert engagements into products or platforms."
+        ]
+      ]
+    },
+    {
+      "name": "Blockchain for banking and financial transactions",
+      "definition": "Applying a shared ledger to financial settlement means the payment instruction and the transfer of the asset settle in the same atomic transaction, which removes the principal-versus-payment problem that makes correspondent-banking settlement slow and risky.",
+      "problem": "A payment today hops through correspondent banks. Each hop adds a fee, adds a day or two, and adds counterparty risk - if one bank in the chain fails, the payment fails. This is the principal-versus-payment problem: the seller may have delivered and the buyer may have paid, but the two legs settle days apart, so someone is exposed in the gap.",
+      "mechanism": [
+        "Step 1 - trace the old path: the payment instruction goes through a chain of correspondents; each takes a fee and a day and adds its own credit risk; liquidity is pre-funded across the chain, which is why the system needs nostro balances and why settlement risk sits with the participants.",
+        "Step 2 - the shared ledger replaces the chain of trust: a single shared record of accounts and ownership is visible to all parties, so the network's consensus substitutes for the correspondent chain's implied trust.",
+        "Step 3 - atomic delivery versus payment: the asset transfer and the payment instruction are committed in the SAME transaction, so both succeed or both fail together. There is no window in which one leg has settled and the other has not - this is what removes PvP risk.",
+        "Step 4 - the consequence for liquidity: because both legs settle together, the pre-funded liquidity that correspondent banking demands can be cut or eliminated, which is a direct balance-sheet saving for the participants.",
+        "Step 5 - the cost does not disappear, it moves: the bank still pays for KYC/AML on on-chain identity, key management, node operations, and the collateral or liquidity the network design still requires. The business case is about the cost of moving funds, not about removing the bank.",
+        "Step 6 - the work does not disappear either: the back-office function moves rather than ends - reconciliation becomes on-chain state verification, and the compliance function must now run against a pseudonymised but traceable identity layer, which is a new technical cost, not a saving.",
+        "Step 7 - what it is good for and what it is not: it is good for the settlement leg of high-value, multi-party, cross-border flows where the correspondent chain is long and the PvP window is costly; it is not a good fit for small-value retail payments where the fee saved is smaller than the cost of running a node."
+      ],
+      "terminology": [
+        [
+          "Settlement",
+          "The final, irrevocable completion of a payment - the stage where the value actually changes hands."
+        ],
+        [
+          "Principal-versus-payment risk (PvP)",
+          "The risk that one leg of a trade settles while the other does not, leaving one party exposed."
+        ],
+        [
+          "Atomic DVP",
+          "Delivery versus payment where both legs settle together in one transaction."
+        ],
+        [
+          "Correspondent banking",
+          "The chain of banks that routes and settles a cross-border payment, each hop adding fee, time and credit risk."
+        ],
+        [
+          "Nostro balance",
+          "A bank's account held at another bank, pre-funded to settle obligations."
+        ],
+        [
+          "Real-time gross settlement (RTGS)",
+          "Settlement of each payment individually and immediately, in gross, with pre-funded liquidity - the model PvP risk burdens."
+        ],
+        [
+          "On-chain KYC/AML",
+          "Compliance performed against a traceable on-chain identity rather than against a bank's own customer database."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain how a blockchain can be applied to banking and financial transactions. Cover settlement, the principal-versus-payment problem, atomic delivery versus payment, KYC/AML, the real cost model for a bank's back office, and PvP risk.",
+        "points": [
+          "1 mark - settlement is where the value is: today a payment hops through correspondent banks, each taking a fee and a day and adding counterparty risk.",
+          "1 mark - PvP risk defined: the risk that the buyer pays and the seller never delivers, or delivers and never gets paid, because the two legs settle days apart.",
+          "1 mark - atomic DVP: the asset transfer and the payment instruction change state in the SAME transaction, so both succeed or both fail - the PvP window is removed.",
+          "1 mark - the consequence: with both legs settling together, the pre-funded nostro liquidity the correspondent chain demands can be cut, which is a balance-sheet saving.",
+          "1 mark - the shared ledger substitutes for the chain of trust: one agreed record of accounts and ownership, held by consensus rather than by implied confidence in each correspondent.",
+          "1 mark - KYC/AML does not go away: it moves onto the chain as compliance against a traceable, pseudonymised identity layer, and is a new technical cost rather than a saving.",
+          "1 mark - the real cost model for the back office: reconciliation becomes on-chain state verification, and the bank still carries key management, node operations and node cost - the work moves, it does not end.",
+          "1 mark - the honest conclusion: the business case is about the cost of moving funds and the capital tied up in settlement, not about removing the bank.",
+          "1 mark - fit: strong for high-value, multi-party cross-border settlement with a long correspondent chain; weak for small retail payments where the saved fee is smaller than the cost of running a node."
+        ]
+      },
+      "traps": [
+        "Do not claim blockchain removes the bank or the back office - the business case is the cost of moving funds, and the work moves rather than disappears.",
+        "Do not say atomic DVP removes liquidity needs entirely - it removes the pre-funding the PvP window forced, but the network design still requires liquidity or collateral.",
+        "Do not confuse PvP risk with general counterparty credit risk; PvP is specifically the timing mismatch between the two legs.",
+        "Do not promise that KYC/AML becomes easier - on-chain compliance is a new cost, and pseudonymous addresses make attribution harder, not easier.",
+        "Do not forget the settlement-versus-payment distinction: an instruction is not a settlement, and value only moves at settlement."
+      ],
+      "recall": [
+        [
+          "What is principal-versus-payment risk?",
+          "The risk that one leg of a trade settles while the other does not, because the payment and the delivery settle days apart."
+        ],
+        [
+          "How does atomic DVP remove it?",
+          "The asset transfer and the payment instruction are committed in the same transaction, so both succeed or both fail - there is no window between them."
+        ],
+        [
+          "Why does correspondent banking need nostro balances?",
+          "Because the two legs settle days apart, each bank must pre-fund its position across the chain, tying up balance sheet."
+        ],
+        [
+          "What happens to the back office under a shared ledger?",
+          "It moves: reconciliation becomes on-chain state verification, and the bank still pays for on-chain KYC/AML, key management and node operations."
+        ],
+        [
+          "Which type of payment is blockchain settlement strongest for?",
+          "High-value, multi-party, cross-border flows where the correspondent chain is long and the PvP window is costly."
+        ],
+        [
+          "Does atomic DVP make liquidity unnecessary?",
+          "No. It removes the pre-funding forced by the PvP window, but the design still requires liquidity or collateral."
+        ]
+      ]
+    }
+  ]
+}
