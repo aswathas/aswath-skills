@@ -3,7 +3,7 @@
   "version": "1.13.0",
   "author": "Aswath S",
   "license": "MIT",
-  "updated": "2026-11-24",
+  "updated": "2026-11-25",
   "invocation": {
     "manual": "/<skill-name>",
     "example": "/aswath-token-guard",
@@ -221,6 +221,13 @@
         "content",
         "scripts"
       ]
+    },
+    {
+      "name": "aswath-questions-ask",
+      "category": "workflow",
+      "path": "skills/workflow/aswath-questions-ask/SKILL.md",
+      "description": "Use when the user wants to be questioned until a shared understanding exists - \"ask me lots of questions\", \"quiz me\", \"test my understanding\", \"make sure we both understand X\". Runs a question ladder per concept (recall, explain, why, how, contrast, apply, trap), marks each concept understood/shaky/unknown, and writes an understanding ledger that a later study build or implementation consumes.",
+      "resources": []
     },
     {
       "name": "aswath-talk",

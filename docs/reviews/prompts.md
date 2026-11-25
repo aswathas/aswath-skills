@@ -180,3 +180,23 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: `skills/context/aswath-autocompact/` with `presets.json`,
   `scripts/autocompact.py`, `scripts/compaction_rules.py` and
   `scripts/selftest.py`, the manifest and README rows, and the records above.
+
+## 2026-11-25 - ask lots of questions until we both understand
+- Prompt: "lets study for blockchain bussiness models prepare first /aswath-questions-ask(ask me lot of
+  questions untill we both understand concepts lets make this skills)"
+- Decision it produced: D19 (the interview is the work, the ledger is what the build consumes).
+- Work it caused: `skills/workflow/aswath-questions-ask/`, the manifest and README rows, and the
+  records above.
+## 2026-11-25 - study blockchain business models, then stop asking and just teach
+- Prompt: "lets study for blockchain bussiness models prepare first
+  /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
+- Prompt: "sdont ask me questiosn lets learn"
+- Decision it produced: D21 (the extraction decoded with the OS codec, so the authored notes carried
+  mojibake), D22 (the tree fan clipped its first child off the canvas), D23 (the U5 business-model
+  taxonomy became a matrix, because the tree clipped), D24 (the interview stopped halfway, so no
+  ledger was written and the teaching path carried it).
+- Work it caused: the 15 authored 21CSE433T content files under
+  `skills/workflow/aswath-study-technique/content/`, the one-line clamp in
+  `skills/workflow/aswath-study-technique/scripts/layout.cjs`, and the records above. The first
+  prompt started the interview that the second prompt cancelled; the authored notes are what the
+  session produced instead.

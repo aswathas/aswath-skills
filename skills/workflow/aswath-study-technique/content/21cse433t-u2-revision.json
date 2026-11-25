@@ -1,0 +1,142 @@
+{
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "Four goals",
+        "sub": "confidentiality (encrypt) · integrity (hash) · authentication (MAC/signature) · non-repudiation (signature only)"
+      },
+      {
+        "label": "Two families",
+        "sub": "symmetric = one shared secret, fast, key-distribution problem · asymmetric = key pair, public half free, slow"
+      },
+      {
+        "label": "Cipher vs key",
+        "sub": "cipher is the published algorithm, key is the secret — real systems are hybrid"
+      },
+      {
+        "label": "Block vs stream",
+        "sub": "AES 128-bit block, 10/12/14 rounds (bulk) · ChaCha20 keystream (streaming, no AES hardware)"
+      },
+      {
+        "label": "Mode + padding",
+        "sub": "GCM/CTR/CBC stop identical blocks matching; PKCS#7 pads to a whole block"
+      },
+      {
+        "label": "Modular arithmetic",
+        "sub": "Z_p · FLT a^(p-1)≡1 (mod p) · group order p-1 · generator g"
+      },
+      {
+        "label": "Diffie-Hellman",
+        "sub": "publish A=g^a, B=g^b → secret B^a = A^b = g^(ab) mod p — computed, never sent"
+      },
+      {
+        "label": "Hash properties",
+        "sub": "deterministic · fixed length · one-way · avalanche · collision-resistant"
+      },
+      {
+        "label": "SHA-256 pipeline",
+        "sub": "pad (1 bit + zeros + 64-bit length) → n = ceil((L+9)/64) blocks → 64-word schedule → 64 rounds → 256-bit digest"
+      },
+      {
+        "label": "Where SHA sits",
+        "sub": "txn hash → Merkle root → header hash → next header's link — tampering breaks every later hash"
+      }
+    ],
+    "topExamQuestions": [
+      "Explain the objectives of cryptography and the three families of schemes that deliver them. (5 marks)",
+      "Explain encryption and decryption, and distinguish symmetric from asymmetric encryption with an example of each. (5 marks)",
+      "What is a cipher? Explain block ciphers and stream ciphers with an example and a use of each. (5 marks)",
+      "Explain Diffie-Hellman key exchange using arithmetic modulo a prime p, deriving Fermat's little theorem and computing the shared secret. (15 marks)",
+      "State the properties that make a hash cryptographic, and explain how a hash differs from a checksum. (5 marks)",
+      "Explain the SHA-256 algorithm, stating the padding rule and the number of 512-bit blocks for a given message length. (8 marks)",
+      "Where is SHA-256 used inside a blockchain, and why is hashing used for every block instead of signing? (5 marks)"
+    ],
+    "drill": [
+      [
+        "Name the four objectives of cryptography.",
+        "Confidentiality, integrity, authentication, non-repudiation"
+      ],
+      [
+        "Which mechanism alone gives non-repudiation?",
+        "Digital signature — a shared symmetric key lets either party forge"
+      ],
+      [
+        "What is the key-distribution problem?",
+        "Getting a shared secret to a second party over an untrusted channel"
+      ],
+      [
+        "Why do real systems use a hybrid?",
+        "Asymmetric wraps a random symmetric session key; asymmetric alone is too slow"
+      ],
+      [
+        "What block size does AES use, and how many rounds per key size?",
+        "128-bit block; 10 rounds AES-128, 12 AES-192, 14 AES-256"
+      ],
+      [
+        "Why does AES run inside a mode?",
+        "The mode stops identical plaintext blocks producing identical ciphertext blocks; GCM adds an auth tag"
+      ],
+      [
+        "State Fermat's little theorem.",
+        "For prime p and a not divisible by p: a^(p-1) ≡ 1 (mod p)"
+      ],
+      [
+        "Diffie-Hellman with p=23, g=5, a=6, b=15 — what are A, B and the secret?",
+        "A = 8, B = 19, shared secret = 2"
+      ],
+      [
+        "Why is the secret not A × B mod p?",
+        "Exponents combine multiplicatively: the secret is g^(ab) mod p"
+      ],
+      [
+        "What problem is Diffie-Hellman security based on?",
+        "The discrete logarithm problem — recovering x from g^x mod p"
+      ],
+      [
+        "Name the five cryptographic hash properties.",
+        "Deterministic, fixed length, one-way, avalanche, collision-resistant"
+      ],
+      [
+        "How long is a SHA-256 digest?",
+        "256 bits = 32 bytes = 64 hex characters"
+      ],
+      [
+        "How many blocks for a 100-byte message?",
+        "n = ceil((100+9)/64) = 2"
+      ],
+      [
+        "How many blocks for a 55-byte message, and why?",
+        "1 block — 55 + 1 + 8 = 64 bytes exactly fills it"
+      ],
+      [
+        "State the SHA-256 padding rule.",
+        "1 bit, then zeros to 448 mod 512, then the 64-bit original length"
+      ],
+      [
+        "What is SHA-256('abc')?",
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      ],
+      [
+        "What is hashed to make a block hash?",
+        "The block header — transactions enter only through the Merkle root"
+      ],
+      [
+        "What does the Merkle root commit to?",
+        "All transactions in the block, via their hashes"
+      ],
+      [
+        "What happens if one transaction is altered?",
+        "Root changes → header hash changes → every later link fails verification"
+      ],
+      [
+        "Why hash blocks rather than sign them?",
+        "Hashing is free for anyone to verify and needs no key; signing proves authorship, not integrity"
+      ],
+      [
+        "Why is a checksum unsafe as a block identifier?",
+        "CRC-style checksums detect accidental corruption only; collisions are trivially crafted"
+      ]
+    ],
+    "covered": "7 of 8 syllabus topics — 6 must-learn, 1 learn-if-time (Case Study program is coursework-only and carries no written-paper marks)"
+  }
+}

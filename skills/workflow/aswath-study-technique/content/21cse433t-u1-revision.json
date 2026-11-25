@@ -1,0 +1,105 @@
+{
+  "revision": {
+    "mentalMap": [
+      {
+        "label": "History",
+        "sub": "central ledger → Bitcoin 2008/09 (open) → Ethereum 2014/15 (programmable) → Fabric 2016 (governed)"
+      },
+      {
+        "label": "Terminologies",
+        "sub": "block = body + header; node keeps ledger, wallet keeps keys, address = hash of pubkey"
+      },
+      {
+        "label": "Types",
+        "sub": "two axes: who writes (open/permissioned) × who owns (one/group/everyone)"
+      },
+      {
+        "label": "Applications",
+        "sub": "ledger records, tokens/contracts enforce; payoff = reconciliation hours removed"
+      },
+      {
+        "label": "How it works",
+        "sub": "sign → broadcast → validate → order → aggregate → agree → append"
+      },
+      {
+        "label": "Ingredients",
+        "sub": "each ingredient kills one attack; they only work in combination"
+      }
+    ],
+    "topExamQuestions": [
+      "Trace the lifecycle of a transaction in a blockchain from signing through broadcast, validation, block assembly, consensus and appending, and explain what a tampered historical transaction forces the network to redo.",
+      "Define the key terminologies of blockchain — block, chain, nonce, difficulty, block time, fork, node, wallet and address — and explain how they fit together.",
+      "Compare public, private, consortium and hybrid blockchains on permissioning, identity, consensus and governance, and say which type fits a vetted supply-chain consortium.",
+      "List the ingredients of a blockchain and explain the role each one plays.",
+      "Trace the development of blockchain from centralised databases to permissioned enterprise ledgers, naming the milestones in each era.",
+      "Discuss the real-time applications of blockchain, placing each named domain against the problem it solves."
+    ],
+    "drill": [
+      [
+        "Name the seven steps of a transaction's path.",
+        "Sign, broadcast, validate, order, aggregate, agree, append"
+      ],
+      [
+        "What is in a block header?",
+        "Previous block hash, Merkle root, timestamp, difficulty target, nonce"
+      ],
+      [
+        "What does the nonce do?",
+        "It is varied until the header hash falls below the target — the search space of proof of work"
+      ],
+      [
+        "What is the difference between a node and a wallet?",
+        "Node stores and validates the ledger; wallet holds the keypair and signs"
+      ],
+      [
+        "What is an address, exactly?",
+        "RIPEMD-160(SHA-256(public key)) — 20 bytes, versus a 32-byte public key"
+      ],
+      [
+        "How often is difficulty retargeted?",
+        "Every 2016 blocks (~2 weeks), to hold the block time near 600 seconds"
+      ],
+      [
+        "What happens if a historical transaction is tampered with?",
+        "Every block from that one to the tip must be re-hashed and re-mined"
+      ],
+      [
+        "How many confirmations for practical finality on Bitcoin?",
+        "About 6 — ~60 minutes at a 10-minute block time; fork risk ≈ (1/2)^6 ≈ 1.6%"
+      ],
+      [
+        "What two axes fix the type of blockchain?",
+        "Who may write (open vs permissioned) and who owns the rules and liability"
+      ],
+      [
+        "Where does trust come from on a public chain?",
+        "Economics — proof of work or stake, and the cost of rewriting history"
+      ],
+      [
+        "Which type is a vetted supply-chain consortium?",
+        "Consortium — known members, jointly held rules, shared liability, voting consensus"
+      ],
+      [
+        "What does the application do that the ledger does not?",
+        "The ledger records; tokens or smart contracts enforce and trigger the workflow"
+      ],
+      [
+        "Which ingredient is the Sybil defence?",
+        "Mining (or leader election with Sybil-resistant identity in permissioned chains)"
+      ],
+      [
+        "Which ingredient prevents backdating?",
+        "The timestamp in the block header"
+      ],
+      [
+        "Name the three eras of blockchain history.",
+        "Open (Bitcoin 2008/09), programmable (Ethereum 2014/15), governed (Fabric 2016)"
+      ],
+      [
+        "How is the business case for blockchain measured?",
+        "In reconciliation hours removed and disputes avoided"
+      ]
+    ],
+    "covered": "6 of 7 syllabus topics — 4 must-learn, 2 learn-if-time (case study is coursework only)"
+  }
+}

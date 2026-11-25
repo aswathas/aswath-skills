@@ -1,0 +1,761 @@
+{
+  "unit": 4,
+  "glossary": {
+    "Merkle root": {
+      "definition": "The single hash at the top of a Merkle tree that commits to every leaf beneath it.",
+      "whyItMatters": "One 32-byte value in the block header stands in for the whole transaction list, so the header can be verified without the payloads.",
+      "confusions": [
+        "It is not a hash of the concatenated transactions - it is the result of hashing leaves pairwise all the way up.",
+        "It lives in the block header, not in the transaction list."
+      ],
+      "topics": [
+        "Merkle Trees",
+        "Data structures for Blockchain"
+      ]
+    },
+    "Merkle proof (inclusion proof)": {
+      "definition": "The list of sibling hashes along one leaf-to-root path, which lets a verifier recompute the root from a single leaf.",
+      "whyItMatters": "It is what makes a light client able to prove one transaction exists without downloading the whole block or the whole chain.",
+      "confusions": [
+        "The proof contains the sibling hashes only - it never contains the other leaves.",
+        "Its length is logarithmic in the number of leaves, not the number of leaves itself."
+      ],
+      "topics": [
+        "Merkle Trees"
+      ]
+    },
+    "Block header": {
+      "definition": "The fixed-size summary of a block: previous block hash, Merkle root, timestamp, nonce and the consensus target.",
+      "whyItMatters": "The header is what nodes hash, store and compare, so it is where tamper-evidence physically lives.",
+      "confusions": [
+        "The header does not contain the transactions - only the Merkle root that commits to them.",
+        "The previous block hash is what chains blocks; the Merkle root is what chains transactions."
+      ],
+      "topics": [
+        "Data structures for Blockchain",
+        "Merkle Trees"
+      ]
+    },
+    "Previous block hash (chain link)": {
+      "definition": "The hash of the preceding block, stored inside the current block's header.",
+      "whyItMatters": "It turns the ledger into a linked list, so a change anywhere in history breaks every link after it.",
+      "confusions": [
+        "The link is one-way: you can walk back, not forward, without an index.",
+        "A single hash commits to the entire history, because it transitively commits to every earlier block."
+      ],
+      "topics": [
+        "Data structures for Blockchain"
+      ]
+    },
+    "Gas": {
+      "definition": "The metered unit of computation and storage that prices every operation in a smart contract execution.",
+      "whyItMatters": "It bounds what a contract can do, which is what stops one program from looping forever and freezing the chain.",
+      "confusions": [
+        "Gas is not money - it is a measure of work that is multiplied by a gas price to give the fee.",
+        "A reverted call still consumes the gas it burned; only unused gas is refunded."
+      ],
+      "topics": [
+        "Smart Contracts",
+        "Fat Protocols"
+      ]
+    },
+    "Event log": {
+      "definition": "A record written to the transaction log by a contract, carrying a topic and indexed data about what happened.",
+      "whyItMatters": "Applications subscribe to logs instead of polling the whole state, which is how off-chain front ends follow on-chain changes cheaply.",
+      "confusions": [
+        "Events are not stored in the contract's storage variables - they live in the transaction logs.",
+        "Events do not change state and cannot be read back from inside the contract."
+      ],
+      "topics": [
+        "Smart Contracts",
+        "DAPPS"
+      ]
+    },
+    "Thin protocol": {
+      "definition": "A protocol that carries messages and leaves every rule to the application on top, like TCP or HTTP.",
+      "whyItMatters": "It is the baseline for judging what a fat protocol actually adds: rules, state and enforcement.",
+      "confusions": [
+        "Thin is not weak - TCP is thin and is the most reliable transport in use.",
+        "Thin protocols do not hold application state, so they cannot reject a message on business grounds."
+      ],
+      "topics": [
+        "Fat Protocols",
+        "Protocols"
+      ]
+    },
+    "Fat protocol": {
+      "definition": "A protocol that carries not only messages but also the rules and the state those rules govern, as Ethereum does with smart contracts.",
+      "whyItMatters": "Because the rules sit inside the protocol, value accrues at the protocol layer instead of leaking to applications built above it.",
+      "confusions": [
+        "Fat does not mean large in bytes - it means rules-bearing.",
+        "The fatness is created by smart contracts; without them the protocol is thin again."
+      ],
+      "topics": [
+        "Fat Protocols",
+        "Smart Contracts"
+      ]
+    },
+    "Probabilistic finality": {
+      "definition": "Finality that is achieved with overwhelming but not mathematical certainty, as on Ethereum where finality deepens with each confirmation.",
+      "whyItMatters": "It determines how long a business must wait before treating a transaction as irreversible.",
+      "confusions": [
+        "Probabilistic finality is not a lack of finality - it is certainty that grows with confirmations.",
+        "It is not the same as a fork: a fork is a genuine conflicting history, not just unconfirmed probability."
+      ],
+      "topics": [
+        "Platforms",
+        "Protocols"
+      ]
+    },
+    "Oracle": {
+      "definition": "The component that brings real-world facts into a smart contract, which otherwise only sees on-chain data.",
+      "whyItMatters": "Contracts can only act on what the chain knows, so the oracle is the hinge between a deterministic ledger and a messy world.",
+      "confusions": [
+        "An oracle is not part of consensus - it is an input, and a wrong input is a wrong result.",
+        "Oracles are the classic single point of trust in an otherwise trustless contract."
+      ],
+      "topics": [
+        "DAPPS",
+        "Smart Contracts"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "Data structures for Blockchain",
+      "definition": "The data structures of a blockchain are a singly linked list of blocks, each header holding the previous block's hash and a Merkle root over its own transactions.",
+      "problem": "A flat append-only table gives no evidence of tampering: a row can be edited in place and nothing visibly changes, so a participant must trust every copy of the ledger rather than verify it.",
+      "mechanism": [
+        "The ledger is a singly linked list of blocks: each block's header stores the hash of the block before it, so the chain is a chain of fingerprints.",
+        "The transactions inside a block are collected in order and hashed pairwise into a Merkle tree, and only that tree's root is written into the header.",
+        "The header carries the fixed fields nodes check first: previous block hash, Merkle root, timestamp, nonce and the consensus target.",
+        "Every full node stores the whole chain and re-executes each block against its own state, so every node can detect a divergence without trusting a central copy.",
+        "Because the header commits to the previous header, editing block k changes its hash, which breaks the prevHash field in block k+1, and the mismatch cascades forward to the tip of the chain."
+      ],
+      "terminology": [
+        [
+          "Block header",
+          "Fixed-size summary of a block: prevHash, Merkle root, timestamp, nonce, target."
+        ],
+        [
+          "Previous block hash",
+          "The hash of the preceding block, stored in the current header; the chain link."
+        ],
+        [
+          "Merkle root",
+          "One hash in the header committing to every transaction in the block."
+        ],
+        [
+          "Nonce",
+          "The header field varied to change the block hash during consensus."
+        ],
+        [
+          "State",
+          "The result of re-executing the whole chain; every full node keeps its own copy."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Describe the main data structures used in a blockchain and explain why a linked list of hashes is used instead of a flat table.",
+        "points": [
+          "1 mark - the ledger is a singly linked list of blocks, each header storing the previous block's hash.",
+          "1 mark - transactions inside a block are held in a Merkle tree, and the Merkle root is stored in the header.",
+          "1 mark - header fields: previous hash, Merkle root, timestamp, nonce and the consensus target.",
+          "1 mark - a flat table allows a silent in-place edit with no visible consequence; the chain link turns any edit into a cascade of mismatched hashes from the edited block to the tip.",
+          "1 mark - every node keeps the full chain and can verify independently, so tamper-evidence replaces trust."
+        ]
+      },
+      "traps": [
+        "Do not say the block header holds the transactions - it holds the Merkle root that commits to them.",
+        "Do not confuse the two links: the previous block hash links blocks, the Merkle root links transactions.",
+        "Do not claim a linked list is faster to read - it is chosen for tamper-evidence, and random access needs an index.",
+        "Do not say editing a block is 'hard'; say what actually happens - the hash changes and every subsequent prevHash mismatches.",
+        "Do not claim the chain link prevents editing; it detects it, and detection is what consensus acts on."
+      ],
+      "recall": [
+        [
+          "What are the two structural links inside a blockchain?",
+          "Previous block hash links blocks; the Merkle root links the transactions inside a block."
+        ],
+        [
+          "Which header field stores the link to the previous block?",
+          "The previous block hash (prevHash)."
+        ],
+        [
+          "Why not use a flat table?",
+          "A row could be edited in place with no visible consequence; the hash chain turns any edit into a cascade of mismatches to the tip."
+        ],
+        [
+          "What does a node do with a block whose prevHash does not match the tip it holds?",
+          "It rejects the block as belonging to a competing history; the honest chain continues on the fork it already trusted."
+        ],
+        [
+          "How does the Merkle root let a header commit to every transaction?",
+          "It is a single hash computed over all leaves of the block's Merkle tree, so any change to any transaction changes the root."
+        ]
+      ],
+      "revision": "prevHash links blocks, Merkle root links transactions -> edit one old block and every link after it breaks."
+    },
+    {
+      "name": "Merkle Trees",
+      "definition": "A Merkle tree is a binary hash tree in which leaves are hashed pairwise upward until one root hash remains, and that root is a single fingerprint committing to the whole set.",
+      "problem": "Verifying one transaction in a large block by downloading and rehashing everything is wasteful, and a blockchain needs a compact way to prove a single transaction is in a block without handing over the whole block.",
+      "mechanism": [
+        "Level 0 - the leaves: each transaction is hashed individually, giving n leaf hashes (H(A), H(B), H(C), H(D) for four transactions).",
+        "Level 1 - pair up and hash: hash each adjacent pair to get internal nodes (H(A|B), H(C|D)); with 4 leaves this is 2 hashes and 2 internal nodes so far.",
+        "Level 2 - the root: hash the level-1 nodes together (H(H(A|B) | H(C|D))) to get the single Merkle root, which is the 3rd internal node and the value written into the block header.",
+        "Prove inclusion: to prove leaf A, supply only its sibling hash at each level - H(B) and H(C|D) - and the verifier re-hashes upward: H(A|H(B)) then H(that | H(C|D)) and checks it equals the header's root.",
+        "Size the proof: the proof carries one sibling hash per level, so its length is ceil(log2 n) - 1 for a balanced tree with n leaves; a 1,024-leaf tree needs a 10-level path and a 10-hash proof, not 1,024 hashes."
+      ],
+      "terminology": [
+        [
+          "Merkle root",
+          "The single top hash committing to every leaf."
+        ],
+        [
+          "Leaf hash",
+          "Hash of one transaction at level 0."
+        ],
+        [
+          "Internal node",
+          "Hash of two child hashes; n leaves give n-1 internal nodes in total."
+        ],
+        [
+          "Merkle proof",
+          "The chain of sibling hashes on one leaf-to-root path."
+        ],
+        [
+          "Sibling hash",
+          "The hash of the node on the other branch of the path, which the verifier needs to recompute the parent."
+        ],
+        [
+          "Proof length",
+          "Number of sibling hashes, equal to the number of levels on the path, ceil(log2 n)."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain how a Merkle tree is built and how an inclusion proof for a single transaction is verified, with counts for the number of hash nodes at each level and the length of the proof.",
+        "points": [
+          "1 mark - definition: leaves hashed pairwise upward until a single root hash remains, and the root commits to the whole set.",
+          "1 mark - build level 0: hash each transaction individually, n leaf hashes.",
+          "1 mark - build level 1: hash adjacent pairs, H(A|B) and H(C|D) for 4 leaves (2 hashes, 2 internal nodes).",
+          "1 mark - root: H(H(A|B) | H(C|D)) is the 3rd internal node and goes into the block header; 4 leaves give 4 leaf hashes plus 3 internal hashes.",
+          "2 marks - proof for leaf A is only its sibling hashes H(B) and H(C|D); the verifier re-hashes upward and compares the result with the root.",
+          "1 mark - proof length: one sibling hash per level, so ceil(log2 n); for 1,024 leaves the tree has 10 hashing levels and the proof has 10 hashes.",
+          "1 mark - the odd-leaf case: with 3 leaves the tree has 2 internal nodes and 2 hash levels, and the proof for leaf C is the single sibling hash H(A|B), since H(H(A|B) | C) can then be recomputed.",
+          "1 mark - consequence: a light client verifies one transaction with a logarithmic-size proof instead of downloading the block, and the root in the header is what the proof is checked against."
+        ]
+      },
+      "traps": [
+        "Do not mix up the number of leaves, internal nodes and hashes: n leaves give n-1 internal nodes, and each internal node is one hash.",
+        "Do not say the proof contains the other transactions - it contains only sibling hashes.",
+        "Do not say the proof length is n or n-1; it is the number of levels on the path, ceil(log2 n).",
+        "Do not say the Merkle root is a hash of all transactions concatenated; it is built level by level.",
+        "Do not describe the proof as proving non-inclusion - a non-inclusion proof needs the root plus the whole sibling subtree."
+      ],
+      "recall": [
+        [
+          "How many internal nodes does a tree with n leaves have?",
+          "n-1. So 4 leaves give 3 internal nodes and 1,024 leaves give 1,023."
+        ],
+        [
+          "How many hashing levels does a tree with 1,024 leaves have?",
+          "ceil(log2 1024) = 10 levels of hashing above the leaf level."
+        ],
+        [
+          "What exactly goes into the proof for leaf A in a 4-leaf tree?",
+          "H(B) and H(C|D) - the sibling hash at each level, and nothing else."
+        ],
+        [
+          "What does the verifier do with those hashes?",
+          "Re-hashes upward, H(A|H(B)) then H(result | H(C|D)), and checks it equals the root in the header."
+        ],
+        [
+          "Where is the Merkle root stored?",
+          "In the block header, as the single value committing to all the block's transactions."
+        ],
+        [
+          "Why does the proof length grow logarithmically?",
+          "Because only one sibling per level is needed, and the number of levels is ceil(log2 n), so proving one of a million transactions takes about 20 hashes, not a million."
+        ]
+      ],
+      "revision": "pair up, hash up, root in header; proof = one sibling hash per level; n leaves -> n-1 internal nodes, proof length ceil(log2 n)."
+    },
+    {
+      "name": "Shared data",
+      "definition": "Shared data in a blockchain is placed at one of three levels - public on-chain, permissioned on-chain, or private off-chain with only a hash anchored on the ledger.",
+      "problem": "An immutable, publicly readable ledger is exactly the wrong home for personal or commercially sensitive data, since whatever is written cannot be deleted and anyone can read it, so every project must decide deliberately where each piece of data lives.",
+      "mechanism": [
+        "Public shared data goes on-chain in the clear: public keys, transaction hashes, public announcements - readable by any node, and useful precisely because it is verifiable by everyone.",
+        "Permissioned shared data also goes on-chain but access is restricted by identity: only network members can read or write it, which is what makes confidential business content safe to record.",
+        "Private data stays off-chain in the owner's own store; only a hash of the off-chain document is written on-chain, and the owner publishes the pre-image to the authorised parties when needed.",
+        "The on-chain hash anchors the off-chain copy: if the off-chain copy is altered, the recomputed hash no longer matches the recorded one and the tampering is detectable.",
+        "Encryption is the other lever on private data - encrypt before storing off-chain, and put the key under access control so it can be revoked, while the ledger keeps only the commitment."
+      ],
+      "terminology": [
+        [
+          "Public shared data",
+          "On-chain and readable by anyone; no personal data belongs here."
+        ],
+        [
+          "Permissioned shared data",
+          "On-chain but readable only by network members; identity controls access."
+        ],
+        [
+          "Private / off-chain data",
+          "Owned by one organisation, stored off the ledger."
+        ],
+        [
+          "On-chain hash anchor",
+          "The commitment that makes tampering with the off-chain copy detectable."
+        ],
+        [
+          "Encryption key",
+          "Controls who may read a private copy; revocation lives here, not in the chain."
+        ],
+        [
+          "Right to erasure",
+          "The regulatory demand that conflicts with an immutable ledger; it can only be met off-chain or with a key-revocation pattern."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Distinguish public, permissioned and private shared data in a blockchain, and explain how private data can be kept confidential without losing tamper-evidence.",
+        "points": [
+          "1 mark - public shared data is on-chain and readable by anyone; public keys, hashes, announcements, and no personal information.",
+          "1 mark - permissioned shared data is on-chain but only network members can read or write it, so sensitive business content is safe to record.",
+          "1 mark - private data stays off-chain with its owner; only a hash is committed on-chain.",
+          "1 mark - the on-chain hash is the anchor: altering the off-chain copy changes the hash and breaks the match, so tampering is detectable.",
+          "1 mark - the right-to-erasure conflict: an immutable ledger cannot delete, so personal data must be off-chain or stored as a revocable encrypted blob with only the commitment on-chain."
+        ]
+      },
+      "traps": [
+        "Do not say hashing makes data private - the hash hides the content but the on-chain copy is still permanently public.",
+        "Do not claim private data is protected by the consensus protocol; it is protected by encryption and key control.",
+        "Do not forget that public ledgers cannot satisfy a deletion request.",
+        "Do not confuse permissioned (who may read/write) with confidential (what the data contains); Fabric's private channels give both."
+      ],
+      "recall": [
+        [
+          "What are the three places data can live relative to the ledger?",
+          "On-chain public, on-chain permissioned, and off-chain private with only a hash on-chain."
+        ],
+        [
+          "What commits an off-chain document to the ledger?",
+          "A hash of it written on-chain; a later edit to the document breaks the match."
+        ],
+        [
+          "Why is personal data kept off-chain?",
+          "Because a public immutable ledger cannot honour a deletion request, and it is readable forever."
+        ],
+        [
+          "What is the trade-off of putting everything on-chain?",
+          "Simplicity and single-source verifiability against privacy, storage cost and the impossibility of erasure."
+        ]
+      ],
+      "revision": "public on-chain / permissioned on-chain / private off-chain + hash anchor."
+    },
+    {
+      "name": "Protocols",
+      "definition": "A blockchain system stacks three protocols - an application-facing protocol that defines what a transaction means, a consensus protocol that defines which ordering is valid, and a gossip protocol that defines how blocks and transactions spread between peers.",
+      "problem": "A single monolithic design couples every message format to the agreement rule and to the network layer, so changing any one of them means rewriting the others, and each failure mode gets mistaken for the others.",
+      "mechanism": [
+        "The application-facing protocol at the top defines the meaning of a transaction and the interfaces to it: the wallet, the RPC calls, the JSON-RPC methods, the transaction format.",
+        "The consensus protocol below it defines which ordering of blocks is valid: it takes the candidate set and produces a canonical chain, with its own failure mode of a split or stalled decision.",
+        "The gossip and broadcast protocol at the bottom defines how blocks and transactions reach peers: it floods them over TCP/IP, and its failure mode is a partitioned network that simply stops gossiping.",
+        "Because the layers are separable, the gossip layer can be replaced (private relays, alternative transports) or the consensus engine swapped without rewriting the applications above.",
+        "Diagnosis follows the layering: a bad transaction is an application-layer fault, two competing chains are a consensus fault, and blocks that never arrive are a gossip fault."
+      ],
+      "terminology": [
+        [
+          "Application protocol",
+          "Defines what a transaction means; wallet and RPC live here."
+        ],
+        [
+          "Consensus protocol",
+          "Defines which ordering of blocks is valid."
+        ],
+        [
+          "Gossip / broadcast protocol",
+          "Defines how blocks and transactions reach the other peers."
+        ],
+        [
+          "Transport (TCP/IP)",
+          "The least interesting layer underneath; carries the bytes."
+        ],
+        [
+          "Mempool",
+          "The per-node pool of received but not yet included transactions, where the application and gossip layers meet."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the three protocol layers in a blockchain, what each one is responsible for, and how separating them helps.",
+        "points": [
+          "1 mark - the application protocol defines what a transaction means (wallet, RPC, transaction format).",
+          "1 mark - the consensus protocol defines which ordering of blocks is valid.",
+          "1 mark - the gossip/broadcast protocol defines how blocks and transactions reach peers, over TCP/IP.",
+          "1 mark - each layer has its own failure mode: bad application logic, a split consensus decision, a partitioned network that stops gossiping.",
+          "1 mark - the benefit of separation: swap the gossip layer or the consensus engine without rewriting the applications on top."
+        ]
+      },
+      "traps": [
+        "Do not name technologies when the question asks for the job - say what each layer decides.",
+        "Do not merge gossip and consensus; gossip is how information travels, consensus is what makes it agreed.",
+        "Do not forget the transport layer when listing the stack, even if it is only mentioned as the least interesting one.",
+        "Do not say consensus validates transactions - validity is checked before consensus decides ordering."
+      ],
+      "recall": [
+        [
+          "Name the three protocol layers.",
+          "Application protocol, consensus protocol, gossip/broadcast protocol, over TCP/IP transport."
+        ],
+        [
+          "What does the consensus protocol decide?",
+          "Which ordering of blocks is valid - the canonical chain."
+        ],
+        [
+          "What does the gossip protocol decide?",
+          "Nothing - it only defines how blocks and transactions reach peers."
+        ],
+        [
+          "What is the failure signature of a gossip fault?",
+          "Transactions stop propagating; the network is partitioned and blocks never arrive."
+        ],
+        [
+          "Why separate the layers?",
+          "So the gossip layer or consensus engine can be replaced without rewriting the applications above."
+        ]
+      ],
+      "revision": "application says what, consensus says which order, gossip says how it travels."
+    },
+    {
+      "name": "Fat Protocols",
+      "definition": "A fat protocol is one that carries not only messages but also the rules and the state those rules govern, so the protocol itself enforces them - unlike a thin protocol such as TCP or HTTP, which only moves bytes and leaves every rule to the application.",
+      "problem": "In a thin-protocol world the application layer captures all the value and the protocol layer is interchangeable infrastructure, so a platform cannot defend or monetize the network it provides.",
+      "mechanism": [
+        "A thin protocol defines only the message format and the transport: TCP moves bytes and HTTP moves requests, and all business rules live in the application on top.",
+        "A fat protocol additionally carries the rules and the state those rules govern, so the protocol can reject a message that violates them rather than passing it on.",
+        "Smart contracts are the hinge that makes a protocol fat: deploying business logic on-chain moves the rules out of the application and into the protocol layer.",
+        "Value capture follows the rules: with rules, state and token economics inside the protocol, fees, staking and MEV accrue to the protocol layer instead of leaking to applications built on top.",
+        "The cost is that fat protocols are harder to change - the rules are baked into the state machine, so changing them is a governance decision and often a hard fork, whereas a thin protocol can evolve without breaking its users."
+      ],
+      "terminology": [
+        [
+          "Thin protocol",
+          "Carries messages only; rules live in the application (TCP, HTTP)."
+        ],
+        [
+          "Fat protocol",
+          "Carries messages, rules and state; rules live in the protocol (Ethereum)."
+        ],
+        [
+          "State",
+          "The data the rules act on, kept by the protocol rather than the app."
+        ],
+        [
+          "Value capture",
+          "Where the economics land - the application layer for thin, the protocol layer for fat."
+        ],
+        [
+          "Hard fork",
+          "The mechanism for changing fat-protocol rules, because the state machine is part of the protocol."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Distinguish thin and fat protocols, explain where the rules live in each, and state why smart contracts make a protocol fat.",
+        "points": [
+          "1 mark - a thin protocol carries messages only and leaves all rules to the application; TCP and HTTP are the standard examples.",
+          "1 mark - a fat protocol carries messages plus the rules and the state those rules govern, so the protocol enforces them.",
+          "1 mark - smart contracts are the hinge: business logic moves on-chain, so the protocol becomes the enforcement mechanism instead of a dumb pipe.",
+          "1 mark - value capture: with rules, state and economics inside the protocol, value accrues at the protocol layer rather than to apps built above it.",
+          "1 mark - the cost: fat protocols are hard to change, since changing the rules means changing the state machine - a governance decision and often a hard fork."
+        ]
+      },
+      "traps": [
+        "Do not say fat means more bytes or more bandwidth - fat means rules-bearing.",
+        "Do not forget the state half of the definition; a protocol that carries rules but not the state they govern is not fat.",
+        "Do not claim fat protocols are strictly better; the trade-off is rigidity and upgrade difficulty.",
+        "Do not confuse value capture at the protocol layer with the protocol owning the user's assets."
+      ],
+      "recall": [
+        [
+          "Give two thin protocols and one fat protocol.",
+          "Thin: TCP, HTTP. Fat: Ethereum."
+        ],
+        [
+          "Where do the rules live in a thin protocol?",
+          "In the application on top of it."
+        ],
+        [
+          "What makes a protocol fat?",
+          "Smart contracts putting the rules and the state they govern inside the protocol."
+        ],
+        [
+          "What is the trade-off of fatness?",
+          "Value capture at the protocol layer, paid for with rigidity - rule changes need governance and often a hard fork."
+        ],
+        [
+          "Does Ethereum sit at the application or protocol layer?",
+          "The protocol layer - the rules execute in the protocol's own state machine."
+        ]
+      ],
+      "revision": "thin carries messages, fat carries rules + state; smart contracts are the hinge."
+    },
+    {
+      "name": "Platforms",
+      "definition": "A blockchain platform is chosen by three axes - who may write and read (public or permissioned), how nodes agree (consensus), and how finality arrives (probabilistic or deterministic).",
+      "problem": "Platforms are usually picked on brand or hype, but the technical choice that matters for an enterprise deployment is narrower: identity, consensus and finality, because those decide privacy, latency and legal admissibility.",
+      "mechanism": [
+        "Fix the identity model first: Ethereum admits anyone as a writer by stake, while Fabric, Corda and Quorum require a certified organisational identity, which is what makes private channels and revocation possible.",
+        "Fix the consensus next: Ethereum runs proof of stake with a large validator set, Fabric offers pluggable consensus to suit the membership, Corda uses a notary model where a small set of notaries order transactions for bilateral contracts, and Quorum inherits Ethereum's mechanisms as a permissioned fork.",
+        "Fix finality last: Ethereum gives probabilistic finality that deepens with confirmations and is settled by the protocol's finality gadgets, whereas permissioned platforms deliver deterministic or immediate finality once the notaries or the ordering service commit.",
+        "Read the trade-off across the axes: a public chain buys a large developer ecosystem and open access, a permissioned chain buys identity, privacy, deterministic finality and predictable latency.",
+        "Apply the business consequence: regulated or bilateral data pushes to Fabric, Corda or Quorum, while open, incentive-driven applications push to Ethereum."
+      ],
+      "terminology": [
+        [
+          "Ethereum",
+          "Public, proof of stake, probabilistic finality."
+        ],
+        [
+          "Hyperledger Fabric",
+          "Permissioned, pluggable consensus, private channels, deterministic finality."
+        ],
+        [
+          "Corda",
+          "Permissioned, notary model, designed for bilateral contracts between known parties."
+        ],
+        [
+          "Quorum",
+          "Permissioned Ethereum fork used by consortia such as CLS Bank."
+        ],
+        [
+          "Identity model",
+          "Key-based (public) versus certified organisational identity (permissioned)."
+        ],
+        [
+          "Finality",
+          "Probabilistic (Ethereum) versus deterministic (most permissioned platforms)."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Compare Ethereum, Hyperledger Fabric, Corda and Quorum as blockchain platforms, in terms of identity model, consensus and finality.",
+        "points": [
+          "1 mark - every platform is a choice of three things: permissioning, consensus and finality.",
+          "1 mark - Ethereum: public, proof of stake, probabilistic finality.",
+          "1 mark - Hyperledger Fabric: permissioned, pluggable consensus, private channels, deterministic finality.",
+          "1 mark - Corda: permissioned, notary model, built around bilateral contracts between known parties.",
+          "1 mark - Quorum: a permissioned Ethereum fork used by financial consortia.",
+          "1 mark - the business trade-off: openness and ecosystem (public) against identity, privacy and predictable finality (permissioned)."
+        ]
+      },
+      "traps": [
+        "Do not say Corda is a public chain; it is permissioned and notary-based.",
+        "Do not describe Fabric's consensus as one fixed algorithm - it is pluggable.",
+        "Do not claim Ethereum finality is absent; it is probabilistic, which is a different statement.",
+        "Do not compare platforms on transaction speed alone; identity and finality are what examiners reward."
+      ],
+      "recall": [
+        [
+          "Which platform is public with proof of stake and probabilistic finality?",
+          "Ethereum."
+        ],
+        [
+          "Which platform has a notary model for bilateral contracts?",
+          "Corda."
+        ],
+        [
+          "What is Quorum?",
+          "A permissioned fork of Ethereum used by financial consortia."
+        ],
+        [
+          "Which platform has pluggable consensus and private channels?",
+          "Hyperledger Fabric."
+        ],
+        [
+          "What do you gain by going permissioned?",
+          "Certified identity, privacy, deterministic finality and predictable latency - at the cost of openness and ecosystem."
+        ]
+      ],
+      "revision": "who may write, how nodes agree, when it is final."
+    },
+    {
+      "name": "DAPPS",
+      "definition": "A dApp is assembled from five parts - a front end the user sees, a wallet that holds the user's keys, a node or provider serving chain data, a smart contract holding the rules, and an oracle supplying outside facts.",
+      "problem": "Calling a website that posts transactions to a chain 'decentralised' is misleading if the operator holds the keys or the rules off-chain, so the anatomy has to be spelled out to show which part actually carries the trust.",
+      "mechanism": [
+        "The front end is what the user sees and clicks - a web or mobile interface that builds transaction objects but holds no keys and no trust.",
+        "The wallet holds the user's private key and signs every transaction; the user signs, so the dApp never takes custody of funds or authority.",
+        "The node or provider serves chain data and submits transactions: a full node verifies for itself, an Infura-style provider is a convenience that re-introduces a trusted intermediary.",
+        "The smart contract holds the rules and the state; the front end reads it, the wallet signs calls to it, and its address is the application's identity.",
+        "The oracle brings in real-world data the chain cannot know, and each of the five parts is separately chargeable - which is where the Unit 5 business models attach to the stack."
+      ],
+      "terminology": [
+        [
+          "Front end",
+          "The user interface; builds transactions, holds no keys."
+        ],
+        [
+          "Wallet",
+          "Holds the private key and signs; the user, not the dApp, is the custodian."
+        ],
+        [
+          "Node / provider",
+          "Supplies chain data and submits transactions."
+        ],
+        [
+          "Smart contract",
+          "The rules and the state; the application's on-chain identity."
+        ],
+        [
+          "Oracle",
+          "Feeds real-world facts into the contract."
+        ],
+        [
+          "Custody",
+          "Who controls the keys - the decentralisation test that a dApp must pass."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Describe the anatomy of a decentralised application and explain how each part maps onto a business-model type.",
+        "points": [
+          "1 mark - five parts: front end, wallet, node/provider, smart contract, oracle.",
+          "1 mark - the front end is what the user sees; it holds no keys and no trust.",
+          "1 mark - the wallet holds the user's keys and signs every transaction, so the dApp never holds custody.",
+          "1 mark - the node or provider serves chain data and submits transactions; a hosted provider is a trusted intermediary.",
+          "1 mark - the contract holds the rules and the state; the oracle brings in real-world data.",
+          "1 mark - each part is a separate product and therefore a separate revenue line, which is how the Unit 5 business models attach."
+        ]
+      },
+      "traps": [
+        "Do not say the front end holds the user's keys - the wallet does.",
+        "Do not treat the oracle as part of consensus; it is an external input.",
+        "Do not forget the node/provider part; naming only front end, wallet and contract loses a mark.",
+        "Do not claim a dApp is decentralised just because it uses a chain - custody of the keys is the test."
+      ],
+      "recall": [
+        [
+          "Name the five parts of a dApp.",
+          "Front end, wallet, node/provider, smart contract, oracle."
+        ],
+        [
+          "Which part holds the private key?",
+          "The wallet, which the user controls - the dApp never holds custody."
+        ],
+        [
+          "Which part brings real-world data in?",
+          "The oracle."
+        ],
+        [
+          "What is the decentralisation test for a dApp?",
+          "Whether the user signs every transaction with their own key, so no operator holds custody."
+        ],
+        [
+          "Where does the money come from in the business-model sense?",
+          "Each of the five parts is separately chargeable - front end, hosting, contract deployment and oracle feeds are all revenue lines."
+        ]
+      ],
+      "revision": "front end, wallet, node, contract, oracle - the wallet must not belong to the operator."
+    },
+    {
+      "name": "Smart Contracts",
+      "definition": "A smart contract is code deployed to an address on the ledger that executes deterministically and writes its state changes into the shared record when a transaction satisfies its conditions.",
+      "problem": "Manual enforcement of an agreement needs a trusted intermediary who can be paid, leaned on or defrauded, and a blockchain only removes that intermediary if the rules themselves can run unattended, cheaply and verifiably.",
+      "mechanism": [
+        "Deploy: the compiled bytecode plus constructor arguments are sent as a transaction, the constructor runs once, and the contract's code and initial storage are fixed at a new address.",
+        "Call: a transaction or a message targets the address with a function selector and arguments; the node executes the code locally against its own copy of the state.",
+        "Execute: every operation is metered in gas - storage writes cost far more than computation - and the whole call either succeeds and commits its state changes, or reverts and changes nothing while still burning the gas it used.",
+        "Record: the state changes become part of the shared record, the block's Merkle root changes with them, and every node independently arrives at the same result because the execution is deterministic.",
+        "React: the contract emits events so off-chain applications can follow the change without reading the whole state, and access control in the code (owner, roles, modifiers) decides who may call which function."
+      ],
+      "terminology": [
+        [
+          "Bytecode",
+          "The compiled form of the contract that is actually deployed and stored at the address."
+        ],
+        [
+          "Constructor",
+          "Code that runs once at deployment to set up initial state."
+        ],
+        [
+          "Address",
+          "The account-like identity the deployed contract lives at."
+        ],
+        [
+          "Gas",
+          "The metered unit of computation and storage that prices every operation and bounds execution."
+        ],
+        [
+          "Revert",
+          "A failed call: all state changes are rolled back, but the gas consumed is not refunded."
+        ],
+        [
+          "Event",
+          "A log entry that lets applications react to a state change without polling."
+        ],
+        [
+          "Access control",
+          "In-code rules (owner, roles, modifiers) deciding which caller may invoke which function."
+        ],
+        [
+          "Immutability",
+          "The deployed code cannot be edited in place; the state it manages can."
+        ],
+        [
+          "Determinism",
+          "Every node running the same transaction on the same state gets the same result."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the deploy-and-execute semantics of a smart contract, the difference between immutable code and mutable state, and the role of gas, events and access control.",
+        "points": [
+          "1 mark - definition: code deployed to an address; on a matching transaction it runs deterministically and its state changes join the shared record.",
+          "1 mark - deploy: bytecode plus constructor arguments, constructor runs once, code and initial storage fixed at a new address.",
+          "2 marks - execute: every operation is metered in gas, storage writes cost far more than computation; the call either commits its state changes or reverts, rolling back state while still burning the gas used.",
+          "1 mark - determinism: because execution is deterministic, every node independently reaches the same result and the Merkle root commits to it.",
+          "1 mark - immutability of code versus mutability of state: a bug in deployed code cannot be patched in place, but the data it manages can be changed; the usual fix is a proxy or migrate to a new contract.",
+          "1 mark - events: the contract emits logs so applications react to state changes without reading the whole ledger.",
+          "1 mark - access control: owner/role checks in the code decide which caller may invoke which function.",
+          "1 mark - the numbers: a plain ETH transfer costs 21,000 gas and storing a new 32-byte word costs 20,000 gas, so at 20 gwei a transfer is 21,000 x 20 x 10^-9 = 0.00042 ETH; against the 30 million gas block limit that leaves room for roughly 1,400 simple transfers per block."
+        ]
+      },
+      "traps": [
+        "Do not say the deployed code can be updated in place - the code is immutable and only the state is mutable.",
+        "Do not say a revert refunds the gas - the gas consumed is still paid.",
+        "Do not say events are stored in the contract's variables; they are written to the transaction logs and cannot be read back by the contract.",
+        "Do not confuse gas with the fee - the fee is gas multiplied by the gas price.",
+        "Do not say the contract 'runs on the chain' as a separate program; every node runs the same code on its own copy of the state.",
+        "Do not say a contract is immutable in every sense; a proxy pattern gives upgradeable behaviour and must be described as such."
+      ],
+      "recall": [
+        [
+          "What is immutable and what is mutable in a deployed contract?",
+          "The code is immutable once deployed; the state it manages is mutable."
+        ],
+        [
+          "What happens on a revert?",
+          "All state changes are rolled back and the call fails, but the gas consumed is still paid - only unused gas is refunded."
+        ],
+        [
+          "Why does gas exist?",
+          "To price every operation and to bound execution, so a contract can never run forever and freeze the chain."
+        ],
+        [
+          "How does an application learn that a contract changed?",
+          "It subscribes to the contract's events - logs written to the transaction log, not state variables."
+        ],
+        [
+          "How is access control enforced?",
+          "In the contract's own code - owner and role checks, usually in modifiers, deciding which caller may invoke which function."
+        ],
+        [
+          "What does a plain ETH transfer cost and what does that imply for block capacity?",
+          "21,000 gas, so about 0.00042 ETH at 20 gwei, and roughly 1,400 such transfers fit in a 30-million-gas block."
+        ],
+        [
+          "Why can every node trust the result without trusting each other?",
+          "Because execution is deterministic - the same transaction on the same state produces the same result on every node, and the root commits to it."
+        ]
+      ],
+      "revision": "deploy -> address -> call -> gas-metered execute -> event; code frozen, state moves."
+    }
+  ]
+}

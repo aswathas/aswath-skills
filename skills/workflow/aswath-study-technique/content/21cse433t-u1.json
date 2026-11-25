@@ -1,0 +1,795 @@
+{
+  "unit": 1,
+  "glossary": {
+    "Ledger": {
+      "definition": "An ordered, append-only record of transactions that all participants agree is authoritative.",
+      "whyItMatters": "Blocks, consensus, hashes and signatures all exist to keep many copies of one ledger in agreement without a trusted owner.",
+      "confusions": [
+        "A ledger is not a database: it does not support UPDATE or DELETE in place.",
+        "A ledger records state transitions, not balances as separate truth."
+      ],
+      "topics": [
+        "History of Blockchain",
+        "Terminologies in Blockchain",
+        "How blockchain works"
+      ]
+    },
+    "Block": {
+      "definition": "A batch of transactions plus a header that commits to those transactions and to the block before it.",
+      "whyItMatters": "The block is the unit that carries both the proof of work and the tamper-evidence of the chain.",
+      "confusions": [
+        "A block stores the previous block's HASH, not the previous block itself.",
+        "The body holds the transactions; the header holds the commitments (Merkle root, previous hash, timestamp, nonce, difficulty)."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "How blockchain works",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Nonce": {
+      "definition": "The arbitrary number in a block header that a miner varies until the header's hash falls below the difficulty target.",
+      "whyItMatters": "The nonce is the entire search space of proof of work; the MCQ on this term is the classic 1-marker.",
+      "confusions": [
+        "The nonce is NOT the block number, and NOT the timestamp.",
+        "It is not 'the number of transactions' - it is the trial value that makes the hash qualify."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Difficulty": {
+      "definition": "The measure of how hard the target is to satisfy, encoded as the leading-zero requirement of a valid block hash.",
+      "whyItMatters": "Difficulty is the network's throttle on block production and the source of the security budget.",
+      "confusions": [
+        "Difficulty is not the block time; it is what keeps the block time near the target.",
+        "Difficulty is not 'the number of transactions per block'."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Block time": {
+      "definition": "The average time gap between two consecutive blocks in a chain.",
+      "whyItMatters": "Block time plus confirmation count is how you state finality in the exam - about 6 confirmations at 10 minutes each.",
+      "confusions": [
+        "Block time is an average, not a guarantee.",
+        "Confirmation depth, not block time, is what determines when a transaction is considered settled."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "How blockchain works"
+      ]
+    },
+    "Node": {
+      "definition": "A participant's machine that stores a copy of the ledger and independently validates and relays blocks and transactions.",
+      "whyItMatters": "The node count is the replication factor; it is what makes the ledger tamper-evident rather than merely copied.",
+      "confusions": [
+        "A node is not a wallet: the node holds the ledger, the wallet holds the keys.",
+        "A full node validates every block; a light node only checks headers."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "History of Blockchain",
+        "Types of Blockchain"
+      ]
+    },
+    "Wallet": {
+      "definition": "The software that holds a user's keypair and signs transactions; it stores coins as spending rights, not as entries.",
+      "whyItMatters": "Saying 'wallet holds keys, not coins' is the standard marker for the node/wallet/address distinction.",
+      "confusions": [
+        "A wallet does not hold the coins; the coins are entries in the ledger, and the wallet holds the right to spend them.",
+        "A wallet is not a node; it does not validate the whole chain."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Address": {
+      "definition": "A short public identifier derived by hashing a public key, used as the destination and proof of ownership of funds.",
+      "whyItMatters": "Address vs public key is a standard examiner trap: the address is 20 bytes (160 bits), the public key 32 bytes.",
+      "confusions": [
+        "An address is not a public key - it is a hash of it.",
+        "An address is not an account number held in a database row; it is derived from a key."
+      ],
+      "topics": [
+        "Terminologies in Blockchain",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Consensus": {
+      "definition": "The protocol by which independent nodes agree on one canonical ordering of transactions and which chain is authoritative.",
+      "whyItMatters": "Consensus is what replaces the trusted third party; every other ingredient exists to make consensus safe.",
+      "confusions": [
+        "Consensus is not the same as mining; mining is one way of achieving consensus.",
+        "Consensus is not agreement on facts - it is agreement on one ordering of records."
+      ],
+      "topics": [
+        "How blockchain works",
+        "Types of Blockchain",
+        "Ingredients of Blockchain"
+      ]
+    },
+    "Double spending": {
+      "definition": "Spending the same units of value twice by creating two conflicting versions of the same transaction.",
+      "whyItMatters": "It is the original problem blockchain was invented to solve, and the answer (consensus plus chain rewrite cost) is the first thing to say in any history question.",
+      "confusions": [
+        "Double spending is not prevented by cryptography alone - it is prevented by consensus making one version canonical.",
+        "A double spend is detected and orphaned, not 'prevented at entry'."
+      ],
+      "topics": [
+        "History of Blockchain",
+        "How blockchain works"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "History of Blockchain",
+      "definition": "Blockchain is the layered history of shared ledgers in which the key eras are centralised databases with double-spending problems, Bitcoin's 2008 proof-of-work chain, Ethereum's 2015 programmable chain, and the 2016+ move into governed permissioned enterprise ledgers.",
+      "problem": "A ledger needs one trusted keeper, but a keeper can rewrite history and two parties who do not share a database can each accept a different version of the same payment - the double-spending problem. Replication alone did not solve it: copies diverge and there is no referee.",
+      "mechanism": [
+        "Pre-Bitcoin era: one organisation owned the ledger; trust came from the owner (a bank, a clearing house, a government registry), and double spending was handled by that owner's rules.",
+        "1989-1996 groundwork: Hashcash (1992) priced a message by proof of computational work, and e-cash systems (DigiCash, 1995) attempted digital money with an issuer - both still had a central party.",
+        "2008-2009 Bitcoin: the whitepaper (October 2008) solved double spending without an issuer by making forgery more expensive than honesty; the genesis block was mined in January 2009, with each block committing to the previous block's hash.",
+        "2014-2015 Ethereum: the yellow paper (2014) and mainnet launch (July 2015) kept the same hash-linked ledger but made it Turing-complete, so rules could be written as smart contracts rather than hard-coded in each client.",
+        "2015-2016 permissioned era: Hyperledger Fabric 1.0 shipped in 2016 and Corda followed, moving the same machinery into networks of known organisations where consensus is governance-driven rather than mining-driven.",
+        "2017 onwards: tokenisation, DeFi and CBDCs added assets and regulation to the public chain, while enterprise consortia (TradeLens, we.trade) added identity and privacy controls to the permissioned side."
+      ],
+      "terminology": [
+        [
+          "Genesis block",
+          "The first block of a chain, block 0, whose hash every later block commits to."
+        ],
+        [
+          "Whitepaper",
+          "The original design document - Bitcoin's was posted to arXiv in October 2008 by Satoshi Nakamoto."
+        ],
+        [
+          "Turing-complete",
+          "A language able to express any computable function - Ethereum's Smart Contracts being the practical case, and the reason they could be called 'programmable money'."
+        ],
+        [
+          "Permissioned / consortium",
+          "A chain whose writers are known, vetted legal entities operating under a shared governance agreement."
+        ],
+        [
+          "DeFi",
+          "Decentralised finance - lending, trading and derivatives built from smart contracts on a public chain."
+        ],
+        [
+          "CBDC",
+          "Central bank digital currency - a state-issued token on a distributed ledger."
+        ],
+        [
+          "Double spending",
+          "Spending the same value twice via two conflicting transactions - the problem Bitcoin was built to end."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Trace the development of blockchain from centralised databases to permissioned enterprise ledgers, naming the milestones in each era.",
+        "points": [
+          "1 mark - Problem: a shared ledger needed a trusted owner, and without one, parties could spend the same value twice (double spending).",
+          "1 mark - Pre-Bitcoin: ledgers were centralised; trust and reconciliation were handled by banks, clearing houses and central registries.",
+          "1 mark - 2008-2009: Bitcoin's whitepaper (October 2008) and genesis block (January 2009) solved double spending by making forgery more expensive than honesty, chaining each block to the previous block's hash.",
+          "1 mark - 2014-2015: Ethereum's yellow paper (2014) and mainnet (July 2015) made the ledger programmable through Turing-complete smart contracts.",
+          "1 mark - 2016 onwards: Hyperledger Fabric 1.0 and Corda took the machinery into permissioned/consortium ledgers where known, vetted organisations agree under a governance agreement instead of open mining.",
+          "Conclusion: one per era - open (Bitcoin), programmable (Ethereum), governed (permissioned chains); each era removed a different bottleneck, trust, flexibility and control."
+        ]
+      },
+      "traps": [
+        "Do not give the whitepaper year as 2009 - the whitepaper is October 2008; January 2009 is the genesis block.",
+        "Do not say Bitcoin removed the need for trust. It replaced trust in an owner with trust in economic cost and consensus.",
+        "Do not call Ethereum a faster Bitcoin - its contribution was programmability, not throughput.",
+        "Do not merge the permissioned era into 2015; Hyperledger Fabric 1.0 is 2016.",
+        "Do not say double spending was 'solved by cryptography' - the signature only proves authenticity; consensus makes one version canonical."
+      ],
+      "revision": "Trust in an owner → trust in economic cost → trust in code → trust in governance. Bitcoin 2008/09, Ethereum 2014/15, Fabric 2016.",
+      "recall": [
+        [
+          "What problem did Bitcoin solve that e-cash had not?",
+          "Double spending without a trusted issuer - e-cash still needed an issuer to prevent double spending."
+        ],
+        [
+          "What are the three eras and one milestone each?",
+          "Open: Bitcoin whitepaper 2008/genesis 2009. Programmable: Ethereum yellow paper 2014, mainnet 2015. Governed: Hyperledger Fabric 1.0, 2016."
+        ],
+        [
+          "Why was Hashcash (1992) important?",
+          "It priced a message by proof of computational work - the same idea Bitcoin later used to make history expensive to rewrite."
+        ],
+        [
+          "What did Ethereum add that Bitcoin lacked?",
+          "Turing-complete smart contracts, so rules could be deployed as code instead of hard-coded in every client."
+        ],
+        [
+          "What changed in the permissioned era?",
+          "Writers are known, vetted legal entities and consensus is a governance agreement (BFT/ordering service) rather than open mining."
+        ],
+        [
+          "What is the one-line summary of the whole history?",
+          "Trust in an owner was replaced by trust in economic cost, then by trust in governance."
+        ]
+      ]
+    },
+    {
+      "name": "Terminologies in Blockchain",
+      "definition": "The fixed vocabulary of a blockchain - block, header, chain, nonce, difficulty, block time, fork, node, wallet and address - in which each term names one part of the machinery that makes an append-only, tamper-evident shared record.",
+      "problem": "Students routinely blur node, wallet and address, and treat nonce, difficulty and block time as the same thing; a marker who sees this will cap the definitional marks however good the rest of the answer is.",
+      "mechanism": [
+        "Transaction layer: a sender signs a transaction with the private key and pays to an address - a hash of the recipient's public key, 20 bytes (160 bits) printed as a 26-35 character Base58Check string, while the public key itself is 32 bytes (64 hex characters).",
+        "Block body: validated transactions are collected and summarised into a Merkle root, a single hash that commits to every transaction in the block.",
+        "Block header: the header holds the previous block's hash, the Merkle root, a timestamp, the difficulty target and the nonce - the header is what is hashed, and the body is what it commits to.",
+        "Proof of work: the miner varies the nonce until SHA-256(header) produces a hash below the target; the number of leading zero bits required is the difficulty, and it is adjusted every 2016 blocks (about two weeks) to hold the block time near 600 seconds.",
+        "Chain and fork: each new block stores the previous block's hash, so blocks form a hash chain; if two nodes produce competing blocks at the same height the chain forks, and the network converges on the branch with the greater accumulated work (soft fork) or on the branch that required a protocol upgrade (hard fork).",
+        "Actors: a node is a machine that stores the ledger and validates blocks, a wallet is software that holds the keypair and signs, and an address is the derived public identifier for receiving funds."
+      ],
+      "terminology": [
+        [
+          "Block",
+          "A batch of transactions plus a header; the header commits to the transactions and to the previous block."
+        ],
+        [
+          "Block header",
+          "The hashed part of a block: previous block hash, Merkle root, timestamp, difficulty target, nonce."
+        ],
+        [
+          "Chain",
+          "The sequence of blocks where each block stores the hash of its predecessor."
+        ],
+        [
+          "Nonce",
+          "The 32-bit number varied in the header until the header hash falls below the target; the search space of proof of work."
+        ],
+        [
+          "Difficulty",
+          "How hard the target is to satisfy, encoded as required leading zero bits; retargeted every 2016 blocks to hold ~10 minute blocks."
+        ],
+        [
+          "Block time",
+          "The average gap between consecutive blocks; about 10 minutes on Bitcoin, seconds on some permissioned chains."
+        ],
+        [
+          "Fork",
+          "A split in the chain into two competing branches, resolved by accumulated work (soft fork) or a protocol change (hard fork)."
+        ],
+        [
+          "Node",
+          "A machine that stores a copy of the ledger and independently validates and relays blocks and transactions."
+        ],
+        [
+          "Wallet",
+          "Software holding the user's keypair and signing transactions; it holds keys, not coins."
+        ],
+        [
+          "Address",
+          "RIPEMD-160(SHA-256(public key)), 20 bytes, the destination identifier for funds."
+        ],
+        [
+          "Merkle root",
+          "A single hash committing to all transactions in a block."
+        ],
+        [
+          "Genesis block",
+          "Block 0, the first block of the chain."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Define the key terminologies of blockchain - block, chain, nonce, difficulty, block time, fork, node, wallet and address - and explain how they fit together.",
+        "points": [
+          "1 mark - Block: a batch of transactions plus a header containing the previous block's hash, Merkle root, timestamp, difficulty target and nonce.",
+          "1 mark - Chain: the sequence of blocks in which each block stores the hash of the block before it, so altering history breaks every later link.",
+          "1 mark - Nonce: the number varied in the header until the header hash falls below the target; it is the search space of proof of work, not the block number.",
+          "1 mark - Difficulty: the measure of how hard the target is, expressed as required leading zero bits; retargeted every 2016 blocks to keep the block time at about 600 seconds.",
+          "1 mark - Block time: the average interval between blocks, about 10 minutes on Bitcoin and seconds on some permissioned chains.",
+          "1 mark - Fork: a split into competing branches, resolved by accumulated work (soft fork) or by a protocol upgrade (hard fork).",
+          "1 mark - Node: a machine that stores a copy of the ledger and validates and relays blocks; a full node validates every block.",
+          "1 mark - Wallet: software that holds the user's keypair and signs transactions - it holds keys, not coins.",
+          "1 mark - Address: RIPEMD-160 applied to SHA-256 of the public key, 20 bytes (160 bits), printed as a 26-35 character Base58Check string, while the public key itself is 32 bytes (64 hex characters).",
+          "1 mark - Hash function: SHA-256 maps any input to a fixed 256-bit output; a one-bit change alters the whole output, which is what makes history tamper-evident.",
+          "1 mark - Merkle root: a single hash in the header committing to every transaction in the block body.",
+          "2 marks - How they fit: transactions are signed to an address, collected into a block whose header commits to them via the Merkle root and to the previous block via its hash, and the nonce is varied until the header hash satisfies the difficulty target, so the new block extends the chain.",
+          "1 mark - MCQ note: the nonce is what makes the search for a qualifying hash possible - it is varied until the hash is below the target, and the difficulty is how hard that search is."
+        ]
+      },
+      "traps": [
+        "Do not swap node, wallet and address: node holds the ledger, wallet holds the keys, address is a hash of the public key.",
+        "Do not say a block contains the previous block - it contains the previous block's HASH.",
+        "Do not define the nonce as the block number or the transaction count.",
+        "Do not say the address is the public key. The address is 20 bytes derived by RIPEMD-160(SHA-256(public key)); the public key is 32 bytes.",
+        "Do not say a wallet 'holds your coins' - the coins are ledger entries; the wallet holds the spending right.",
+        "Do not say a fork is always a bug; it is a chain split, and how it resolves depends on accumulated work and protocol version.",
+        "Do not say the difficulty target is 'the block time' - difficulty is retargeted to hold the block time."
+      ],
+      "revision": "Block = body + header; header = prev-hash + Merkle root + time + difficulty + nonce. Node keeps ledger, wallet keeps keys, address = hash of pubkey.",
+      "recall": [
+        [
+          "What does the nonce do?",
+          "It is the varying number in the header that the miner changes until the header's hash falls below the difficulty target."
+        ],
+        [
+          "What is the difference between difficulty and block time?",
+          "Difficulty is how hard the target is to beat; block time is the resulting average gap between blocks."
+        ],
+        [
+          "What is in a block header?",
+          "Previous block hash, Merkle root, timestamp, difficulty target and nonce."
+        ],
+        [
+          "How is an address derived from a public key?",
+          "RIPEMD-160 applied to SHA-256 of the public key, giving 20 bytes printed as a 26-35 character Base58Check string."
+        ],
+        [
+          "What is a fork and how is it resolved?",
+          "A split into competing branches at the same height; resolved by the branch with greater accumulated work (soft fork) or by a protocol upgrade (hard fork)."
+        ],
+        [
+          "What is the difference between a node and a wallet?",
+          "The node stores and validates the whole ledger; the wallet holds the keypair and signs transactions."
+        ],
+        [
+          "What commits to all transactions in a block?",
+          "The Merkle root in the block header."
+        ],
+        [
+          "How often is Bitcoin difficulty retargeted?",
+          "Every 2016 blocks, about two weeks, to hold the block time near 600 seconds."
+        ]
+      ]
+    },
+    {
+      "name": "Types of Blockchain",
+      "definition": "Blockchain types are the governance models that decide who may read and write a shared ledger and who owns its rules - public (open to all, trust from economics), private (one owner), consortium (named members jointly governed) and hybrid (public settlement with private business data).",
+      "problem": "One chain design cannot fit both a public token and a bank consortium; choosing wrongly means either paying for mining on a ledger where members already trust each other, or giving up the shared reach that made the ledger worth building.",
+      "mechanism": [
+        "Axis 1 - permissioning: decide who may read and write. Open (anyone, with a pseudonym as identity) or permissioned (named, KYC-ed legal identities admitted by a gatekeeper).",
+        "Axis 2 - ownership and liability: decide who owns the rules and who is liable for them - one organisation, a group of them, or nobody in particular.",
+        "Trust source follows from the axes: an open chain has no gatekeeper, so trust comes from economics (proof of work or proof of stake) and the cost of rewriting history; a permissioned chain has a gatekeeper, so trust comes from the governance agreement, the KYC-ed identities and the audit trail.",
+        "Governance follows next: public chains govern through protocol rules and node consensus; consortium chains govern through a council of member organisations and a jointly held charter; private chains govern through the owning organisation's change-control board.",
+        "Choose the type by the use case, then check the fit: cross-border settlement between unknown counterparties wants public reach and economic finality; a vetted supply-chain consortium wants named members, shared liability and low latency.",
+        "Hybrid chains split the two roles: the public chain carries the token and the settlement finality, while a private channel or a permissioned side-chain carries the confidential business data."
+      ],
+      "terminology": [
+        [
+          "Public chain",
+          "Open to anyone; identity is pseudonymous; consensus is economic - proof of work or proof of stake (Bitcoin, Ethereum)."
+        ],
+        [
+          "Private chain",
+          "Owned and controlled by one organisation, which alone validates and writes (Corda enterprise deployments)."
+        ],
+        [
+          "Consortium chain",
+          "Owned and governed jointly by a known group of organisations, with shared liability (Hyperledger Fabric, we.trade)."
+        ],
+        [
+          "Hybrid chain",
+          "Public layer for asset settlement and finality, private layer for confidential business data."
+        ],
+        [
+          "Gatekeeper",
+          "The body that admits participants - absent in a public chain, present and named in permissioned chains."
+        ],
+        [
+          "KYC",
+          "Know Your Customer checks - the identity vetting that makes a participant legally accountable."
+        ],
+        [
+          "Sybil resistance",
+          "The property that stops one entity flooding the network with fake identities to gain disproportionate influence."
+        ],
+        [
+          "BFT consensus",
+          "Byzantine Fault Tolerance voting - the fault-tolerant voting used by permissioned chains in place of mining."
+        ],
+        [
+          "Ordering service",
+          "A Fabric component that orders transactions so that all peers see them in the same sequence."
+        ],
+        [
+          "Shared liability",
+          "In a consortium, members are jointly answerable for the ledger's rules and its records."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Compare public, private, consortium and hybrid blockchains on permissioning, identity, consensus and governance, and say which type fits a vetted supply-chain consortium.",
+        "points": [
+          "1 mark - Two axes decide the type: who may write to the ledger (open or permissioned) and who owns it (one organisation, a group, or everybody).",
+          "1 mark - Public chain (Bitcoin, Ethereum): anyone may read and write under a pseudonym, no gatekeeper, consensus is economic (proof of work or proof of stake), governance is protocol rules plus node consensus, and reach is global.",
+          "1 mark - Private chain: one organisation owns and controls the ledger, admits its own members, and can use a simple majority or even a single validator; fast and cheap but the trust problem returns inside the firm.",
+          "1 mark - Consortium chain (Fabric, Corda, Quorum): a group of known, KYC-ed legal entities jointly own the rules and share liability; consensus is voted BFT or an ordering service; identity is named, so accountability is legal rather than economic.",
+          "1 mark - Hybrid chain: public layer carries the token and settlement finality, private layer or channel carries confidential business data.",
+          "1 mark - Trade-off: public buys reach and economic finality at the cost of speed, cost and anonymity; permissioned buys speed, privacy and legal recourse at the cost of a closed membership and a smaller trust pool.",
+          "1 mark - The supply-chain consortium is a CONSORTIUM chain: the members are known and vetted, they share liability and rules, and consensus is voting-based rather than mining-based."
+        ]
+      },
+      "traps": [
+        "Do not say private chains are 'more secure'. They are more controlled; security comes from the governance agreement, not from the word private.",
+        "Do not answer 'consortium' for the supply-chain case without naming the reason: known members, shared rules, joint liability.",
+        "Do not describe a public chain as 'owned by its users'. It has no owner; governance is protocol consensus.",
+        "Do not say permissioned chains use proof of work - they use voting (BFT, Raft/PBFT, ordering services) precisely because members are known.",
+        "Do not call a hybrid chain 'a public chain with a private twist' - say which function sits in which layer."
+      ],
+      "revision": "Two axes: who writes, who owns. Public = anyone writes, nobody owns, trust by economics. Consortium = named members, shared liability.",
+      "recall": [
+        [
+          "What two axes decide the type of blockchain?",
+          "Who may write to the ledger (open or permissioned) and who owns it (one organisation, a group, or everybody)."
+        ],
+        [
+          "Where does trust come from in a public chain?",
+          "Economics - proof of work or proof of stake and the cost of rewriting history - because there is no gatekeeper."
+        ],
+        [
+          "Where does trust come from in a permissioned chain?",
+          "The governance agreement, KYC-ed identities and the audit trail, because a gatekeeper admits the members."
+        ],
+        [
+          "Which type is a vetted supply-chain consortium?",
+          "Consortium - known members, jointly held rules, shared liability, voting-based consensus."
+        ],
+        [
+          "What is the main cost of a private chain?",
+          "It reintroduces the single trusted owner the technology was meant to remove, so it saves little against one database."
+        ],
+        [
+          "What is a hybrid chain?",
+          "Public layer for asset and settlement finality, private layer or channel for confidential business data."
+        ],
+        [
+          "How is a consortium chain different from a private one?",
+          "Several organisations jointly own the rules and share liability; a private chain has a single owner."
+        ]
+      ]
+    },
+    {
+      "name": "Applications of Blockchain",
+      "definition": "Blockchain applications are the domains where several organisations that do not share a trusted database need to agree on one record - payments, supply chain, land registry, healthcare, identity and trade finance - and the ledger is only the recording layer of a wider token- or contract-driven workflow.",
+      "problem": "Where two firms do not share a database, every transaction produces reconciliation work, disputes and delay: a bank's payment to a supplier abroad passes through 2-4 correspondents, each taking a cut and a day, and the two sides keep separate records until someone reconciles them.",
+      "mechanism": [
+        "Recognise the pattern: multiple parties, no shared trusted database, and a need to agree on one record - if only one organisation is involved, a database is the cheaper answer.",
+        "Choose the record and its owner: the shared state might be a title, a bill of lading, a provenance record, a patient credential, or a settlement balance.",
+        "Write the rules as a smart contract or token: the contract encodes the condition for a state change (delivery confirmed, document signed, condition met) so the outcome is automatic rather than negotiated.",
+        "Run the workflow, not just the ledger: the ledger records the state transition; the token or contract enforces it and triggers what happens next - the application is the workflow.",
+        "Measure the payoff in the business terms: reconciliation hours removed, disputes avoided, settlement days cut, correspondent fees eliminated - not in 'decentralisation'.",
+        "Read the domains against the friction each removes: cross-border payments (correspondent fees and days), supply chain (provenance without a central auditor), land registry (one ownership record, no duplicate titles), healthcare (patient-held records across providers), digital identity (reusable credentials, no re-papering), trade finance (document state shared by all parties)."
+      ],
+      "terminology": [
+        [
+          "Smart contract",
+          "Deployed code on the ledger that enforces a rule and triggers an outcome automatically."
+        ],
+        [
+          "Token",
+          "A digital unit carried on the ledger, used to represent value, rights or access."
+        ],
+        [
+          "Provenance",
+          "The verifiable chain of custody of a good - where it came from."
+        ],
+        [
+          "Reconciliation",
+          "Matching two parties' records after the fact; the main cost a blockchain removes."
+        ],
+        [
+          "Interoperability",
+          "The ability of the ledger to work with existing systems and with other chains."
+        ],
+        [
+          "CBDC",
+          "Central bank digital currency - a state-issued token on a distributed ledger."
+        ],
+        [
+          "Digital identity",
+          "Credentials issued and held by the citizen rather than by the relying party."
+        ],
+        [
+          "Trade finance",
+          "Bills of lading, letters of credit and insurance, which today live in silos across counterparties."
+        ],
+        [
+          "Oracle",
+          "A service that brings outside data onto the chain, needed by contracts that depend on it."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Discuss the real-time applications of blockchain, placing each named domain against the problem it solves.",
+        "points": [
+          "1 mark - Common shape: several organisations that do not share a trusted database need to agree on one record; if only one firm is involved, use a database.",
+          "1 mark - The application is the workflow, not the ledger: the ledger records the state transition while tokens or smart contracts enforce and trigger what happens next.",
+          "1 mark - Cross-border payments: cuts correspondent banks' fees and settlement days by making the payment itself the shared record instead of a message between private ledgers.",
+          "1 mark - Supply chain: provenance without a central auditor - every handoff is written by the participants themselves and cannot be quietly edited afterwards.",
+          "1 mark - Land registry: one ownership record with no duplicate titles, cutting disputes over who owns what.",
+          "1 mark - Healthcare: patient-held records that travel across providers without re-papering, with access controlled per record.",
+          "1 mark - Digital identity: reusable credentials the citizen holds, so each service does not re-verify from scratch.",
+          "1 mark - Trade finance: bills of lading and letters of credit whose state is shared by all parties, removing the reconciliation and the fraud that goes with it.",
+          "1 mark - The business case is measured in reconciliation hours and disputes avoided, not in removing the database.",
+          "1 mark - Honest limit: a blockchain is the wrong answer where one party already holds the trusted record, or where the law has not accepted the ledger's record as evidence."
+        ]
+      },
+      "traps": [
+        "Do not just list sectors - the mark is for pairing each domain with the friction it removes.",
+        "Do not say blockchain replaces the database. It replaces the need to reconcile between databases.",
+        "Do not claim it removes the counterparty, the regulator or the legal need for signatures.",
+        "Do not forget the token/contract layer - 'we put the records on a chain' is not an application.",
+        "Do not claim healthcare data can be 'written on the chain' freely - the usual design keeps data off-chain and puts hashes or consent on it."
+      ],
+      "revision": "Ledger records, tokens/contracts enforce. Applications = shared record between parties with no shared database. Payoff in reconciliation hours removed.",
+      "recall": [
+        [
+          "What shape must a blockchain application have?",
+          "Several organisations that do not share a trusted database need to agree on one record."
+        ],
+        [
+          "Is the application the ledger or the workflow?",
+          "The workflow. The ledger records; tokens or contracts enforce and trigger."
+        ],
+        [
+          "What friction does cross-border payment remove?",
+          "Correspondent banks' fees and settlement days."
+        ],
+        [
+          "What friction does supply chain remove?",
+          "The need for a central auditor - provenance is written by the participants."
+        ],
+        [
+          "What does land registry get?",
+          "One ownership record, so there are no duplicate titles."
+        ],
+        [
+          "How is the business case measured?",
+          "In reconciliation hours and disputes avoided."
+        ],
+        [
+          "When is blockchain the wrong answer?",
+          "When one party already holds the trusted record, or the law will not accept the ledger as evidence."
+        ]
+      ]
+    },
+    {
+      "name": "How blockchain works",
+      "definition": "A transaction travels through a fixed seven-step path - sign, broadcast, validate, order, aggregate, agree and append - in which signing proves intent, validation proves the transaction is well formed and affordable, and consensus decides the single ordering every node accepts.",
+      "problem": "A shared ledger only works if every participant accepts the same history, so the network needs a deterministic path from a user's intent to an ordered, final, tamper-evident record - and each step on that path has its own failure mode that must be handled.",
+      "mechanism": [
+        "1 Sign: the sender's wallet signs the transaction with the private key (ECDSA over SHA-256), proving intent and ownership; the signature goes into the transaction and the recipient's address is the hash of the public key.",
+        "2 Broadcast: the signed transaction is pushed to the node's peers, which relay it across the peer-to-peer network until it reaches the mempool of every node.",
+        "3 Validate: each node independently checks the transaction is well formed and affordable - valid signature, inputs previously unspent, output sum not exceeding input sum, and fee at or above the mempool minimum; invalid transactions are dropped.",
+        "4 Order: transactions sit in the mempool and are ordered by fee rate (Bitcoin) or by an ordering service (Fabric); the ordering is only a proposal, not yet agreed.",
+        "5 Aggregate: the ordered transactions are packed into a block, and their hashes are summarised into a Merkle root; the header holds the previous block's hash, the Merkle root, a timestamp, the difficulty target and the nonce.",
+        "6 Agree: the miner varies the nonce until SHA-256 of the header is below the target (proof of work) or the validator set reaches a voting quorum (BFT); the branch with the greatest accumulated work is the canonical one.",
+        "7 Append: the new block is broadcast and accepted by every node, which checks the hash link and stores it; the chain therefore extends by one block, and any later edit would require redoing all the work after the changed block."
+      ],
+      "terminology": [
+        [
+          "Mempool",
+          "The pool of valid but not yet confirmed transactions held by a node."
+        ],
+        [
+          "Fee rate",
+          "Fee per byte of transaction size, the priority key used to order the mempool."
+        ],
+        [
+          "Mining",
+          "The repeated hashing of the block header with varying nonces to find a hash below the target."
+        ],
+        [
+          "Difficulty target",
+          "The 256-bit number the block hash must be below; the leading-zero count encodes the difficulty."
+        ],
+        [
+          "Merkle root",
+          "The hash of the transaction hashes, stored in the header, committing to every transaction in the body."
+        ],
+        [
+          "Accumulated work",
+          "The total difficulty behind a branch; the branch with more of it is canonical."
+        ],
+        [
+          "Confirmation",
+          "A block built on top of the one containing the transaction; depth is a measure of confidence."
+        ],
+        [
+          "Finality",
+          "The point at which a transaction is treated as settled - in Bitcoin about 6 confirmations, roughly 60 minutes at a 10 minute block time, with the chance of a fork overtaking it falling about as (1/2)^6, near 1.6%."
+        ],
+        [
+          "Double spend",
+          "Two conflicting transactions spending the same input; one is orphaned by consensus."
+        ],
+        [
+          "Reorganisation",
+          "The chain switching to a branch with greater accumulated work."
+        ],
+        [
+          "Light node",
+          "A node that validates headers only and fetches transactions on demand."
+        ],
+        [
+          "Fee market",
+          "The supply of block space against the demand for it, which is what sets the fee level."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Trace the lifecycle of a transaction in a blockchain from signing through broadcast, validation, block assembly, consensus and appending, and explain what a tampered historical transaction forces the network to redo.",
+        "points": [
+          "1 mark - Signing: the wallet signs with the private key, proving intent and ownership; the recipient's address is the hash of the public key.",
+          "1 mark - Broadcast: the signed transaction is relayed peer to peer until it reaches the mempool of every node.",
+          "1 mark - Validation: each node independently checks the signature, that the inputs are unspent, that outputs do not exceed inputs, and that the fee is acceptable; invalid transactions are dropped.",
+          "1 mark - Ordering: transactions are ordered in the mempool by fee rate or by an ordering service; this ordering is only a proposal.",
+          "1 mark - Aggregation: the ordered transactions form the block body and are summarised into a Merkle root; the header carries the previous block's hash, Merkle root, timestamp, difficulty target and nonce.",
+          "1 mark - Consensus: the nonce is varied until the header hash is below the target (proof of work) or a validator quorum votes (BFT); the branch with the greatest accumulated work becomes canonical.",
+          "1 mark - Appending: the block is broadcast, every node verifies the hash link and stores it, and the chain grows by one block.",
+          "2 marks - Tampered history: because each block commits to the previous block's hash, changing a historical transaction changes that block's hash and therefore every later hash, so the network must recompute the hashes and the proof of work of all subsequent blocks - the block where the tamper sits plus every block after it - which on Bitcoin means redoing from that height to the tip, including the unspent-output set.",
+          "1 mark - Consequence: this is why the chain is append-only in practice rather than by law - a rewrite is technically possible but economically irrational, since the attacker must out-spend the honest work done since that block.",
+          "1 mark - Finality is empirical: users accept about 6 confirmations, roughly 60 minutes at a 10 minute block time, and the chance of a fork overtaking that falls roughly as (1/2)^6, about 1.6%."
+        ]
+      },
+      "traps": [
+        "Do not merge broadcast and validation - a node accepts a transaction into the mempool only after checking it.",
+        "Do not say the transaction is 'confirmed' at signing or at mempool entry; confirmation is a block on top.",
+        "Do not say the network redoes only the changed block - it must redo every block after it, since each commits to the previous hash.",
+        "Do not say consensus orders transactions - ordering is proposed in the mempool, consensus is what makes it agreed.",
+        "Do not claim finality is mathematical. On Bitcoin it is probabilistic and empirical (about 6 confirmations).",
+        "Do not say 'the chain is immutable by design'. It is append-only in practice, because rewriting is economically irrational."
+      ],
+      "revision": "Sign → Broadcast → Validate → Order → Aggregate → Agree → Append. Tamper one old block and you redo every block to the tip.",
+      "recall": [
+        [
+          "Name the seven steps in order.",
+          "Sign, broadcast, validate, order, aggregate, agree, append."
+        ],
+        [
+          "What does signing prove?",
+          "Intent and ownership of the funds - it does not prove the transaction is affordable."
+        ],
+        [
+          "What does validation check?",
+          "Signature validity, that inputs are unspent, that outputs do not exceed inputs, and that the fee is acceptable."
+        ],
+        [
+          "What does a tampered historical transaction force the network to redo?",
+          "Every block from the tampered block to the tip - their hashes and proof of work all change."
+        ],
+        [
+          "Why is that expensive?",
+          "The attacker must out-spend all the honest proof of work done since that block, and the unspent-output set must be rebuilt."
+        ],
+        [
+          "How many confirmations does Bitcoin need for practical finality?",
+          "About 6, roughly 60 minutes at a 10 minute block time, with fork risk falling about as (1/2)^6."
+        ],
+        [
+          "What is the mempool?",
+          "The pool of validated but unconfirmed transactions, ordered by fee rate."
+        ],
+        [
+          "Which step decides the canonical chain?",
+          "Consensus - the branch with the greatest accumulated work."
+        ],
+        [
+          "What does the Merkle root commit to?",
+          "Every transaction in the block body, in one hash."
+        ]
+      ]
+    },
+    {
+      "name": "Ingredients of Blockchain",
+      "definition": "A blockchain is assembled from a hash function, digital signatures, asymmetric key pairs, a distributed ledger, a consensus mechanism, timestamps and a mining or leader-election step, each ingredient removing exactly one attack on the shared record.",
+      "problem": "Copying a database around fixes availability but not honesty, and signing transactions fixes forgery but not ordering or history - a shared ledger needs a set of parts where each one closes a specific hole and no hole is left open.",
+      "mechanism": [
+        "Hash function: SHA-256 turns any input into a fixed 256-bit digest, so each block can commit to the previous block's hash and to its own transactions through a Merkle root - this defeats tampering, because a one-bit edit changes the whole digest and breaks every later link.",
+        "Digital signature: the sender signs with the private key and anyone verifies with the public key, proving authorship and preventing forgery and repudiation without a trusted third party.",
+        "Asymmetric key pairs: the private key signs, the public key verifies, and the address is a hash of the public key - this defeats impersonation and gives every participant control of its own identity with no account issuance.",
+        "Distributed ledger and peer-to-peer network: every node keeps its own copy, so there is no single point of failure and no gatekeeper who can suppress a transaction.",
+        "Consensus mechanism: proof of work (economic, open chains) or BFT voting (permissioned chains) picks one canonical ordering, defeating conflicting histories - the double-spend problem.",
+        "Timestamps and mining or leader election: the timestamp prevents backdating and bounds the window for a rewrite, while mining (or its permissioned equivalent, a leader/round-robin election) is the Sybil defence - it makes an identity cost resources, so flooding the network with fake identities buys no extra weight."
+      ],
+      "terminology": [
+        [
+          "Hash function",
+          "SHA-256, a one-way, collision-resistant map to a fixed 256-bit digest; the backbone of tamper-evidence."
+        ],
+        [
+          "Digital signature",
+          "ECDSA or EdDSA output that proves the holder of the private key authorised a specific transaction."
+        ],
+        [
+          "Asymmetric key pair",
+          "A private key that signs and a public key that verifies; the address is derived from the public key."
+        ],
+        [
+          "Distributed ledger",
+          "A record replicated across many nodes rather than held by one owner."
+        ],
+        [
+          "Consensus mechanism",
+          "The rule by which nodes agree on one ordering - proof of work, proof of stake, or BFT voting."
+        ],
+        [
+          "Timestamp",
+          "The block's creation time in the header, which bounds how far back a rewrite can be prepared."
+        ],
+        [
+          "Mining",
+          "Repeatedly hashing the header with varying nonces to find a hash below the target; the Sybil resistance of open chains."
+        ],
+        [
+          "Sybil attack",
+          "One entity creating many fake identities to capture a disproportionate share of influence."
+        ],
+        [
+          "Merkle root",
+          "The header hash committing to all transactions in the body."
+        ],
+        [
+          "Proof of stake",
+          "Consensus where validators lock coins and are chosen in proportion to their stake, replacing mining's energy burn."
+        ],
+        [
+          "Nonces / target",
+          "The varied search value and the 256-bit threshold the header hash must fall below."
+        ],
+        [
+          "51% attack",
+          "A majority of hash power rewriting recent history; expensive, and it does not undo old confirmations."
+        ]
+      ],
+      "examAnswer": {
+        "question": "List the ingredients of a blockchain and explain the role each one plays.",
+        "points": [
+          "1 mark - Hash function (SHA-256): commits each block to the previous block's hash and to its own transactions via the Merkle root, so any edit to history is detectable - this defeats tampering.",
+          "1 mark - Digital signature: the sender signs with the private key, anyone verifies with the public key, proving authorisation and preventing forgery and repudiation.",
+          "1 mark - Asymmetric key pairs: private key signs, public key verifies, and the address is a hash of the public key - identity is self-issued, defeating impersonation.",
+          "1 mark - Distributed ledger: every node keeps a copy, so there is no single point of failure and no owner who can suppress a record.",
+          "1 mark - Consensus mechanism: proof of work or BFT voting selects one canonical ordering, which is what defeats double spending and conflicting histories.",
+          "1 mark - Timestamps: bound how far back a rewrite can be prepared and prevent backdating of records.",
+          "1 mark - Mining (or leader election in permissioned chains): the Sybil defence - influence is bought with resources, so flooding the network with fake identities gains nothing.",
+          "1 mark - Combination: the ingredients only work together - a signature without an ordering rule merely signs messages nobody has agreed to put in order, and a hash chain without consensus is just a chain the nodes disagree about.",
+          "1 mark - Honest limit: none of the ingredients is an input-sanity check; a validly signed but nonsensical transaction still needs business rules, which is what smart contracts add."
+        ]
+      },
+      "traps": [
+        "Do not say the digital signature provides confidentiality - it provides authenticity and non-repudiation, and the transaction is public.",
+        "Do not say hashing provides confidentiality - it provides integrity and tamper-evidence.",
+        "Do not list 'decentralisation' or 'immutability' as ingredients; they are consequences of the parts.",
+        "Do not say mining validates transactions - validation happens before mining; mining decides order and finality.",
+        "Do not present the ingredients as a random list; each one answers a named attack.",
+        "Do not claim the ingredients are sufficient on their own - consensus is what makes them safe together."
+      ],
+      "revision": "Hash beats tampering, signature beats forgery, keys beat impersonation, replication beats single-point failure, consensus beats conflicting history, timestamp beats backdating, mining beats Sybil.",
+      "recall": [
+        [
+          "Which ingredient defeats tampering and how?",
+          "The hash function - each block commits to the previous block's hash, so an edit breaks every later link."
+        ],
+        [
+          "Which ingredient defeats forgery, and what does it not give?",
+          "The digital signature; it gives authenticity and non-repudiation, not confidentiality."
+        ],
+        [
+          "Which ingredient is the Sybil defence?",
+          "Mining in proof of work, or leader election with Sybil-resistant identity in permissioned chains - influence must cost resources."
+        ],
+        [
+          "Which ingredient defeats conflicting histories?",
+          "The consensus mechanism - it picks one canonical ordering, which is what stops double spending."
+        ],
+        [
+          "Which ingredient prevents backdating?",
+          "The timestamp in the block header."
+        ],
+        [
+          "Why is the ingredient list a combination and not a menu?",
+          "Each part closes one hole, but each depends on the others - a signature without an ordering rule signs messages nobody has agreed to place."
+        ],
+        [
+          "What does the distributed ledger remove?",
+          "The single point of failure and the owner who could suppress or censor a record."
+        ]
+      ]
+    }
+  ]
+}

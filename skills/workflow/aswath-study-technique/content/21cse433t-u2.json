@@ -1,0 +1,782 @@
+{
+  "unit": 2,
+  "glossary": {
+    "Plaintext": {
+      "definition": "The original readable message before any transformation is applied.",
+      "whyItMatters": "Naming the input and output precisely is the first mark of every encryption question.",
+      "confusions": [
+        "Plaintext is the message, not the key.",
+        "Ciphertext of the same plaintext under the same key must be identical in a deterministic cipher."
+      ],
+      "topics": [
+        "Encryption and Decryption",
+        "Introduction to cryptography"
+      ]
+    },
+    "Ciphertext": {
+      "definition": "The scrambled output of encrypting plaintext with a key, from which the plaintext cannot be recovered without the key.",
+      "whyItMatters": "The cipher's whole job is to make ciphertext leak nothing to an interceptor.",
+      "confusions": [
+        "Ciphertext is not the encrypted key; in a hybrid scheme the session key encrypts data and the asymmetric key protects the session key.",
+        "A ciphertext longer than the plaintext is normal for a block cipher in CBC/CTR with a nonce."
+      ],
+      "topics": [
+        "Encryption and Decryption",
+        "Ciphers"
+      ]
+    },
+    "Cipher": {
+      "definition": "The published algorithm that performs encryption and decryption; only the key, not the algorithm, is secret.",
+      "whyItMatters": "Separating algorithm from key is what lets a cipher be a public standard while the message stays secret.",
+      "confusions": [
+        "Security through obscurity of the algorithm is not security; assume the attacker knows the cipher.",
+        "The cipher is not the mode; the mode decides how blocks are chained."
+      ],
+      "topics": [
+        "Ciphers",
+        "Encryption and Decryption"
+      ]
+    },
+    "Symmetric Key": {
+      "definition": "A single shared secret used by both parties to encrypt and decrypt the same data.",
+      "whyItMatters": "It is fast and strong, but every user pair needs its own key, which is the key-distribution problem.",
+      "confusions": [
+        "Symmetric does not mean weaker; AES-256 is far stronger than any practical asymmetric scheme today.",
+        "Symmetric encryption gives confidentiality only, not authentication or non-repudiation."
+      ],
+      "topics": [
+        "Encryption and Decryption",
+        "Ciphers"
+      ]
+    },
+    "Asymmetric Key Pair": {
+      "definition": "Two mathematically linked keys where the public key may be published freely and the private key is kept secret; either can encrypt or verify for the other.",
+      "whyItMatters": "It solves key distribution and it is what gives blockchain its addresses and its proof of authority.",
+      "confusions": [
+        "Public key encryption uses the recipient's public key; signing uses the sender's private key.",
+        "A key pair is not two independent keys; one is derived from the other."
+      ],
+      "topics": [
+        "Encryption and Decryption",
+        "Introduction to cryptography"
+      ]
+    },
+    "Digital Signature": {
+      "definition": "A value produced by hashing a message with a private key that anyone can verify with the matching public key, proving authorship and preventing later denial.",
+      "whyItMatters": "It is the blockchain equivalent of a bank signature and it is what makes a spend provably authorised.",
+      "confusions": [
+        "Signing is not encryption; the signed message is not secret.",
+        "A signature alone gives no confidentiality."
+      ],
+      "topics": [
+        "Introduction to cryptography",
+        "Encryption and Decryption"
+      ]
+    },
+    "Cryptographic Hash": {
+      "definition": "A deterministic, fixed-length, one-way function that maps any input to a fixed-size digest and cannot be reversed.",
+      "whyItMatters": "It is the fingerprint every blockchain block and address is built on.",
+      "confusions": [
+        "A hash has no key, so nothing can be decrypted from it.",
+        "A checksum such as CRC-32 detects accidental corruption but not a deliberate attacker."
+      ],
+      "topics": [
+        "Hashing algorithms",
+        "SHA-256 algorithm",
+        "Application of SHA algorithm"
+      ]
+    },
+    "Modular Exponentiation": {
+      "definition": "Computing a^b mod p efficiently by repeated squaring, reducing after every multiplication.",
+      "whyItMatters": "It is the single arithmetic operation behind Diffie-Hellman, RSA and every public-key scheme in the syllabus.",
+      "confusions": [
+        "Exponentiation is not commutative in the way addition is; the exponents combine multiplicatively, not the public values additively.",
+        "The modulus must be a large prime for Fermat's little theorem to apply."
+      ],
+      "topics": [
+        "Cryptography using arithmetic modulo primes"
+      ]
+    },
+    "Fermat's Little Theorem": {
+      "definition": "For a prime p and a not divisible by p, a^(p-1) is congruent to 1 modulo p.",
+      "whyItMatters": "It is the algebraic fact that lets exponents be reduced modulo p-1, which is why public-key arithmetic is feasible.",
+      "confusions": [
+        "It requires p prime; it is false for a composite modulus in general.",
+        "It says a^(p-1) = 1, not a^p = a."
+      ],
+      "topics": [
+        "Cryptography using arithmetic modulo primes"
+      ]
+    },
+    "Discrete Logarithm Problem": {
+      "definition": "The problem of recovering the exponent x from g^x mod p, which is computationally infeasible for a large prime p.",
+      "whyItMatters": "Diffie-Hellman's security rests entirely on it; if you could solve it you could read the shared secret.",
+      "confusions": [
+        "It is not the same as factoring; Diffie-Hellman never needs anyone to factor p-1.",
+        "Small toy values such as p = 23 are trivially broken and are for teaching only."
+      ],
+      "topics": [
+        "Cryptography using arithmetic modulo primes"
+      ]
+    },
+    "Merkle Root": {
+      "definition": "A single hash computed by pairing and hashing transaction hashes up the tree until one root hash remains.",
+      "whyItMatters": "It lets a block header commit to every transaction with one 32-byte value instead of a full list.",
+      "confusions": [
+        "The Merkle root is not the block hash; the block hash covers the whole header including the root.",
+        "It is a hash of hashes, so changing one transaction changes the root completely."
+      ],
+      "topics": [
+        "Application of SHA algorithm",
+        "SHA-256 algorithm"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "name": "Introduction to cryptography",
+      "definition": "Cryptography is the study of techniques that let two parties communicate over an untrusted channel so that only the intended reader learns the message, no third party can alter it undetected, the sender is proven to be who they claim to be, and the sender cannot later deny having sent it.",
+      "problem": "Before public-key methods, two parties who wanted a secret message had to meet in person or trust a courier to carry a shared key; a hostile channel could read or swap the message on the way, and either party could afterwards walk away denying what was said.",
+      "mechanism": [
+        "Plaintext: the readable message the sender wants protected.",
+        "Encryption: the keyed transformation that turns plaintext into ciphertext which reveals nothing without the key.",
+        "Key material: the secret that parameterises the transformation — one shared secret in a symmetric scheme, or a linked public/private pair in an asymmetric scheme.",
+        "Decryption: the inverse transformation run with the matching key to recover the plaintext.",
+        "Hashing and signing: a digest needs no key and gives integrity; a signature over that digest gives authentication and non-repudiation.",
+        "Goal check: map each of the four deliverables — confidentiality, integrity, authentication, non-repudiation — to the mechanism that actually supplies it."
+      ],
+      "terminology": [
+        [
+          "Plaintext",
+          "The readable input message."
+        ],
+        [
+          "Ciphertext",
+          "The encrypted, unreadable output."
+        ],
+        [
+          "Key",
+          "The secret that varies the cipher."
+        ],
+        [
+          "Cipher",
+          "The algorithm itself, which is published."
+        ],
+        [
+          "Cryptanalysis",
+          "The study of breaking schemes."
+        ],
+        [
+          "Cryptography",
+          "The study of making schemes secure."
+        ]
+      ],
+      "examAnswer": {
+        "question": "State the objectives of cryptography and the three families of schemes that deliver them. (5 marks)",
+        "points": [
+          "Confidentiality: only the intended reader learns the message; supplied by encryption.",
+          "Integrity: the message cannot be changed without detection; supplied by hashing (and by authenticated modes such as GCM).",
+          "Authentication: the sender is who they claim to be; supplied by a key pair, a MAC, or a signature.",
+          "Non-repudiation: the sender cannot deny the message later; supplied only by a digital signature, since a shared symmetric key lets either party forge.",
+          "Symmetric family: one shared secret, fast, but every pair of users needs its own key (key-distribution problem).",
+          "Asymmetric family: a mathematically linked public/private pair; the public half can be published freely, which solves key distribution but is slower.",
+          "Blockchain note: a public ledger cannot hide what it publishes, so blockchain leans on hashing and signatures and leaves confidentiality to encryption layers and off-chain storage."
+        ]
+      },
+      "traps": [
+        "Do not claim encryption gives integrity or authentication — plain encryption gives confidentiality only.",
+        "Do not call a hash an encryption; a hash has no key and nothing to decrypt.",
+        "Do not say asymmetric is 'more secure'; it is slower and solves key distribution, not strength.",
+        "Do not say a shared symmetric key gives non-repudiation; either party can produce it.",
+        "Do not list the four goals without a mechanism for each — the mapping is the mark."
+      ],
+      "revision": "Four goals (confidentiality, integrity, authentication, non-repudiation) → three families (symmetric, asymmetric, hash+signature) → blockchain uses hashing and signatures, not confidentiality.",
+      "recall": [
+        [
+          "Name the four objectives of cryptography.",
+          "Confidentiality, integrity, authentication, non-repudiation."
+        ],
+        [
+          "Which mechanism alone gives non-repudiation, and why not a shared key?",
+          "A digital signature; a symmetric key is held by both parties so either could forge it."
+        ],
+        [
+          "Which family of ciphers solves the key-distribution problem?",
+          "Asymmetric, because the public key can be published."
+        ],
+        [
+          "Why does a public blockchain deliberately avoid encryption for its ledger?",
+          "The ledger is public by design, so confidentiality is left to encryption layers and off-chain storage."
+        ],
+        [
+          "Does hashing give authentication?",
+          "No — it gives integrity only; authentication needs a MAC or a signature."
+        ]
+      ]
+    },
+    {
+      "name": "Encryption and Decryption",
+      "definition": "Encryption is the keyed transformation of plaintext into ciphertext, and decryption is its inverse under the matching key, such that without the key the ciphertext reveals nothing about the plaintext.",
+      "problem": "A message crossing an untrusted network can be read, copied or altered in transit; encryption removes the interceptor's ability to do any of the three, and it does so in two different ways depending on how the key is handled.",
+      "mechanism": [
+        "Plaintext plus key: the sender feeds the readable message and the key into the cipher.",
+        "Encryption step: the cipher applies its key-dependent substitution and permutation to produce ciphertext of a length equal to the plaintext (or its padded multiple) in a block cipher.",
+        "Symmetric path: the same shared secret is used to encrypt and to decrypt, so both parties must already possess it — fast, but the key must be delivered securely first.",
+        "Asymmetric path: the recipient's public key encrypts (or the sender's private key signs), and only the matching private key can reverse it — the public half can be handed out freely.",
+        "Decryption step: the receiver applies the inverse transformation with the matching key and recovers the plaintext.",
+        "Hybrid step in practice: asymmetric cryptography protects a randomly generated symmetric session key, and that session key encrypts the bulk data — speed and convenience together."
+      ],
+      "terminology": [
+        [
+          "Plaintext",
+          "Readable input."
+        ],
+        [
+          "Ciphertext",
+          "Encrypted output."
+        ],
+        [
+          "Encryption",
+          "Plaintext + key → ciphertext."
+        ],
+        [
+          "Decryption",
+          "Ciphertext + matching key → plaintext."
+        ],
+        [
+          "Key distribution",
+          "Getting the shared key to the second party securely."
+        ],
+        [
+          "Session key",
+          "Short-lived symmetric key used for the bulk of the data."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain encryption and decryption, and distinguish symmetric from asymmetric encryption with an example of each. (5 marks)",
+        "points": [
+          "Encryption takes plaintext and a key and produces ciphertext; decryption reverses it with the matching key.",
+          "Without the key, the ciphertext should reveal nothing about the plaintext (Kerckhoffs's principle: the algorithm is public, only the key is secret).",
+          "Symmetric: one shared secret key on both sides; fast; used for bulk data; example AES-256-GCM; needs a secure key-distribution channel.",
+          "Asymmetric: a linked public/private pair; the public half can be published; used for key distribution, signatures and blockchain addresses; example RSA or secp256k1 (ECDSA).",
+          "Real systems are hybrid: asymmetric key exchange protects a random symmetric session key, and the session key does the bulk encryption.",
+          "Blockchain twist: the public key becomes the address and the private key becomes the proof of authority for a spend."
+        ]
+      },
+      "traps": [
+        "Do not say the same key encrypts and decrypts in the asymmetric case — two different keys are involved.",
+        "Do not claim the ciphertext length always equals the plaintext length; block ciphers with padding make it a multiple of the block size.",
+        "Do not claim asymmetric is faster — it is far slower, which is exactly why hybrid systems exist.",
+        "Do not confuse confidentiality with authentication; plain decryption tells you the message was readable, not who sent it."
+      ],
+      "revision": "plaintext + key → ciphertext (encryption) → ciphertext + matching key → plaintext (decryption). Symmetric = one shared secret, fast, key-distribution problem. Asymmetric = key pair, public half free, slower. Real systems: asymmetric wraps a symmetric session key.",
+      "recall": [
+        [
+          "In the asymmetric case, which key encrypts and which decrypts?",
+          "The recipient's public key encrypts; the recipient's private key decrypts."
+        ],
+        [
+          "What is the key-distribution problem?",
+          "How two parties agree a symmetric secret when the channel between them is untrusted."
+        ],
+        [
+          "Why do real systems use a hybrid of both families?",
+          "Asymmetric is slow, so it is used only once to protect a fast symmetric session key."
+        ],
+        [
+          "State Kerckhoffs's principle.",
+          "Security must depend only on the secret key, never on the secrecy of the algorithm."
+        ],
+        [
+          "In a blockchain, what do the public and private keys of a user become?",
+          "The public key derives the address; the private key authorises and signs spends."
+        ],
+        [
+          "Does decryption alone authenticate the sender?",
+          "No — you need a MAC or a signature for that."
+        ]
+      ]
+    },
+    {
+      "name": "Ciphers",
+      "definition": "A cipher is the algorithm that encrypts and decrypts using a key, and it comes in two families: block ciphers that encrypt fixed-size blocks independently, and stream ciphers that generate a keystream and encrypt byte by byte.",
+      "problem": "A cipher that only handles fixed-length independent units leaks patterns — two identical plaintext blocks give two identical ciphertext blocks — and a cipher that needs to know the message length in advance cannot protect a live stream whose end is unknown.",
+      "mechanism": [
+        "The cipher (algorithm) plus the key (secret) split: the algorithm is published as a standard, only the key varies between users.",
+        "Block cipher: transforms each fixed-size block independently, e.g. AES over a 128-bit block, with a key schedule expanding the key into round keys.",
+        "Round structure: each round applies substitution (S-box), then a shift row, then a mix column, then a key addition — repeated 10 rounds for AES-128, 12 for AES-192 and 14 for AES-256.",
+        "Stream cipher: generates a pseudorandom keystream from a shorter key and XORs it with the plaintext, producing ciphertext of the same length as the plaintext.",
+        "Mode of operation: the block cipher is used inside a mode (GCM, CTR, CBC) that chains or counter-drives the blocks so identical plaintext blocks do not give identical ciphertext blocks; GCM additionally computes an authentication tag.",
+        "Padding: block ciphers need the plaintext padded to a whole number of blocks — PKCS#7 appends n bytes of value n, where n is the number of bytes needed; stream ciphers need no padding."
+      ],
+      "terminology": [
+        [
+          "Block cipher",
+          "Encrypts fixed-size blocks independently (AES: 128-bit block)."
+        ],
+        [
+          "Stream cipher",
+          "Encrypts a continuous keystream XORed with the plaintext (ChaCha20)."
+        ],
+        [
+          "Mode of operation",
+          "The rule for chaining blocks: GCM, CTR, CBC."
+        ],
+        [
+          "Keystream",
+          "Pseudorandom byte stream XORed with plaintext in a stream cipher."
+        ],
+        [
+          "Key schedule",
+          "Expands the master key into per-round round keys."
+        ],
+        [
+          "Padding",
+          "PKCS#7 filler that rounds plaintext up to a whole block."
+        ],
+        [
+          "Authentication tag",
+          "Short value from GCM that proves the ciphertext was not altered."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is a cipher? Explain block ciphers and stream ciphers with an example and a use of each. (5 marks)",
+        "points": [
+          "A cipher is the algorithm; the key is the secret that varies it, so the algorithm can be a published standard.",
+          "Block cipher: encrypts fixed-size blocks independently; suits bulk data; example AES (128-bit block, 128/192/256-bit key, 10/12/14 rounds).",
+          "Stream cipher: generates a keystream and XORs it with the plaintext; suits data of unknown length such as a live feed; example ChaCha20, fast in software without AES hardware.",
+          "In practice a block cipher is used inside a mode — GCM, CTR, CBC — and the mode is what stops identical plaintext blocks giving identical ciphertext blocks.",
+          "Block ciphers need padding (PKCS#7); stream ciphers do not.",
+          "MCQ-style facts: AES is a block cipher, not a stream cipher; GCM supplies an authentication tag, so the ciphertext is checked and not merely decrypted."
+        ]
+      },
+      "traps": [
+        "Do not call AES a stream cipher — it is a block cipher with a 128-bit block.",
+        "Do not give the key size but forget the mode and the block size; examiners look for all three.",
+        "Do not claim a block cipher alone prevents identical plaintext blocks; that is the mode's job.",
+        "Do not say stream ciphers are weaker than block ciphers; ChaCha20 is the modern default where AES hardware is absent.",
+        "Do not forget that GCM is authenticated encryption, while CBC is not — CBC needs a separate MAC."
+      ],
+      "revision": "cipher = algorithm, key = secret. Block (AES, 128-bit block, 10/12/14 rounds) vs stream (ChaCha20 keystream XOR). Block ciphers are wrapped in a mode (GCM/CTR/CBC) and need PKCS#7 padding; stream ciphers need neither mode-chaining nor padding.",
+      "recall": [
+        [
+          "What is the block size of AES, and how many rounds for each key size?",
+          "128-bit block; 10 rounds for AES-128, 12 for AES-192, 14 for AES-256."
+        ],
+        [
+          "Why does AES run inside a mode such as GCM?",
+          "The mode stops identical plaintext blocks producing identical ciphertext blocks, and GCM adds an authentication tag."
+        ],
+        [
+          "How does a stream cipher encrypt?",
+          "It generates a pseudorandom keystream and XORs it with the plaintext."
+        ],
+        [
+          "Which cipher suits a live video feed, and why?",
+          "A stream cipher, because it needs no padding and no knowledge of the total length."
+        ],
+        [
+          "What does PKCS#7 padding append?",
+          "n bytes each of value n, where n is the number of bytes needed to reach a whole block."
+        ],
+        [
+          "What is the difference between AES and ChaCha20 in practice?",
+          "AES uses hardware acceleration on most CPUs; ChaCha20 is faster where that hardware is absent, e.g. mobile and low-power devices."
+        ]
+      ]
+    },
+    {
+      "name": "Cryptography using arithmetic modulo primes",
+      "definition": "Public-key cryptography is built on arithmetic in the ring of integers modulo a large prime p, where Fermat's little theorem lets exponents be reduced modulo p-1 and Diffie-Hellman turns that fact into key agreement without ever transmitting a secret.",
+      "problem": "Symmetric key agreement over a public channel is a chicken-and-egg problem — two parties who must both hold a secret before they can talk cannot first use that secret to talk — and solving it by hand requires a mathematical trapdoor that is hard to invert.",
+      "mechanism": [
+        "Set the parameters: choose a large prime p and a generator g of the multiplicative group modulo p; both are public.",
+        "Modular exponentiation: compute a^b mod p by repeated squaring, reducing after each multiplication — this is the only hard arithmetic in the scheme.",
+        "Apply Fermat's little theorem: for prime p and a not divisible by p, a^(p-1) ≡ 1 (mod p), so exponents can be reduced modulo p-1 and the group has order p-1.",
+        "Each party picks a private exponent: Alice picks a, Bob picks b, each in the range 1..p-2, and each keeps it secret.",
+        "Publish the public values: Alice sends A = g^a mod p and Bob sends B = g^b mod p over the open channel.",
+        "Derive the shared secret: Alice computes B^a mod p and Bob computes A^b mod p; both equal g^(ab) mod p, and neither the secret nor the exponents ever travel on the wire."
+      ],
+      "terminology": [
+        [
+          "Modular arithmetic",
+          "Arithmetic with a remainder; everything lives in Z_p."
+        ],
+        [
+          "Prime modulus p",
+          "The large public prime the group is built over."
+        ],
+        [
+          "Generator g",
+          "The public element that generates the group of order p-1."
+        ],
+        [
+          "Fermat's little theorem",
+          "a^(p-1) ≡ 1 (mod p) for prime p."
+        ],
+        [
+          "Private exponent a or b",
+          "The secret each party keeps."
+        ],
+        [
+          "Public value A or B",
+          "g^a mod p or g^b mod p, published openly."
+        ],
+        [
+          "Discrete logarithm problem",
+          "Recovering x from g^x mod p, assumed infeasible."
+        ],
+        [
+          "Shared secret",
+          "g^(ab) mod p, computed identically on both sides."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain Diffie-Hellman key exchange using arithmetic modulo a prime p. Derive modular exponentiation and Fermat's little theorem, and compute the shared secret for a given p and g. (15 marks)",
+        "points": [
+          "Modular arithmetic: all computation is in Z_p; the operation is 'remainder on division by p'; the modulus is the ring of integers modulo p.",
+          "Modular exponentiation: a^b mod p is computed by repeated squaring, e.g. 5^6 mod 23 = (5^3)^2 = 125^2 mod 23 = 10^2 mod 23 = 100 mod 23 = 8, reducing after every multiplication rather than computing 5^6 = 15625.",
+          "Fermat's little theorem: if p is prime and a is not divisible by p, then a^(p-1) ≡ 1 (mod p). Proof sketch: the p-1 non-zero residues a, 2a, ..., (p-1)a are a permutation of 1..p-1, so (p-1)! ≡ (p-1)! (p-1)! and cancelling gives a^(p-1) ≡ 1.",
+          "Consequence: the multiplicative group mod p has order p-1, so exponents reduce modulo p-1 and the group is cyclic with a generator g.",
+          "Diffie-Hellman: public parameters p and g; Alice picks secret a, Bob picks secret b; Alice publishes A = g^a mod p, Bob publishes B = g^b mod p; Alice computes B^a mod p, Bob computes A^b mod p, and both are g^(ab) mod p.",
+          "Worked example with p = 23, g = 5, a = 6, b = 15: A = 5^6 mod 23 = 8; B = 5^15 mod 23 = 19; Alice's secret = B^a = 19^6 mod 23 = 2; Bob's secret = A^b = 8^15 mod 23 = 2. Both agree on 2.",
+          "Security rests on the discrete logarithm problem: from A = g^a mod p an attacker cannot recover a, provided p is large (2048 bits or more in practice) and g is a genuine generator.",
+          "Limitation: this gives key agreement only — it does not authenticate either party, so a man-in-the-middle can sit in the middle unless the public keys are verified out of band."
+        ]
+      },
+      "traps": [
+        "Do not compute the shared secret as A * B mod p — the exponents combine multiplicatively (a*b), not the public values additively.",
+        "Do not forget the modulus is a prime; Fermat's little theorem fails for a composite modulus in general.",
+        "Do not use p = 23 as if it were secure — it is a teaching value and is broken instantly; real p is 2048 bits or more.",
+        "Do not claim Diffie-Hellman authenticates the parties; it does not, and that is what MITM attacks exploit.",
+        "Do not say the shared secret is transmitted — the whole point is that it is computed twice, never sent.",
+        "Do not write 5^6 = 15625 and stop; the answer is 15625 mod 23 = 8, and the reduction is the mark."
+      ],
+      "revision": "Z_p → FLT a^(p-1)≡1 (mod p) → group order p-1, generator g → private a, b → publish A=g^a, B=g^b → secret B^a = A^b = g^(ab) mod p → security = discrete log problem. p=23, g=5, a=6, b=15: A=8, B=19, secret=2.",
+      "recall": [
+        [
+          "State Fermat's little theorem.",
+          "For a prime p and a not divisible by p, a^(p-1) ≡ 1 (mod p)."
+        ],
+        [
+          "Why is modular exponentiation computed by repeated squaring?",
+          "Because reducing after every multiplication keeps the numbers small; a^b mod p = ((a^(b/2))^2) mod p recursively."
+        ],
+        [
+          "With p=23, g=5, a=6, what does Alice publish?",
+          "A = 5^6 mod 23 = 8."
+        ],
+        [
+          "With p=23, g=5, b=15, what does Bob publish, and what is the shared secret?",
+          "B = 5^15 mod 23 = 19; the secret is 8^15 mod 23 = 19^6 mod 23 = 2."
+        ],
+        [
+          "Why is the secret not A * B mod p?",
+          "The exponents combine multiplicatively: the secret is g^(ab) mod p, so you raise one public value to the other's private exponent."
+        ],
+        [
+          "What problem is Diffie-Hellman's security based on?",
+          "The discrete logarithm problem — recovering x from g^x mod p is infeasible for a large prime p."
+        ],
+        [
+          "What weakness does plain Diffie-Hellman have?",
+          "No authentication, so a man-in-the-middle can substitute their own public values unless keys are verified out of band."
+        ],
+        [
+          "What is the group order of the multiplicative group mod a prime p?",
+          "p-1, since the non-zero residues form a cyclic group under multiplication modulo p."
+        ]
+      ]
+    },
+    {
+      "name": "Hashing algorithms",
+      "definition": "A cryptographic hash is a deterministic, one-way, fixed-length function that maps an input of any size to a fixed-size digest, so that the same input always gives the same digest and no practical inverse exists.",
+      "problem": "A block of data on a public ledger can be edited by anyone, and a checksum cannot tell the difference between accidental corruption and a deliberate edit, so a blockchain needs a fingerprint that an attacker cannot forge or collide.",
+      "mechanism": [
+        "Determinism: the same input always produces the same digest, so every node independently computes the same value and can compare it.",
+        "Fixed length: the output is always the same size regardless of input size — 256 bits = 32 bytes = 64 hex characters for SHA-256.",
+        "Pre-processing and compression: the input is padded to a whole number of 512-bit blocks and each block is compressed into a fixed-size state, which is what makes the digest constant-length.",
+        "One-wayness: no practical inverse function exists that recovers the input from the digest, unlike encryption which is deliberately reversible.",
+        "Avalanche effect: changing one input bit flips about half the output bits, so similar inputs give completely unrelated digests.",
+        "Collision resistance: finding two different inputs with the same digest is computationally infeasible; this is the property that makes the digest usable as an identity."
+      ],
+      "terminology": [
+        [
+          "Hash function",
+          "Deterministic many-to-one map to a fixed-size digest."
+        ],
+        [
+          "Digest / hash value",
+          "The fixed-length output; 256 bits for SHA-256."
+        ],
+        [
+          "One-wayness",
+          "No practical inverse from digest to input."
+        ],
+        [
+          "Avalanche effect",
+          "One input bit flips about half the output bits."
+        ],
+        [
+          "Collision",
+          "Two different inputs producing the same digest."
+        ],
+        [
+          "Collision resistance",
+          "Collisions cannot be found in practice."
+        ],
+        [
+          "Checksum / CRC",
+          "Detects accidental corruption, not a deliberate attacker."
+        ]
+      ],
+      "examAnswer": {
+        "question": "What is a hashing algorithm? State the properties that make a hash cryptographic and explain how a hash differs from a checksum. (5 marks)",
+        "points": [
+          "A hash function maps an input of any length to a fixed-length digest; SHA-256 always gives 256 bits = 32 bytes = 64 hex characters.",
+          "Determinism: the same input always gives the same digest, so all nodes agree without communicating.",
+          "Fixed length: the digest size is independent of the input size.",
+          "One-wayness: there is no practical inverse from digest back to input.",
+          "Avalanche effect: a one-bit change flips about half the output bits.",
+          "Collision resistance: no two distinct inputs can be found with the same digest; this is what allows the digest to serve as an identity.",
+          "Versus a checksum: a CRC32 checksum catches accidental corruption but is trivially forged and collision-prone, so it is unsafe as a block identifier; the cryptographic hash is built against a deliberate attacker.",
+          "A hash is not encryption — there is no key and nothing to decrypt."
+        ]
+      },
+      "traps": [
+        "Do not say a hash is encrypted data; it is unkeyed and irreversible.",
+        "Do not say the digest length depends on the input length — that is the whole point of hashing.",
+        "Do not conflate avalanche with collision resistance; changing one bit is easy, finding two colliding inputs is hard.",
+        "Do not use a checksum as a block identifier; CRC32 collisions are trivial to construct.",
+        "Do not claim SHA-256 is collision-free; it is collision-resistant, and the practical birthday limit is about 2^128 messages."
+      ],
+      "revision": "Five properties: deterministic, fixed length, one-way, avalanche, collision-resistant. Hash ≠ checksum (unkeyed, attacker-resistant vs accidental-error detector). SHA-256 = 256 bits = 32 bytes = 64 hex.",
+      "recall": [
+        [
+          "List the properties that make a hash cryptographic.",
+          "Determinism, fixed output length, one-wayness, avalanche effect, collision resistance."
+        ],
+        [
+          "How long is a SHA-256 digest, and how many hex characters is that?",
+          "256 bits = 32 bytes = 64 hexadecimal characters."
+        ],
+        [
+          "What is the avalanche effect?",
+          "A one-bit input change flips roughly half the output bits."
+        ],
+        [
+          "Why is a checksum not safe as a block identifier?",
+          "CRC-style checksums are trivially collided or forged; they detect accidental corruption only."
+        ],
+        [
+          "What is the SHA-256 of the empty string?",
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
+        ],
+        [
+          "Does hashing provide confidentiality?",
+          "No — it provides integrity and identification only; it never hides the input."
+        ]
+      ]
+    },
+    {
+      "name": "SHA-256 algorithm",
+      "definition": "SHA-256 is a Merkle-Damgard hash function that pads a message with a 1 bit, zeros and a 64-bit length field up to a multiple of 512 bits, then compresses each 512-bit block through 64 rounds over eight 32-bit state words to produce a 256-bit digest.",
+      "problem": "A blockchain needs a fingerprint that is cheap for every node to recompute, fixed in size, and impossible to reverse, and it needs to process messages of any length while producing the same kind of output regardless of size.",
+      "mechanism": [
+        "Step 1 — Pre-processing and padding: append a single 1 bit to the message, then k zero bits, then the original message length L as a 64-bit big-endian integer, so the padded length is a multiple of 512 bits; equivalently the length field is positioned so the message ends 8 bytes short of a block boundary.",
+        "Step 2 — Block splitting: the padded message is cut into 512-bit (64-byte) blocks and the number of blocks is n = ceil((L + 9) / 64) for a message of L bytes, since padding always adds at least the 1 byte plus the 8-byte length field.",
+        "Step 3 — Message schedule: each block is expanded into 64 32-bit words; W[0]..W[15] are the block's own 16 words and W[t] = σ1(W[t-2]) + W[t-7] + σ0(W[t-15]) + W[t-16] for t = 16..63, with σ0 and σ1 defined by rotate-right and shift-right operations.",
+        "Step 4 — Compression function: 64 rounds are run over eight 32-bit working variables a..h initialised from the current state, each round computing T1 = h + Σ1(e) + Ch(e,f,g) + K[t] + W[t] and T2 = Σ0(a) + Maj(a,b,c), then updating the variables.",
+        "Step 5 — State update and iteration: after the block, the eight working variables are added to the eight state words (H0 = H0 + a, H1 = H1 + b, and so on), folding this block's result into the running state before the next block is processed.",
+        "Step 6 — Final output: after the last block the eight state words are serialised big-endian to give the 256-bit digest = 32 bytes = 64 hexadecimal characters."
+      ],
+      "terminology": [
+        [
+          "Merkle-Damgard",
+          "The iterated construction: pad, then chain block compressions."
+        ],
+        [
+          "Padding",
+          "1 bit + zeros + 64-bit length, to a multiple of 512 bits."
+        ],
+        [
+          "Block",
+          "512 bits = 64 bytes, the unit that is compressed."
+        ],
+        [
+          "n = ceil((L+9)/64)",
+          "Number of blocks for a message of L bytes."
+        ],
+        [
+          "Message schedule W",
+          "The 64 derived 32-bit words used by the rounds."
+        ],
+        [
+          "Round constant K[t]",
+          "The 64 fixed 32-bit constants, one per round."
+        ],
+        [
+          "Compression function",
+          "The 64-round mixing of state, schedule and constants."
+        ],
+        [
+          "Ch and Maj",
+          "The two choice functions: Ch = choose(e,f,g), Maj = majority(a,b,c)."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Explain the SHA-256 algorithm, stating the padding rule and computing the number of 512-bit blocks required for a given message length. (8 marks)",
+        "points": [
+          "SHA-256 produces a 256-bit = 32-byte = 64-hex-character digest for any input length, using the Merkle-Damgard iterated construction.",
+          "Padding rule: append a single 1 bit, then the minimum number of 0 bits so the length becomes congruent to 448 modulo 512, then the original message length L encoded as a 64-bit big-endian integer; the total padded length is a multiple of 512 bits.",
+          "Block count: for a message of L bytes the padded size is L + 1 (the 1 bit padded up to a byte) + zeros + 8 (the length field), so the number of blocks is n = ceil((L + 9) / 64).",
+          "Worked numbers: L = 100 bytes (800 bits) → n = ceil(109/64) = 2 blocks; L = 55 bytes → n = ceil(64/64) = 1 block, because 55 + 1 + 8 = 64 exactly; L = 56 bytes → n = ceil(65/64) = 2 blocks; L = 64 bytes → n = ceil(73/64) = 2 blocks.",
+          "Each block is expanded into a 64-word message schedule: W[0..15] from the block, W[t] = σ1(W[t-2]) + W[t-7] + σ0(W[t-15]) + W[t-16] for t = 16..63.",
+          "The compression function runs 64 rounds over eight 32-bit working variables a..h initialised from the running state, using Ch, Maj, Σ0, Σ1, the round constant K[t] and W[t].",
+          "After each block the working variables are added into the state (H0 += a, H1 += b, ...), chaining this block's result into the running value.",
+          "The final state serialised big-endian is the digest. Test vector: SHA-256('abc') = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad; for 'abc' L = 3 bytes so n = ceil((3+9)/64) = 1 block, and the padded block is 3 message bytes + 1 byte holding the 1 bit + 52 zero bytes + 8 length bytes = 64 bytes."
+        ]
+      },
+      "traps": [
+        "Do not forget the 1 bit before the zeros, or the 64-bit length field at the end — that is the padding rule being asked for.",
+        "Do not use n = ceil(L/64); the +9 accounts for the 1 pad byte and the 8-byte length field.",
+        "Do not say the block size is 256 bits — the block is 512 bits; 256 bits is the digest size.",
+        "Do not say SHA-256 has 16 rounds; it has 64 rounds over 8 state words.",
+        "Do not give the SHA-256 digest length as 32 bits or 20 bytes; it is 256 bits = 32 bytes = 64 hex characters.",
+        "Do not drop the state update between blocks — without adding the working variables back into the state the chain is broken."
+      ],
+      "revision": "pad (1 bit + zeros + 64-bit length) → split into 512-bit blocks, n = ceil((L+9)/64) → 64-word schedule → 64 rounds over 8 words with Ch/Maj/Σ0/Σ1 and K[t] → add back into state → serialise 256 bits. 'abc' = ba7816bf...015ad, 1 block.",
+      "recall": [
+        [
+          "What is the block size and the digest size of SHA-256?",
+          "Block 512 bits (64 bytes); digest 256 bits (32 bytes = 64 hex characters)."
+        ],
+        [
+          "State the padding rule.",
+          "Append a 1 bit, then zeros until the length is 448 mod 512, then the original 64-bit length; total is a multiple of 512 bits."
+        ],
+        [
+          "How many blocks does a 100-byte message occupy?",
+          "n = ceil((100 + 9) / 64) = ceil(1.703) = 2 blocks."
+        ],
+        [
+          "How many blocks does a 55-byte message occupy, and why is it the boundary case?",
+          "1 block, because 55 + 1 + 8 = 64 bytes exactly fills one block."
+        ],
+        [
+          "How many blocks does a 56-byte message occupy?",
+          "2 blocks — 56 + 1 + 8 = 65 bytes spills over one block."
+        ],
+        [
+          "How many rounds and how many state words per block?",
+          "64 rounds over eight 32-bit working variables."
+        ],
+        [
+          "What is SHA-256('abc')?",
+          "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad."
+        ],
+        [
+          "What happens to the running state between blocks?",
+          "The eight working variables are added into the eight state words, chaining each block into the next."
+        ]
+      ]
+    },
+    {
+      "name": "Application of SHA algorithm",
+      "definition": "In a blockchain SHA-256 is used as the fixed fingerprint of variable data — the transaction Merkle root, the block header hash, the proof-of-work nonce search and the address derived from a public key — so that any alteration of a recorded transaction changes every later hash in the chain.",
+      "problem": "A public ledger is writable by anyone, so without a cryptographic commitment the history could be quietly rewritten; the chain needs a cheap, publicly verifiable mechanism that makes an edit visible in any copy of the ledger and provable to a third party.",
+      "mechanism": [
+        "Hash each transaction: every transaction is serialised and hashed with SHA-256, giving a 32-byte (64 hex character) transaction identifier.",
+        "Build the Merkle root: transaction hashes are paired, each pair is hashed, and the process repeats up the binary tree until one root hash remains, which is the compact commitment to the whole transaction list.",
+        "Assemble the block header: the header carries the Merkle root, the previous block's 32-byte hash, a timestamp, a nonce and the difficulty target.",
+        "Hash the header: the header hash is SHA-256 of the header, and in proof-of-work the miner varies the nonce until this hash falls below the target.",
+        "Link the chain: the resulting 32-byte block hash is stored in the next block's header, so the chain is a chain of hashes rather than a chain of files.",
+        "Verify and detect: any node recomputes the hashes and the Merkle root and compares; change one transaction and the root changes, so the header hash changes, so every subsequent link no longer verifies."
+      ],
+      "terminology": [
+        [
+          "Transaction hash",
+          "SHA-256 digest of a serialised transaction."
+        ],
+        [
+          "Merkle root",
+          "Single hash committing to all transaction hashes."
+        ],
+        [
+          "Block header",
+          "Root + previous hash + timestamp + nonce + difficulty."
+        ],
+        [
+          "Block hash",
+          "SHA-256 of the header, the block's identifier."
+        ],
+        [
+          "Previous block hash",
+          "The 32-byte link to the prior block."
+        ],
+        [
+          "Nonce",
+          "The value varied during proof of work."
+        ],
+        [
+          "Tamper-evident",
+          "Altering history breaks the visible hash links."
+        ]
+      ],
+      "examAnswer": {
+        "question": "Where is SHA-256 used inside a blockchain, and why is hashing used for every block instead of signing? (5 marks)",
+        "points": [
+          "Transaction identifiers: SHA-256 of each serialised transaction gives a fixed 32-byte (64 hex) id.",
+          "Merkle root: hashes of hashes over the transaction list, committed in the header with one value instead of the whole list.",
+          "Block header hash: SHA-256 of the header (root + previous hash + timestamp + nonce + difficulty); in proof of work the nonce is varied until the header hash is below the target.",
+          "Chain link: the 32-byte hash of each block is embedded in the next block's header, so the chain carries 32 bytes of link per block on top of the transactions.",
+          "Tamper-evidence: change one transaction → the Merkle root changes → the header hash changes → every later link no longer verifies, and the edit is visible in any copy of the ledger.",
+          "Address derivation: the public key is hashed (with SHA-256 plus a further hash in Bitcoin's case) to produce the account address.",
+          "Why hashing rather than signing every block: hashing is cheap and every node can verify it without any key, whereas signing would require a key for each producer, would prove authorship rather than integrity, and would add the signature bytes to every header."
+        ]
+      },
+      "traps": [
+        "Do not say the block hash is SHA-256 of the transactions — it is SHA-256 of the header, and the transactions enter through the Merkle root.",
+        "Do not confuse the Merkle root with the block hash; the root is one of the header's inputs.",
+        "Do not claim hashing gives confidentiality — the transactions are public, only their integrity is protected.",
+        "Do not say each block stores a full copy of the previous block; it stores only the 32-byte previous hash.",
+        "Do not say signing is needed to prove who wrote a block — signatures are used for transactions and authority, not for ordinary block production."
+      ],
+      "revision": "txn → SHA-256 → tx hash → Merkle tree → root → header (root + prev hash + nonce + timestamp) → block hash → stored in next header. Tamper-evidence comes from the links; hashing (not signing) is used because it is free to verify and needs no key.",
+      "recall": [
+        [
+          "What is hashed to produce a block hash?",
+          "The block header — not the transaction list directly."
+        ],
+        [
+          "What does the Merkle root commit to?",
+          "All the transactions in the block, through their hashes."
+        ],
+        [
+          "How does the chain link blocks?",
+          "Each header stores the 32-byte hash of the previous header."
+        ],
+        [
+          "What happens if one transaction is altered?",
+          "Its hash changes, so the Merkle root changes, so the header hash changes, so every later block fails verification."
+        ],
+        [
+          "Why is the chain link only 32 bytes?",
+          "Because only the previous hash is stored, not the previous block's data."
+        ],
+        [
+          "Where does proof of work vary the nonce?",
+          "Until SHA-256 of the header falls below the difficulty target."
+        ],
+        [
+          "How is a public key turned into a blockchain address?",
+          "By hashing it — SHA-256 (twice in Bitcoin) then encoding the result."
+        ],
+        [
+          "Why are blocks hashed rather than signed?",
+          "Hashing is free for everyone to verify and needs no key; signing would prove authorship, not integrity, and would bloat every header."
+        ]
+      ]
+    }
+  ]
+}

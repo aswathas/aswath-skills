@@ -473,3 +473,47 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D5 | Contract requires every decision to be written down | Read back; the entry names the options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` for this work appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-25 - the interview skill, minted by hand
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-questions-ask/SKILL.md` | New: the question ladder, the marking rule, the ledger format and the handoff to the study build | The requested skill - ask the user lots of questions until we both understand the concepts | Read back; the harness lists `aswath-questions-ask` with its `Use when` description |
+| `manifest.json` | One skill row for `aswath-questions-ask` in category `workflow`, and the `updated` date moved to 2026-11-25 | Every skill in this repo is registered | JSON parses; the row count matches the skills on disk |
+| `README.md` | One row in the workflow table and one in the layout block | The README is the catalogue the human reads | Row present under the workflow heading |
+| `docs/categories.md` | One judgement call: questions-ask vs first-principles | A skill lands in one folder only, and the rule needs a stated reason | Read back |
+| `docs/reviews/decision-log.md` | Added D19 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-25 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-25 - the interview skill, rebased and given a short-on-time mode
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-questions-ask/SKILL.md` | Added the "Short on time" subsection under The Loop: mark-carrying topics only, rungs 1 -> 2 -> 6, budget to shaky and unknown, `not interviewed` recorded for the rest | The 21CSE433T exam is the next morning; the seven-rung ladder needs a budget-aware mode | Read back; the section sits between The Loop and The Question Ladder |
+| `manifest.json` | Rebase conflict resolved: kept both the `aswath-study-technique` and the `aswath-questions-ask` rows | `origin/main` moved; both sides added a row | `JSON.parse` succeeds |
+| `README.md` | Rebase conflict resolved: workflow table carries both rows, layout line carries both skills | Same reason | Read back; both names appear in the workflow table and in the layout block |
+| `docs/reviews/decision-log.md` | Added D20 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+## 2026-11-25 - the 21CSE433T course content and the tree that clipped
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-study-technique/content/21cse433t-u1.json` | New unit file: unit 1, 6 topics with definition, problem, mechanism, terminology, exam answer, traps and recall, plus a 10-term glossary | The study skill needs a per-unit content contract before it can build notes for a subject | `JSON.parse` succeeds; 6 topics and 10 glossary entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u2.json` | New unit file: unit 2, 7 topics, 11 glossary entries | Same contract, unit 2 | `JSON.parse` succeeds; 7 topics and 11 glossary entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u3.json` | New unit file: unit 3, 8 topics, 10 glossary entries | Same contract, unit 3 | `JSON.parse` succeeds; 8 topics and 10 glossary entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u4.json` | New unit file: unit 4, 8 topics, 10 glossary entries | Same contract, unit 4 | `JSON.parse` succeeds; 8 topics and 10 glossary entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u5.json` | New unit file: unit 5, 11 topics, 10 glossary entries | Same contract, unit 5 | `JSON.parse` succeeds; 11 topics and 10 glossary entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u1-enrich.json` | New enrichment file: 6 topics with advantages, limitations, memory trick, modern note and exam answer | The enrichment layer deepens a topic beyond the core note | `JSON.parse` succeeds; 6 topics read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u2-enrich.json` | New enrichment file: 7 topics | Same contract, unit 2 | `JSON.parse` succeeds; 7 topics read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u3-enrich.json` | New enrichment file: 8 topics | Same contract, unit 3 | `JSON.parse` succeeds; 8 topics read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u4-enrich.json` | New enrichment file: 8 topics | Same contract, unit 4 | `JSON.parse` succeeds; 8 topics read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u5-enrich.json` | New enrichment file: 11 topics | Same contract, unit 5 | `JSON.parse` succeeds; 11 topics read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u1-revision.json` | New revision file: 6 mental-map entries and 6 top exam questions | The revision layer is what a student opens the night before | `JSON.parse` succeeds; 6 mental-map and 6 exam-question entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u2-revision.json` | New revision file: 10 mental-map entries and 7 top exam questions | Same contract, unit 2 | `JSON.parse` succeeds; 10 mental-map and 7 exam-question entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u3-revision.json` | New revision file: 8 mental-map entries and 8 top exam questions | Same contract, unit 3 | `JSON.parse` succeeds; 8 mental-map and 8 exam-question entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u4-revision.json` | New revision file: 8 mental-map entries and 8 top exam questions | Same contract, unit 4 | `JSON.parse` succeeds; 8 mental-map and 8 exam-question entries read back |
+| `skills/workflow/aswath-study-technique/content/21cse433t-u5-revision.json` | New revision file: 11 mental-map entries and 11 top exam questions | Same contract, unit 5 | `JSON.parse` succeeds; 11 mental-map and 11 exam-question entries read back |
+| `skills/workflow/aswath-study-technique/scripts/layout.cjs` | One-line fix in `layoutTree`: the fan start x is clamped with `Math.max(..., PAD + w / 2)` so the first child box is never at a negative x, plus a two-line comment saying why | A wide fan centred on the root started off the left edge of the canvas and the first child was drawn where it could not be seen | Old formula puts the first box at x = -240 for five children and x = -400 for six; the clamped formula puts both at x = 40. The rebuilt vault renders the full fan |
+| `docs/reviews/decision-log.md` | Added D21, D22, D23 and D24 | Contract requires every decision to be written down | Read back; each entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-25 entry carrying both verbatim prompts | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
