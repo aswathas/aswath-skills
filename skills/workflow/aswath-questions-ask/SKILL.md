@@ -33,10 +33,13 @@ the user wants the answer, not the questions.
    `unknown` (cannot answer). *Gate:* every map entry is marked.
 5. **Re-aim** — next questions target `shaky` and `unknown` only, hardest
    dependency first. *Gate:* the loop repeats until no `unknown` remains.
-6. **Lock** — write the ledger: the user's words per concept, the one analogy
-   that worked, the trap they fell into, the remaining doubt in their own
-   words. *Gate:* the user says the ledger is right.
-7. **Hand off** — the ledger is the input to whatever comes next: notes, a
+6. **Lock** — print the ledger in chat: the user's words per concept, the one
+   analogy that worked, the trap they fell into, the remaining doubt in their
+   own words. *Gate:* the user says the ledger is right.
+7. **Write** — only now, and only to the ledger path, write the ledger file.
+   Every row quotes the user's answer verbatim. *Gate:* the file exists and
+   holds nothing the user did not say.
+8. **Hand off** — the ledger is the input to whatever comes next: notes, a
    build, a plan. Name that consumer explicitly.
 
 Never stop at step 4. "Correct answer" is not understanding; a rehearsed
@@ -55,6 +58,23 @@ dropping:
   dependency first.
 - Record `not interviewed` for every topic left out, so the gap is visible
   in the ledger instead of silent.
+
+## Read-only until locked
+
+While this skill runs, **you do not write any file**. Read, search and think
+are free. The interview happens in chat, and the ledger is printed in chat
+before anything touches disk.
+
+A hook enforces this — not your discipline. `hooks/write_guard.py` blocks
+every write while the interview is open, and blocks everything except the
+ledger path after the user says `LOCK`. The rules it applies, the state
+machine and the known holes are in
+[references/write-guard.md](references/write-guard.md). Read that file only if
+a write is blocked and you need the escape hatch.
+
+The user's words are the ledger's raw material, so the file can only be
+written once they have been said. Writing earlier means writing from your own
+head — the exact failure the skill exists to prevent.
 
 ## The Question Ladder
 
@@ -109,7 +129,11 @@ Bad: "Do you understand hashes?" / "What are the five types of blockchain?"
 
 Written to a file so the next step and the next session can use it. Path:
 `docs/understanding/<subject-slug>.md` in the repo that holds the work, or
-beside the vault when the subject is a study topic.
+`Understanding/<subject> understanding ledger.md` beside the vault when the
+subject is a study topic. Both paths are on the hook's ledger allowlist.
+
+Print the ledger in chat first. Write the file only after the user says
+`LOCK`.
 
 ```markdown
 # Understanding — <subject>
@@ -179,6 +203,9 @@ STOP when you think:
 - "The ledger can be written from my understanding of the subject."
 - "This question is probably too hard for them."
 - "Let me confirm the definition before we start."
+- "I'll write the ledger now and tidy it later." — before `LOCK`, no file.
+- "I'll write it in my own words, it reads better." — the ledger quotes.
+- "I'll save a note to remember where we got to." — the hook will block it.
 
 ## Common Mistakes
 

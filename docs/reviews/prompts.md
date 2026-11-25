@@ -184,19 +184,39 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 ## 2026-11-25 - ask lots of questions until we both understand
 - Prompt: "lets study for blockchain bussiness models prepare first /aswath-questions-ask(ask me lot of
   questions untill we both understand concepts lets make this skills)"
-- Decision it produced: D19 (the interview is the work, the ledger is what the build consumes).
+- Decision it produced: D27 (the interview is the work, the ledger is what the build consumes).
 - Work it caused: `skills/workflow/aswath-questions-ask/`, the manifest and README rows, and the
   records above.
 ## 2026-11-25 - study blockchain business models, then stop asking and just teach
 - Prompt: "lets study for blockchain bussiness models prepare first
   /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
 - Prompt: "sdont ask me questiosn lets learn"
-- Decision it produced: D21 (the extraction decoded with the OS codec, so the authored notes carried
-  mojibake), D22 (the tree fan clipped its first child off the canvas), D23 (the U5 business-model
-  taxonomy became a matrix, because the tree clipped), D24 (the interview stopped halfway, so no
+- Decision it produced: D29 (the extraction decoded with the OS codec, so the authored notes carried
+  mojibake), D30 (the tree fan clipped its first child off the canvas), D31 (the U5 business-model
+  taxonomy became a matrix, because the tree clipped), D32 (the interview stopped halfway, so no
   ledger was written and the teaching path carried it).
 - Work it caused: the 15 authored 21CSE433T content files under
   `skills/workflow/aswath-study-technique/content/`, the one-line clamp in
   `skills/workflow/aswath-study-technique/scripts/layout.cjs`, and the records above. The first
   prompt started the interview that the second prompt cancelled; the authored notes are what the
   session produced instead.
+## 2026-11-25 - the AI must not touch any file it can read
+- Prompt: "i have change to propose first lets brainstrom before doing or touching anything (do not
+  touch + brainstrom i want add this rule in aswath-ask-questions skills we made )"
+- Prompt: "ai should not touch or edit any file it can read do not become verbose speak in simple leastl
+  possible lines and understand and ask more questions until we both alighn and understand each other"
+- Prompt: "git is accepted"
+- Prompt: "only for the skill" / "this skill only the rule applies"
+- Prompt: "we need ledger file i think" / "like for decision log ? aslo you critic this one for me"
+- Prompt: "use game theory and everry modeln critici tegenique and tell me"
+- Prompt: "yes untill i say its enough to question or i understand completely , yes to all other questions
+  , , also when this skill invoked lets do that pretool use that you say i want it real i want you to
+  crticse with grestest personalitesrts and help me do the berset tool , also reserach on how mattpcok
+  say to build a skill"
+- Prompt: "yes i agree on both yestions"
+- Prompt: "yes ifhninsh this"
+- Decision it produced: D33 (the interview writes nothing until the user says LOCK, and a hook says
+  so).
+- Work it caused: `skills/workflow/aswath-questions-ask/hooks/`, `skills/workflow/aswath-questions-ask/tests/`,
+  `skills/workflow/aswath-questions-ask/references/write-guard.md`,
+  `skills/workflow/aswath-questions-ask/install-hooks.ps1`, and the `SKILL.md` edits above.

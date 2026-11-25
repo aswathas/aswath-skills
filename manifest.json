@@ -1,6 +1,6 @@
 {
   "name": "aswath-skills",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": "Aswath S",
   "license": "MIT",
   "updated": "2026-11-25",
@@ -226,8 +226,8 @@
       "name": "aswath-questions-ask",
       "category": "workflow",
       "path": "skills/workflow/aswath-questions-ask/SKILL.md",
-      "description": "Use when the user wants to be questioned until a shared understanding exists - \"ask me lots of questions\", \"quiz me\", \"test my understanding\", \"make sure we both understand X\". Runs a question ladder per concept (recall, explain, why, how, contrast, apply, trap), marks each concept understood/shaky/unknown, and writes an understanding ledger that a later study build or implementation consumes.",
-      "resources": []
+      "description": "Use when the user wants to be questioned until a shared understanding exists - \"ask me lots of questions\", \"quiz me\", \"test my understanding\", \"make sure we both understand X\". Runs a question ladder per concept (recall, explain, why, how, contrast, apply, trap), marks each concept understood/shaky/unknown, and writes an understanding ledger that a later study build or implementation consumes. A write guard keeps the skill read-only until the user says LOCK, then allows only the ledger file.",
+      "resources": ["hooks", "references", "tests"]
     },
     {
       "name": "aswath-talk",
