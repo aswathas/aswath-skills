@@ -1279,3 +1279,30 @@ marketplace carry version 1.9.0.
   carries the human row and the layout row; `docs/categories.md` records the judgement call against
   `aswath-first-principles`. `install.ps1` links it into the Claude Code and agents skill
   directories, and the harness then lists `aswath-questions-ask` with its `Use when` description.
+
+### D20 - the interview shrinks when the clock does
+
+- Date: 2026-11-25
+- Prompt: "lets study for blockchain bussiness models prepare first
+  /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
+  and "before this lets plan our skill /effort high". The 21CSE433T exam is 2026-11-26 FN - the
+  following morning - so the skill was needed against a deadline of hours, not the days its seven-rung
+  ladder assumes.
+- Context: `aswath-questions-ask` was written and pushed on `feat/aswath-questions-ask`, but that
+  branch was cut from a stale local `main` (b7f7a50) while `origin/main` had moved to b68b018, which
+  merged `aswath-study-technique`. Rebasing produced additive conflicts in `manifest.json` and
+  `README.md` - both sides added a row rather than changing one.
+- Decision:
+  - Rebase onto `origin/main` and keep both rows, so the PR diff shows only the new skill.
+  - Add a "Short on time" subsection to the skill: interview only the mark-carrying topics, run rungs
+    1 -> 2 -> 6 only, spend the remaining budget on shaky and unknown, and record `not interviewed`
+    for everything left out so the gap stays visible in the ledger.
+  - The skill still writes one ledger. One file, one job.
+- Rejected:
+  - A separate short-mode skill. Same job, different budget - a subsection is enough.
+  - Dropping the depth ladder entirely because the deadline is short. Rung 6 is the only proof of
+    understanding; without it the ledger measures recall.
+  - Silently skipping the topics that were not asked about. An unrecorded gap reads as a covered one.
+- Evidence: the rebase resolved cleanly with both `manifest.json` and `README.md` carrying both the
+  `aswath-study-technique` and the `aswath-questions-ask` rows, and `manifest.json` parses. The
+  "Short on time" subsection is in `skills/workflow/aswath-questions-ask/SKILL.md` under The Loop.

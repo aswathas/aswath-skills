@@ -485,3 +485,13 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D19 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-25 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-25 - the interview skill, rebased and given a short-on-time mode
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-questions-ask/SKILL.md` | Added the "Short on time" subsection under The Loop: mark-carrying topics only, rungs 1 -> 2 -> 6, budget to shaky and unknown, `not interviewed` recorded for the rest | The 21CSE433T exam is the next morning; the seven-rung ladder needs a budget-aware mode | Read back; the section sits between The Loop and The Question Ladder |
+| `manifest.json` | Rebase conflict resolved: kept both the `aswath-study-technique` and the `aswath-questions-ask` rows | `origin/main` moved; both sides added a row | `JSON.parse` succeeds |
+| `README.md` | Rebase conflict resolved: workflow table carries both rows, layout line carries both skills | Same reason | Read back; both names appear in the workflow table and in the layout block |
+| `docs/reviews/decision-log.md` | Added D20 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
