@@ -180,3 +180,10 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 - Work it caused: `skills/context/aswath-autocompact/` with `presets.json`,
   `scripts/autocompact.py`, `scripts/compaction_rules.py` and
   `scripts/selftest.py`, the manifest and README rows, and the records above.
+
+## 2026-11-25 - ask lots of questions until we both understand
+- Prompt: "lets study for blockchain bussiness models prepare first /aswath-questions-ask(ask me lot of
+  questions untill we both understand concepts lets make this skills)"
+- Decision it produced: D19 (the interview is the work, the ledger is what the build consumes).
+- Work it caused: `skills/workflow/aswath-questions-ask/`, the manifest and README rows, and the
+  records above.

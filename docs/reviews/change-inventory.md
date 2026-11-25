@@ -473,3 +473,15 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `docs/reviews/decision-log.md` | Added D5 | Contract requires every decision to be written down | Read back; the entry names the options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` for this work appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-24 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-25 - the interview skill, minted by hand
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-questions-ask/SKILL.md` | New: the question ladder, the marking rule, the ledger format and the handoff to the study build | The requested skill - ask the user lots of questions until we both understand the concepts | Read back; the harness lists `aswath-questions-ask` with its `Use when` description |
+| `manifest.json` | One skill row for `aswath-questions-ask` in category `workflow`, and the `updated` date moved to 2026-11-25 | Every skill in this repo is registered | JSON parses; the row count matches the skills on disk |
+| `README.md` | One row in the workflow table and one in the layout block | The README is the catalogue the human reads | Row present under the workflow heading |
+| `docs/categories.md` | One judgement call: questions-ask vs first-principles | A skill lands in one folder only, and the rule needs a stated reason | Read back |
+| `docs/reviews/decision-log.md` | Added D19 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-25 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |

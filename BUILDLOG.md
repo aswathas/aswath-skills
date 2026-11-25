@@ -247,3 +247,15 @@ What shipped, when, and where. Each entry names the branch, the change and how i
   eight capability scripts compile and `query-registry.py stats` reads the registry from the new
   default; `manifest.json` parses.
 - Records: `docs/reviews/decision-log.md` (D23, D24, D25), `docs/reviews/change-inventory.md`.
+
+## 2026-11-25 - the interview skill: `aswath-questions-ask`
+- Branch: `feat/aswath-questions-ask`
+- Shipped:
+  - `skills/workflow/aswath-questions-ask/` - the skill. A seven-rung question ladder per concept
+    (recall, explain, why, how, contrast, apply, trap), each concept marked understood / shaky /
+    unknown, and an understanding ledger written in the student's own words.
+  - `manifest.json` (1.13.0) and `README.md` - the new skill is in the catalogue.
+  - `docs/categories.md` - the judgement call against `aswath-first-principles`.
+- Verified: `manifest.json` parses; `install.ps1` links the skill into `~/.claude/skills` and
+  `~/.agents/skills`; the harness lists `aswath-questions-ask` with its `Use when` description.
+- Records: `docs/reviews/decision-log.md` (D19), `docs/reviews/change-inventory.md`.

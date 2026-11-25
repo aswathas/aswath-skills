@@ -1242,3 +1242,40 @@ marketplace carry version 1.9.0.
   the settings env block - outranks the settings file, so it was removed; the
   running session keeps 204800 until Claude Code restarts. The effective
   window is still capped by the model's own context limit.
+### D19 - the interview is the work, and the ledger is what the build consumes
+- Date: 2026-11-25
+- Prompt: "lets study for blockchain bussiness models prepare first /aswath-questions-ask(ask me lot of
+  questions untill we both understand concepts lets make this skills)"
+- Context: the study-technique skill turns a syllabus into notes, but notes built on concepts the
+  student does not hold teach the wrong things. The same request asked for a skill that questions
+  the student until a shared understanding exists. The repo had `aswath-first-principles`, which
+  interviews the *owner* about what to build, and `aswath-thevai`, which interviews a *person
+  outside the session* over WhatsApp. Neither fits: this interview is with the user in the
+  session, about concepts rather than about scope, and it ends at a shared model rather than an
+  approved brief.
+- Decision:
+  - One new skill, `aswath-questions-ask`, in `workflow/`. It answers "does the person hold the
+    concepts this work depends on", which is the question `first-principles` answers for scope.
+  - A seven-rung question ladder per concept - recall, explain, why, how, contrast, apply, trap -
+    with rung 6 (apply to an unseen case) as the only proof of understanding. A correct recited
+    answer marks the concept `shaky`, not `understood`.
+  - The output is an understanding ledger, written to `docs/understanding/<subject>.md`, keeping the
+    student's own words. The ledger decides note emphasis for a later study-technique build: shaky
+    and unknown concepts get the deep treatment, and the student's analogies become the note's
+    analogies.
+  - The ledger is written from the student's answers, never paraphrased from the agent's own
+    understanding of the subject. Paraphrasing is where the gap hides.
+- Rejected:
+  - Folding the interview into `aswath-study-technique`. One job per skill; the study skill builds
+    notes, this one establishes understanding and hands over a ledger.
+  - Letting the agent lecture when an answer is wrong. A narrower question exposes the gap;
+    explanations belong in the notes.
+  - Accepting a correct answer as understanding. Twenty right answers can be twenty recited
+    definitions.
+  - Quizzing in syllabus order. The syllabus lists for the examiner; the interview follows the
+    dependency spine.
+- Evidence: `skills/workflow/aswath-questions-ask/SKILL.md` states the loop, the ladder, the
+  marking rule and the ledger format. `manifest.json` parses and carries the skill row; `README.md`
+  carries the human row and the layout row; `docs/categories.md` records the judgement call against
+  `aswath-first-principles`. `install.ps1` links it into the Claude Code and agents skill
+  directories, and the harness then lists `aswath-questions-ask` with its `Use when` description.
