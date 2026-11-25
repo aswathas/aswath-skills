@@ -1242,7 +1242,7 @@ marketplace carry version 1.9.0.
   the settings env block - outranks the settings file, so it was removed; the
   running session keeps 204800 until Claude Code restarts. The effective
   window is still capped by the model's own context limit.
-### D19 - the interview is the work, and the ledger is what the build consumes
+### D27 - the interview is the work, and the ledger is what the build consumes
 - Date: 2026-11-25
 - Prompt: "lets study for blockchain bussiness models prepare first /aswath-questions-ask(ask me lot of
   questions untill we both understand concepts lets make this skills)"
@@ -1280,7 +1280,7 @@ marketplace carry version 1.9.0.
   `aswath-first-principles`. `install.ps1` links it into the Claude Code and agents skill
   directories, and the harness then lists `aswath-questions-ask` with its `Use when` description.
 
-### D20 - the interview shrinks when the clock does
+### D28 - the interview shrinks when the clock does
 
 - Date: 2026-11-25
 - Prompt: "lets study for blockchain bussiness models prepare first
@@ -1306,7 +1306,7 @@ marketplace carry version 1.9.0.
 - Evidence: the rebase resolved cleanly with both `manifest.json` and `README.md` carrying both the
   `aswath-study-technique` and the `aswath-questions-ask` rows, and `manifest.json` parses. The
   "Short on time" subsection is in `skills/workflow/aswath-questions-ask/SKILL.md` under The Loop.
-### D21 - the extraction decoded with the OS codec, so the authored notes carried mojibake
+### D29 - the extraction decoded with the OS codec, so the authored notes carried mojibake
 - Date: 2026-11-25
 - Prompt: "lets study for blockchain bussiness models prepare first
   /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
@@ -1342,7 +1342,7 @@ marketplace carry version 1.9.0.
   `21cse433t-u3.json`, `21cse433t-u4-revision.json`, `21cse433t-u5.json` and
   `21cse433t-u5-revision.json` - and the other eight already clean; all fifteen finish with 0
   residual mojibake characters and no stderr.
-### D22 - the tree fan clipped its first child off the canvas
+### D30 - the tree fan clipped its first child off the canvas
 - Date: 2026-11-25
 - Prompt: "lets study for blockchain bussiness models prepare first
   /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
@@ -1369,13 +1369,13 @@ marketplace carry version 1.9.0.
   `PAD + w / 2`. The change is one line plus a two-line comment in
   `skills/workflow/aswath-study-technique/scripts/layout.cjs`, and the rebuilt vault renders the
   full fan.
-### D23 - the U5 business-model taxonomy became a matrix, because the tree clipped
+### D31 - the U5 business-model taxonomy became a matrix, because the tree clipped
 - Date: 2026-11-25
 - Prompt: "lets study for blockchain bussiness models prepare first
   /aswath-questions-ask(ask me lot of questions untill we both understand concepts lets make this skills)"
 - Context: "Types of Blockchain Business Models" is a set of six parallel models - BaaS, platform,
   marketplace, software, professional services and peer-to-peer. Drawn as a tree it is one root
-  with a six-child fan, which is exactly the shape D22 had to rescue, and a hierarchy is the wrong
+  with a six-child fan, which is exactly the shape D30 had to rescue, and a hierarchy is the wrong
   claim anyway: none of the six is a child of another.
 - Decision:
   - Change the U5 "Types of Blockchain Business Models" diagram from `tree` to `matrix`. The matrix
@@ -1384,7 +1384,7 @@ marketplace carry version 1.9.0.
   - Keep the caption on the axis the six models actually vary on: "Every model is an answer to one
     prompt: where does the money come from?"
 - Rejected:
-  - Keeping the tree and relying on the D22 clamp alone. The clamp stops the clipping but a
+  - Keeping the tree and relying on the D30 clamp alone. The clamp stops the clipping but a
     six-way fan on one row is still a wide, thin diagram that reads poorly at note width.
   - A three-branch tree with two models hanging off each branch. That invents a grouping the
     syllabus does not make and would mis-state the subject.
@@ -1395,7 +1395,7 @@ marketplace carry version 1.9.0.
   `U5 04 Types of Blockchain Business Models.excalidraw.md` holds six rectangles at x = 60 and
   x = 640 and y = 96, 210 and 324 - two columns by three rows. The Analyst source still describes
   the topic as a `tree`; the change is in the course spec that ships with this skill.
-### D24 - the interview stopped halfway, so no ledger was written and the teaching path carried it
+### D32 - the interview stopped halfway, so no ledger was written and the teaching path carried it
 - Date: 2026-11-25
 - Prompt: "sdont ask me questiosn lets learn"
 - Context: `aswath-questions-ask` was supposed to interview the student across the 21CSE433T
@@ -1420,3 +1420,49 @@ marketplace carry version 1.9.0.
 - Evidence: no understanding ledger exists. A recursive search for `*understanding*.md` under
   `C:/Users/ADMIN/Projects` returns nothing, and the repository has no `docs/understanding/`
   directory. The 15 authored content files and the rebuilt vault are what the session produced.
+
+### D33 - the interview writes nothing until the user says LOCK, and a hook says so
+- Date: 2026-11-25
+- Prompt: "ai should not touch or edit any file it can read", "only for the skill", "git is
+  accepted", "we need ledger file i think", "yes untill i say its enough to question or i understand
+  completely", "when this skill invoked lets do that pretool use that you say i want it real", and
+  "yes i agree on both yestions".
+- Context: the skill's step 6 wrote the ledger from the interview, which meant the file was written
+  while the understanding was still moving. Two failure modes: the agent writes the ledger before the
+  user has seen it, so the file is the agent's head rather than the user's words; and the agent
+  touches other files in passing because nothing stops it. The rule the user gave - the AI does not
+  touch or edit any file it can read - is a prohibition, and a prohibition in prose is a request.
+- Decision:
+  - The rule applies to `aswath-questions-ask` only, and Git stays accepted: commits and pushes are
+    not file edits for this rule.
+  - The interview is read-only. The ledger is printed in chat at step 6 and written to disk at step
+    7, and only after the user says `LOCK`. Every ledger row quotes the user's answer verbatim.
+  - A `PreToolUse` hook enforces it, not the prose: `hooks/write_guard.py` blocks `Write`, `Edit`,
+    `MultiEdit`, `NotebookEdit` and write-ish `Bash` while the interview is open, and after `LOCK`
+    permits only the ledger path. A `UserPromptSubmit` hook moves the state machine, so `LOCK` and
+    "enough" are words the user says, not a tool the agent calls.
+  - The state is machine state in `~/.claude/state/questions-ask.json`, owned by the hook. The agent
+    never writes it.
+  - One escape hatch: `QA_OVERRIDE` in a command line. It does not unlock `Write` or `Edit`.
+  - The ledger path is pattern-based, because the agent cannot declare a path during an interview it
+    may not write in.
+- Rejected:
+  - A prose rule in `SKILL.md` alone. It is a request, not a fact, and the agent can drift.
+  - A blanket ban on all writes, including the ledger. The user wanted the ledger file.
+  - Letting the agent declare the ledger path at lock time. That is the agent choosing what the
+    rule covers - the loophole is the mechanism.
+  - Blocking every Git command. Git was accepted; only the working-tree-rewriting subcommands
+    (`checkout`, `restore`, `reset`, `apply`, `clean`, `stash`) are blocked, because those edit files.
+  - A hook per skill inside the skill's own plugin directory. The skill is not a plugin; the hook
+    registers into the user settings file, and `install-hooks.ps1` owns that, idempotently.
+- Evidence: `tests/test_write_guard.py` runs 12 cases and reports all passed - interview blocks
+  `Write`, blocks a Bash redirect, blocks `git checkout`, allows `git commit`, allows read-only Bash;
+  `LOCKED` allows the ledger path and blocks another; `INACTIVE` allows everything; the skill marker
+  opens the interview, `LOCK` flips the state, "enough" closes it; `QA_OVERRIDE` escapes the Bash
+  block. Live through the PowerShell wrapper: the `Write` of a non-ledger path exits 2 with the
+  reason on stderr, the ledger path exits 0, and the three prompt transitions write the expected
+  state file. The guard blocked its own author's shell commands during the build, which is the
+  behaviour working. `install-hooks.ps1` was run twice with no duplicate entries, then `-Remove`,
+  which took the entries out and left the rest of `settings.json` parsing.
+- Consequence: `aswath-questions-ask` can no longer write anything until the user says `LOCK`, and
+  after that it can write exactly one file. The rule is in the harness, not in the agent's memory.

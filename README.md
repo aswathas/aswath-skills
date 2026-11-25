@@ -114,7 +114,7 @@ Two ways in, and they are the same units.
 | `aswath-thevai` | A real person is the source of the brief. Warm, one-question-at-a-time conversation over WhatsApp → an approved brief → build, QA, deliver. Ships with the `thevai-agent`. | `/aswath-thevai` |
 | `aswath-thinking` | Deconstruct ungrounded assumptions via first principles, inversion, and adversarial verification before executing code. | `/aswath-thinking` |
 | `aswath-study-technique` | A syllabus becomes an exam-ready Obsidian vault: unit maps, a full teaching note per topic with an Excalidraw diagram, per-question files, glossary and recall cards — then a depth gate that fails thin notes. | `/aswath-study-technique` |
-| `aswath-questions-ask` | Questions the user until you both hold the same model. A question ladder per concept, each concept marked understood / shaky / unknown, and an understanding ledger that the next build consumes. | `/aswath-questions-ask` |
+| `aswath-questions-ask` | Questions the user until you both hold the same model. A question ladder per concept, each concept marked understood / shaky / unknown, and an understanding ledger that the next build consumes. A write guard blocks every file write until the user says LOCK, then allows the ledger alone. | `/aswath-questions-ask` |
 
 ### orchestration — assemble the thing
 

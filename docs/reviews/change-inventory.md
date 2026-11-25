@@ -482,7 +482,7 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `manifest.json` | One skill row for `aswath-questions-ask` in category `workflow`, and the `updated` date moved to 2026-11-25 | Every skill in this repo is registered | JSON parses; the row count matches the skills on disk |
 | `README.md` | One row in the workflow table and one in the layout block | The README is the catalogue the human reads | Row present under the workflow heading |
 | `docs/categories.md` | One judgement call: questions-ask vs first-principles | A skill lands in one folder only, and the rule needs a stated reason | Read back |
-| `docs/reviews/decision-log.md` | Added D19 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/decision-log.md` | Added D27 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-25 prompt entry | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
 
@@ -493,7 +493,7 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `skills/workflow/aswath-questions-ask/SKILL.md` | Added the "Short on time" subsection under The Loop: mark-carrying topics only, rungs 1 -> 2 -> 6, budget to shaky and unknown, `not interviewed` recorded for the rest | The 21CSE433T exam is the next morning; the seven-rung ladder needs a budget-aware mode | Read back; the section sits between The Loop and The Question Ladder |
 | `manifest.json` | Rebase conflict resolved: kept both the `aswath-study-technique` and the `aswath-questions-ask` rows | `origin/main` moved; both sides added a row | `JSON.parse` succeeds |
 | `README.md` | Rebase conflict resolved: workflow table carries both rows, layout line carries both skills | Same reason | Read back; both names appear in the workflow table and in the layout block |
-| `docs/reviews/decision-log.md` | Added D20 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/decision-log.md` | Added D28 | Contract requires every decision to be written down | Read back; the entry names the prompt, the rejected options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 ## 2026-11-25 - the 21CSE433T course content and the tree that clipped
 | File | What changed | Why | How tested |
@@ -514,6 +514,22 @@ Template: `skills/workflow/aswath-commit-discipline/reference/record-templates.m
 | `skills/workflow/aswath-study-technique/content/21cse433t-u4-revision.json` | New revision file: 8 mental-map entries and 8 top exam questions | Same contract, unit 4 | `JSON.parse` succeeds; 8 mental-map and 8 exam-question entries read back |
 | `skills/workflow/aswath-study-technique/content/21cse433t-u5-revision.json` | New revision file: 11 mental-map entries and 11 top exam questions | Same contract, unit 5 | `JSON.parse` succeeds; 11 mental-map and 11 exam-question entries read back |
 | `skills/workflow/aswath-study-technique/scripts/layout.cjs` | One-line fix in `layoutTree`: the fan start x is clamped with `Math.max(..., PAD + w / 2)` so the first child box is never at a negative x, plus a two-line comment saying why | A wide fan centred on the root started off the left edge of the canvas and the first child was drawn where it could not be seen | Old formula puts the first box at x = -240 for five children and x = -400 for six; the clamped formula puts both at x = 40. The rebuilt vault renders the full fan |
-| `docs/reviews/decision-log.md` | Added D21, D22, D23 and D24 | Contract requires every decision to be written down | Read back; each entry names the prompt, the rejected options and the evidence |
+| `docs/reviews/decision-log.md` | Added D29, D30, D31 and D32 | Contract requires every decision to be written down | Read back; each entry names the prompt, the rejected options and the evidence |
 | `docs/reviews/change-inventory.md` | Added the table above | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
 | `docs/reviews/prompts.md` | Added the 2026-11-25 entry carrying both verbatim prompts | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+
+## 2026-11-25 - the write guard: the interview writes nothing until LOCK
+
+| File | What changed | Why | How tested |
+|---|---|---|---|
+| `skills/workflow/aswath-questions-ask/hooks/write_guard.py` | New: the four-state machine (`INACTIVE`/`INTERVIEW`/`LOCKED`/`CLOSED`), the `Write`/`Edit`/`MultiEdit`/`NotebookEdit` denial, the write-ish `Bash` pattern set, the ledger-path allowlist and the `QA_OVERRIDE` escape | The rule "the AI does not touch or edit any file it can read" has to be enforced, not requested | `python tests/test_write_guard.py` -> 12 cases, all passed |
+| `skills/workflow/aswath-questions-ask/hooks/write-guard.ps1` | New: Windows wrapper - pipes stdin to a temp file, calls the Python, and keeps the exit code | The hook has to return exit 2 to block a tool call; the first version swallowed it | Live: `Write` of a non-ledger path exits 2 with the reason on stderr; the ledger path exits 0 |
+| `skills/workflow/aswath-questions-ask/hooks/install_hooks.py` | New: the settings.json surgery, as text edits rather than a JSON round trip | The settings file on this machine carries case-variant duplicate keys, which `ConvertFrom-Json` rejects and a full parse would silently drop one of | Install -> remove -> install; each step leaves the file parsing and the entry count correct |
+| `skills/workflow/aswath-questions-ask/install-hooks.ps1` | New: thin PowerShell wrapper over `install_hooks.py`, with `-Remove` | One owner for the wiring, and it must be idempotent | Run twice -> one entry, not two; `-Remove` takes both entries out and leaves the rest of the file intact |
+| `skills/workflow/aswath-questions-ask/references/write-guard.md` | New: the state machine, the deny matrix, the ledger allowlist, the escape hatch and the known holes | The skill points at one reference instead of restating the rules | Read back; every state and every denied tool class is listed |
+| `skills/workflow/aswath-questions-ask/SKILL.md` | Added the "Read-only until locked" section; split step 6 into "print the ledger in chat" and step 7 "write it, only after LOCK"; added the verbatim-quote rule and the ledger path; three new red flags | The prose must match what the hook does, or the agent will try to write and be surprised | Read back; the section sits between The Loop and The Question Ladder |
+| `skills/workflow/aswath-questions-ask/tests/test_write_guard.py` | New: 12 cases over the deny matrix and the state transitions | A guard that is never run is a guard that is never checked | `python tests/test_write_guard.py` -> all passed |
+| `docs/reviews/decision-log.md` | Added D33; renumbered the 433T series D19-D24 to D27-D32 | The 433T entries collided with the D19-D24 already in the log | `grep '^### D'` -> every number now appears once |
+| `docs/reviews/change-inventory.md` | Added the table above; updated the D-number references | Contract requires one row per changed file | Every file in `git status -s` appears exactly once above |
+| `docs/reviews/prompts.md` | Added the 2026-11-25 write-guard entry; updated the D-number references | Contract requires the prompt trail to be recorded | Cross-checked against the session transcript |
+| `docs/superpowers/specs/2026-11-25-questions-ask-write-guard-design.md` | New: the approved design | A design that was approved in conversation has to be written down for the next reader | Read back |
